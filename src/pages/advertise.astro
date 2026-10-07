@@ -1,164 +1,257 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
-import TagChips from '../components/TagChips.astro';
 import Icons from '../components/Icons.astro';
 import { breadcrumbSchema, contextWrapper } from '../lib/schema';
 
-const updatedStr = 'October 2026';
-
-const whatWeOffer = [
-  { icon: 'list', title: 'Reviewed placement', text: 'Your VPN appears in our comparison table and detailed breakdown pages, seen by people actively comparing options.' },
-  { icon: 'doc', title: 'Sponsored guides', text: 'We can create a sponsored country or topic guide, clearly labeled as sponsored, that explains your service honestly.' },
-  { icon: 'star', title: 'Banner placements', text: 'Banner spots on high-traffic pages, including the homepage and comparison page.' },
+const valueCards = [
+  { icon: 'eye', title: 'Reach High-Intent Visitors', text: 'Your audience is already researching VPNs and related privacy products. Put your brand in front of users while they are actively evaluating their options.' },
+  { icon: 'shield', title: 'Build Trust Through Comparison', text: 'Being featured alongside established VPN providers can strengthen brand visibility and help potential customers understand where your product fits.' },
+  { icon: 'star', title: 'Own More Than a Banner', text: 'Promote your brand through premium placements, featured content, comparison visibility, and editorial opportunities designed around real user intent.' },
+  { icon: 'arrow-right', title: 'Turn Attention Into Action', text: 'Make it easy for interested visitors to move from discovery to your website, offer, trial, or subscription.' },
 ];
 
-const requirements = [
-  'Transparent pricing — visitors must be able to see real prices before signing up',
-  'Working refund or trial — users should be able to try your service risk-free',
-  'Clear privacy policy — your logging practices must be publicly documented',
-  'Functional apps — your service must work reliably on the platforms you claim to support',
+const promoCards = [
+  { icon: 'star', title: 'Featured VPN Placement', text: 'Give your VPN prominent visibility in relevant comparison and discovery experiences.' },
+  { icon: 'doc', title: 'Sponsored Guides', text: 'Publish a clearly labeled sponsored guide — country-specific or topical — that explains your service honestly to readers deep in research.' },
+  { icon: 'tag', title: 'Banner Placements', text: 'Place your brand in tasteful banner positions on key pages, including the homepage and the full comparison page.' },
+  { icon: 'list', title: 'Comparison Visibility', text: 'Appear inside the comparison table and detailed breakdowns, where features, pricing, and privacy are weighed side by side.' },
+  { icon: 'mail', title: 'Editorial Partnerships', text: 'Collaborate on honest, clearly labeled editorial content — from topical features to resources that help readers decide.' },
 ];
 
-const faqs = [
-  { question: 'Will you give my VPN a positive review if I pay?', answer: 'No. We never guarantee a positive review in exchange for payment. Sponsored content is clearly labeled, and our editorial opinions are independent. If your service has weaknesses, we mention them honestly.' },
-  { question: 'How much does advertising cost?', answer: 'Pricing depends on placement type and duration. Our media kit with current rates is being updated. Contact us for details and we will get back to you.' },
-  { question: 'Can we sponsor a country-specific guide?', answer: 'Yes, if your VPN is genuinely relevant to that country. The guide will be labeled as sponsored, and the content will be honest and useful to readers.' },
-  { question: 'What happens if our VPN stops meeting your requirements?', answer: 'We pause the partnership and notify you. If the issue is resolved, we resume. If not, we remove the placement. We do not promote services that fail our criteria.' },
+const audiences = [
+  'VPN Companies',
+  'VPN Apps',
+  'Cybersecurity Brands',
+  'Privacy Tools',
+  'Related Technology Companies',
 ];
 
-const tags = ['advertise', 'partnership', 'media kit'];
+const principles = [
+  { icon: 'tag', title: 'Clearly Labeled Sponsorship', text: 'Sponsored guides and promoted placements are always labeled, so readers know exactly what is promoted.' },
+  { icon: 'shield', title: 'Editorial Independence', text: 'We never sell positive reviews, top rankings, or favorable comparisons. Our editorial opinions stay our own.' },
+  { icon: 'check', title: 'A Quality Bar for Partners', text: 'Partners need transparent pricing, a working refund or trial, a documented privacy policy, and reliable apps.' },
+];
 ---
 
 <BaseLayout
-  title="Advertise Your VPN and Reach People Ready to Choose"
-  description="Partner with TopVPN to reach people actively comparing VPNs. Transparent partnerships with editorial independence."
+  title="Advertise on TopVPN — Reach People Ready to Choose"
+  description="Partner with TopVPN to reach people actively researching VPNs, privacy, and security. Featured placements, sponsored guides, and comparison visibility."
   jsonLd={contextWrapper(breadcrumbSchema([{ label: 'Home', href: '/' }, { label: 'Advertise' }]))}
 >
   <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Advertise' }]} />
 
-  <section class="container-max py-8 md:py-12">
-    <div class="max-w-3xl">
-      <div class="mb-4 flex items-center gap-2 text-xs" style="color: var(--color-muted-dark);">
-        <Icons name="doc" size={14} />
-        <span>Updated {updatedStr}</span>
+  <!-- ============ HERO ============ -->
+  <section class="relative overflow-hidden" style="background: var(--color-bg);">
+    <div class="hero-grid absolute inset-0" aria-hidden="true"></div>
+    <div class="absolute inset-0 pointer-events-none" aria-hidden="true" style="background: radial-gradient(ellipse 70% 55% at 50% 0%, rgba(212, 175, 55, 0.14), transparent);"></div>
+
+    <div class="container-max relative pt-12 pb-14 md:pt-20 md:pb-20">
+      <div class="grid lg:grid-cols-2 lg:items-center gap-10 lg:gap-14">
+        <div class="text-center lg:text-left max-w-2xl mx-auto lg:mx-0">
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 mb-6 rounded-full" style="background: rgba(212, 175, 55, 0.1); border: 1px solid rgba(212, 175, 55, 0.28);">
+            <Icons name="star" size={14} />
+            <span class="text-xs font-semibold tracking-wider" style="color: var(--color-gold-light);">ADVERTISE WITH TOPVPN</span>
+          </div>
+
+          <h1 class="text-4xl md:text-5xl font-bold leading-tight mb-5">
+            Put Your VPN Brand in Front of <span class="gold-text">People Ready to Choose.</span>
+          </h1>
+
+          <p class="text-base md:text-lg mb-8 max-w-xl mx-auto lg:mx-0" style="color: var(--color-muted);">
+            Reach an audience actively researching VPNs, privacy, AI tools, travel, security, and online access.
+          </p>
+
+          <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 mb-4">
+            <a href="/contact" class="btn-gold w-full sm:w-auto">
+              Advertise With Us
+              <Icons name="arrow-right" size={18} />
+            </a>
+            <a href="/" class="btn-outline w-full sm:w-auto">Explore TopVPN</a>
+          </div>
+
+          <p class="text-sm" style="color: var(--color-muted-dark);">
+            Reach users at the moment research becomes a decision.
+          </p>
+        </div>
+
+        <!-- Decorative advertising visual: protected core inside a network -->
+        <svg viewBox="0 0 520 380" class="w-full max-w-sm lg:max-w-none mx-auto lg:mx-0" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="advGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#D4AF37" stop-opacity="0.16" />
+              <stop offset="100%" stop-color="#D4AF37" stop-opacity="0" />
+            </radialGradient>
+          </defs>
+
+          <circle cx="270" cy="190" r="150" fill="url(#advGlow)" />
+
+          <ellipse cx="270" cy="190" rx="228" ry="150" fill="none" stroke="#D4AF37" stroke-width="1" stroke-dasharray="2 8" opacity="0.35" />
+          <ellipse cx="270" cy="190" rx="176" ry="116" fill="none" stroke="#D4AF37" stroke-width="1" stroke-dasharray="2 8" opacity="0.25" />
+
+          <g stroke="#E3C15A" stroke-width="1" fill="none" opacity="0.4">
+            <path d="M64 74 L152 128 L232 96" />
+            <path d="M46 214 L140 236 L196 286" />
+            <path d="M92 330 L186 300" />
+            <path d="M446 82 L378 132 L350 92" />
+            <path d="M474 200 L400 218 L366 262" />
+            <path d="M430 320 L356 296" />
+            <path d="M152 128 L140 236" />
+            <path d="M378 132 L400 218" />
+            <path d="M232 96 L350 92" />
+            <path d="M196 286 L356 296" />
+          </g>
+
+          <g fill="#D4AF37">
+            <circle cx="64" cy="74" r="4" opacity="0.9" />
+            <circle cx="46" cy="214" r="4" opacity="0.75" />
+            <circle cx="92" cy="330" r="4" opacity="0.7" />
+            <circle cx="446" cy="82" r="4" opacity="0.9" />
+            <circle cx="474" cy="200" r="4" opacity="0.75" />
+            <circle cx="430" cy="320" r="4" opacity="0.7" />
+          </g>
+          <g fill="#F5D77A">
+            <circle cx="152" cy="128" r="3.5" />
+            <circle cx="140" cy="236" r="3.5" opacity="0.8" />
+            <circle cx="378" cy="132" r="3.5" />
+            <circle cx="400" cy="218" r="3.5" opacity="0.8" />
+            <circle cx="186" cy="300" r="3" opacity="0.7" />
+            <circle cx="356" cy="296" r="3" opacity="0.7" />
+            <circle cx="232" cy="96" r="3" opacity="0.65" />
+            <circle cx="350" cy="92" r="3" opacity="0.65" />
+            <circle cx="196" cy="286" r="3" opacity="0.6" />
+            <circle cx="366" cy="262" r="3" opacity="0.6" />
+          </g>
+
+          <g transform="translate(184,104) scale(2.7)">
+            <path d="M32 4 L56 14 V32 C56 46 44 56 32 60 C20 56 8 46 8 32 V14 Z" fill="rgba(212, 175, 55, 0.06)" stroke="#E3C15A" stroke-width="1.6" stroke-linejoin="round" />
+            <path d="M22 22 H42 M32 22 V42" stroke="#F5D77A" stroke-width="1.85" stroke-linecap="round" fill="none" />
+          </g>
+        </svg>
       </div>
+    </div>
+    <div class="divider-gold"></div>
+  </section>
 
-      <h1 class="text-3xl md:text-4xl font-bold mb-4" style="font-family: var(--font-heading);">
-        Advertise Your VPN and <span class="gold-text">Reach People Ready to Choose</span>
-      </h1>
-
-      <p class="text-base md:text-lg mb-4" style="color: var(--color-muted);">
-        Our visitors come here to compare VPNs and make a decision. If you offer a quality service with transparent pricing and a real refund policy, we want to help them find you. We partner with VPN providers who meet our standards — and we never compromise our editorial independence.
+  <!-- ============ VALUE PROPOSITION ============ -->
+  <section class="container-max py-12 md:py-16">
+    <div class="max-w-3xl mx-auto text-center mb-10">
+      <h2 class="text-2xl md:text-3xl font-bold mb-4">Why Advertise on TopVPN?</h2>
+      <p class="text-base mb-4" style="color: var(--color-muted);">
+        TopVPN is built around one of the most valuable moments in the VPN customer journey: comparison.
       </p>
-
-      <div class="card p-4 mb-6 text-sm" style="background: var(--color-bg-alt);">
-        <p style="color: var(--color-muted);"><strong style="color: var(--color-text);">Quick answer:</strong> We offer reviewed placement, sponsored guides, and banner spots. Partners must have transparent pricing, a working refund or trial, and reliable apps. Contact us to discuss details.</p>
-      </div>
-
-      <TagChips chips={tags} class="mb-6" />
+      <p class="text-base" style="color: var(--color-muted);">
+        When users compare providers, they are not simply browsing. They are evaluating features, pricing, privacy, locations, performance, and trust before choosing a service.
+      </p>
     </div>
 
-    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">Our Audience</h2>
-    <p class="text-sm mb-6 max-w-3xl" style="color: var(--color-muted);">
-      People who visit TopVPN are already in the decision stage. They are reading comparison tables, country guides, and protocol explanations — not browsing casually. They want clear, honest information so they can pick a VPN and sign up. That makes them receptive to well-presented, quality services.
-    </p>
-
-    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">What We Offer</h2>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 max-w-4xl">
-      {whatWeOffer.map((item) => (
-        <div class="card p-5">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {valueCards.map((c) => (
+        <div class="card card-hover p-5">
           <div class="inline-flex items-center justify-center w-10 h-10 rounded-lg mb-3" style="background: rgba(212, 175, 55, 0.1);">
-            <Icons name={item.icon} size={20} class="text-amber-400" />
+            <Icons name={c.icon} size={20} class="text-amber-400" />
           </div>
-          <h3 class="text-base font-bold mb-2" style="font-family: var(--font-heading);">{item.title}</h3>
-          <p class="text-sm" style="color: var(--color-muted);">{item.text}</p>
+          <h3 class="text-base font-bold mb-2">{c.title}</h3>
+          <p class="text-sm" style="color: var(--color-muted);">{c.text}</p>
         </div>
       ))}
     </div>
+  </section>
 
-    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">Editorial Independence Policy</h2>
-    <div class="card p-5 mb-8 max-w-3xl">
-      <p class="text-sm mb-3" style="color: var(--color-muted);">
-        We do not guarantee positive reviews, top rankings, or favorable comparisons in exchange for payment. Sponsored content is always clearly labeled. If a VPN has a weakness, we say so — whether or not they advertise with us.
-      </p>
-      <p class="text-sm" style="color: var(--color-muted);">
-        Our readers trust us because we are honest. That trust is worth more to us than any single partnership.
-      </p>
-    </div>
+  <!-- ============ KEY PERSUASION ============ -->
+  <section class="py-12 md:py-16" style="background: var(--color-bg-alt);">
+    <div class="container-max">
+      <div class="max-w-3xl mx-auto text-center">
+        <h2 class="text-2xl md:text-3xl font-bold mb-5">Your Brand Is More Valuable When People See It in Context.</h2>
 
-    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">Partner Requirements</h2>
-    <div class="card p-5 mb-8 max-w-3xl">
-      <ul class="space-y-2">
-        {requirements.map((req) => (
-          <li class="flex items-start gap-2 text-sm" style="color: var(--color-muted);">
-            <Icons name="check" size={14} class="mt-0.5 shrink-0 text-amber-400" />
-            <span>{req}</span>
-          </li>
-        ))}
-      </ul>
-    </div>
+        <p class="text-base md:text-lg mb-2" style="color: var(--color-muted);">
+          A standalone advertisement asks for attention.<br />
+          A well-placed presence inside a trusted comparison environment gives people a reason to consider the brand.
+        </p>
 
-    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">Media Kit</h2>
-    <div class="card p-5 mb-8 max-w-3xl">
-      <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-        <div>
-          <span class="block text-xs mb-0.5" style="color: var(--color-muted-dark);">Monthly visitors</span>
-          <span style="color: var(--color-muted); font-size: 0.75rem;">To be updated</span>
+        <div class="my-8 md:my-10 mx-auto max-w-2xl card p-6 md:p-8" style="background: linear-gradient(180deg, rgba(212, 175, 55, 0.07), rgba(212, 175, 55, 0.02)); border-color: rgba(212, 175, 55, 0.35); box-shadow: 0 0 48px -16px rgba(212, 175, 55, 0.35);">
+          <p class="text-xl md:text-2xl font-bold leading-snug" style="font-family: var(--font-heading);">
+            <span class="gold-text">Be seen while users compare.</span><br />
+            Be remembered when they decide.
+          </p>
         </div>
-        <div>
-          <span class="block text-xs mb-0.5" style="color: var(--color-muted-dark);">Page views</span>
-          <span style="color: var(--color-muted); font-size: 0.75rem;">To be updated</span>
-        </div>
-        <div>
-          <span class="block text-xs mb-0.5" style="color: var(--color-muted-dark);">Top countries</span>
-          <span style="color: var(--color-muted); font-size: 0.75rem;">To be updated</span>
-        </div>
-        <div>
-          <span class="block text-xs mb-0.5" style="color: var(--color-muted-dark);">Banner sizes</span>
-          <span style="color: var(--color-muted); font-size: 0.75rem;">To be updated</span>
-        </div>
-        <div>
-          <span class="block text-xs mb-0.5" style="color: var(--color-muted-dark);">Sponsored guide rate</span>
-          <span style="color: var(--color-muted); font-size: 0.75rem;">To be updated</span>
-        </div>
-        <div>
-          <span class="block text-xs mb-0.5" style="color: var(--color-muted-dark);">Comparison placement rate</span>
-          <span style="color: var(--color-muted); font-size: 0.75rem;">To be updated</span>
-        </div>
+
+        <p class="text-base max-w-2xl mx-auto" style="color: var(--color-muted);">
+          TopVPN can place your brand where visitors are already evaluating VPN providers, features, pricing, privacy, and use cases.
+        </p>
       </div>
-      <p class="text-xs mt-4" style="color: var(--color-muted-dark);">Metrics and rates are being finalized. Contact us for current details.</p>
+    </div>
+  </section>
+
+  <!-- ============ ADVERTISING OPPORTUNITIES ============ -->
+  <section class="container-max py-12 md:py-16">
+    <div class="text-center mb-10">
+      <h2 class="text-2xl md:text-3xl font-bold mb-3">Ways to Promote Your Brand</h2>
+      <p class="section-sub">Flexible formats built around how people research and compare.</p>
     </div>
 
-    <div class="max-w-3xl mb-8">
-      <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">FAQ</h2>
-      <div class="space-y-3">
-        {faqs.map((f) => (
-          <details class="card p-4 group">
-            <summary class="font-semibold cursor-pointer text-sm flex items-center justify-between" style="font-family: var(--font-heading);">
-              {f.question}
-              <Icons name="chevron-down" size={16} class="text-amber-400 transition-transform group-open:rotate-180" />
-            </summary>
-            <p class="text-sm mt-3" style="color: var(--color-muted);">{f.answer}</p>
-          </details>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {promoCards.map((c) => (
+        <div class="card card-hover p-6">
+          <div class="inline-flex items-center justify-center w-10 h-10 rounded-lg mb-3" style="background: rgba(212, 175, 55, 0.1);">
+            <Icons name={c.icon} size={20} class="text-amber-400" />
+          </div>
+          <h3 class="text-base font-bold mb-2">{c.title}</h3>
+          <p class="text-sm" style="color: var(--color-muted);">{c.text}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- ============ AUDIENCE ============ -->
+  <section class="py-12 md:py-16" style="background: var(--color-bg-alt);">
+    <div class="container-max text-center">
+      <h2 class="text-2xl md:text-3xl font-bold mb-3">Who Should Advertise on TopVPN?</h2>
+      <p class="section-sub mb-8">Built for brands in privacy, security, and the technology around them.</p>
+      <div class="flex flex-wrap justify-center gap-3 max-w-3xl mx-auto">
+        {audiences.map((a) => (
+          <span class="px-4 py-2 rounded-full text-sm font-semibold" style="background: rgba(212, 175, 55, 0.08); border: 1px solid rgba(212, 175, 55, 0.3); color: var(--color-text);">{a}</span>
         ))}
       </div>
     </div>
+  </section>
 
-    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">Related Pages</h2>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
-      <a href="/contact" class="card p-4 block transition-all hover:border-amber-400">
-        <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">Contact Us</h3>
-        <p class="text-xs" style="color: var(--color-muted);">Reach out to discuss a partnership or ask questions</p>
-      </a>
-      <a href="/order-vpn" class="card p-4 block transition-all hover:border-amber-400">
-        <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">See Our Comparison Page</h3>
-        <p class="text-xs" style="color: var(--color-muted);">View where your VPN would appear to visitors</p>
-      </a>
-      <a href="/" class="card p-4 block transition-all hover:border-amber-400">
-        <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">TopVPN Home</h3>
-        <p class="text-xs" style="color: var(--color-muted);">See how we present VPNs to our audience</p>
-      </a>
+  <!-- ============ PARTNERSHIP PRINCIPLES ============ -->
+  <section class="container-max py-12 md:py-16">
+    <div class="text-center mb-10">
+      <h2 class="text-2xl md:text-3xl font-bold mb-3">How We Work With Partners</h2>
+      <p class="section-sub">Clear rules that protect our readers — and your brand's reputation.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-5xl mx-auto">
+      {principles.map((c) => (
+        <div class="card card-hover p-6">
+          <div class="inline-flex items-center justify-center w-10 h-10 rounded-lg mb-3" style="background: rgba(212, 175, 55, 0.1);">
+            <Icons name={c.icon} size={20} class="text-amber-400" />
+          </div>
+          <h3 class="text-base font-bold mb-2">{c.title}</h3>
+          <p class="text-sm" style="color: var(--color-muted);">{c.text}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- ============ FINAL CTA ============ -->
+  <section class="py-16 md:py-20" style="background: var(--color-bg-alt);">
+    <div class="container-max text-center">
+      <h2 class="text-2xl md:text-4xl font-bold mb-4">
+        Ready to Reach People <span class="gold-text">Comparing VPNs?</span>
+      </h2>
+      <p class="text-base mb-8 max-w-xl mx-auto" style="color: var(--color-muted);">
+        Tell us about your product and your goals — we will help you find the right format and placement for your brand.
+      </p>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+        <a href="/contact" class="btn-gold w-full sm:w-auto">
+          Advertise With Us
+          <Icons name="arrow-right" size={18} />
+        </a>
+        <a href="/order-vpn" class="btn-outline w-full sm:w-auto">View the Comparison</a>
+      </div>
     </div>
   </section>
 </BaseLayout>

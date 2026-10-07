@@ -15,7 +15,90 @@ const { width = 40, height = 40, showWordmark = true, class: className = '' } = 
   </svg>
   {showWordmark && (
     <span class="text-xl font-bold tracking-tight" style="font-family: var(--font-heading);">
-      <span class="gold-text">Top</span><span style="color: var(--color-text);">VPN</span>
+      <span class="logo-top"><span class="gold-text">Top</span></span><span class="logo-vpn" style="color: var(--color-text);">VPN<span class="logo-particles" aria-hidden="true"><span class="logo-particle"></span><span class="logo-particle"></span><span class="logo-particle"></span><span class="logo-particle"></span><span class="logo-particle"></span><span class="logo-particle"></span><span class="logo-particle"></span><span class="logo-particle"></span><span class="logo-particle"></span><span class="logo-particle"></span></span></span>
     </span>
   )}
 </span>
+
+<style>
+  /* ------------------------------------------------------------------
+     Micro-motion logo accents (pure CSS transforms/opacity, no JS):
+     1) "Top" orbits its resting position on a tiny ellipse — a fast,
+        tightly-constrained atomic/electron drift (rx 3px / ry 1.5px,
+        0.45s cycle). No rotation, no scaling, no layout impact.
+     2) "VPN" stays completely static; 10 tiny gold particles (1.5–2px)
+        spark softly around it, anchored in % / em so they scale with
+        the wordmark instead of hard-coded pixel positions.
+     Everything is disabled under prefers-reduced-motion.
+  ------------------------------------------------------------------- */
+
+  /* 1. "Top" — tiny elliptical orbit around the normal position. */
+  .logo-top {
+    display: inline-block; /* transforms don't apply to plain inline boxes */
+    animation: logoTopElectron 0.45s linear infinite;
+    will-change: transform;
+  }
+
+  /* 8-stop orbit ≈ ellipse (rx 3px, ry 1.5px); linear = steady path. */
+  @keyframes logoTopElectron {
+    0%   { transform: translate3d(3px, 0, 0); }
+    12%  { transform: translate3d(2.12px, -1.06px, 0); }
+    25%  { transform: translate3d(0, -1.5px, 0); }
+    37%  { transform: translate3d(-2.12px, -1.06px, 0); }
+    50%  { transform: translate3d(-3px, 0, 0); }
+    62%  { transform: translate3d(-2.12px, 1.06px, 0); }
+    75%  { transform: translate3d(0, 1.5px, 0); }
+    87%  { transform: translate3d(2.12px, 1.06px, 0); }
+    100% { transform: translate3d(3px, 0, 0); }
+  }
+
+  /* 2. Gold particles — absolutely positioned, so layout never changes. */
+  .logo-vpn { position: relative; }
+
+  .logo-particles {
+    position: absolute;
+    inset: 0; /* = the "VPN" text box, at any font size */
+    pointer-events: none;
+  }
+
+  .logo-particle {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    background: var(--color-gold);
+    box-shadow: 0 0 2px var(--color-gold);
+    opacity: 0;
+    animation: logoParticleSpark 0.68s linear infinite;
+  }
+
+  /* Soft fade-in at the anchor, quick outward burst (drift finishes by
+     34%), soft fade-out, invisible reset. --dx/--dy carry direction. */
+  @keyframes logoParticleSpark {
+    0%   { opacity: 0;    transform: translate3d(0, 0, 0); }
+    14%  { opacity: 0.9; }
+    34%  { opacity: 0.75; transform: translate3d(var(--dx), var(--dy), 0); }
+    74%  { opacity: 0;    transform: translate3d(var(--dx), var(--dy), 0); }
+    100% { opacity: 0;    transform: translate3d(var(--dx), var(--dy), 0); }
+  }
+
+  /* Per-particle placement, direction and rhythm. Positions are % of the
+     "VPN" box; drift is em-based (scales with the wordmark); negative
+     delays stagger the loop so particles are in varied phases on load. */
+  .logo-particle:nth-child(1)  { left: 3%;  top: 5%;  --dx: -0.30em; --dy: -0.16em; animation-duration: 0.68s; animation-delay: -0.11s; }
+  .logo-particle:nth-child(2)  { left: 17%; top: 0%;  --dx: -0.10em; --dy: -0.30em; width: 1.5px; height: 1.5px; animation-duration: 0.62s; animation-delay: -0.27s; }
+  .logo-particle:nth-child(3)  { left: 33%; top: 7%;  --dx: 0.10em;  --dy: -0.28em; animation-duration: 0.74s; animation-delay: -0.43s; }
+  .logo-particle:nth-child(4)  { left: 50%; top: 1%;  --dx: 0.24em;  --dy: -0.20em; animation-duration: 0.58s; animation-delay: -0.61s; }
+  .logo-particle:nth-child(5)  { left: 68%; top: 6%;  --dx: 0.30em;  --dy: -0.10em; width: 1.5px; height: 1.5px; animation-duration: 0.80s; animation-delay: -0.07s; }
+  .logo-particle:nth-child(6)  { left: 90%; top: 22%; --dx: 0.34em;  --dy: 0.12em;  animation-duration: 0.66s; animation-delay: -0.34s; }
+  .logo-particle:nth-child(7)  { left: 97%; top: 72%; --dx: 0.26em;  --dy: 0.26em;  animation-duration: 0.72s; animation-delay: -0.50s; }
+  .logo-particle:nth-child(8)  { left: 62%; top: 94%; --dx: 0.10em;  --dy: 0.30em;  width: 1.5px; height: 1.5px; animation-duration: 0.60s; animation-delay: -0.68s; }
+  .logo-particle:nth-child(9)  { left: 36%; top: 97%; --dx: -0.12em; --dy: 0.28em;  animation-duration: 0.78s; animation-delay: -0.19s; }
+  .logo-particle:nth-child(10) { left: 9%;  top: 82%; --dx: -0.30em; --dy: 0.18em;  animation-duration: 0.64s; animation-delay: -0.55s; }
+
+  /* Accessibility: honor reduced-motion — park "Top", hide particles. */
+  @media (prefers-reduced-motion: reduce) {
+    .logo-top { animation: none; will-change: auto; }
+    .logo-particles { display: none; }
+  }
+</style>
