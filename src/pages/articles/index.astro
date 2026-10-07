@@ -1,0 +1,64 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import ComparisonSummary from '../../components/ComparisonSummary.astro';
+import Icons from '../../components/Icons.astro';
+import { providers } from '../../data/providers';
+import { breadcrumbSchema, contextWrapper } from '../../lib/schema';
+
+const allArticles = await getCollection('articles');
+const publishedArticles = allArticles
+  .filter((a) => !a.data.draft)
+  .sort((a, b) => b.data.updatedDate.getTime() - a.data.updatedDate.getTime());
+---
+
+<BaseLayout
+  title="VPN Articles & Guides"
+  description="In-depth VPN guides and articles — country-specific recommendations, privacy tips, and plain-language explanations."
+  jsonLd={contextWrapper(breadcrumbSchema([{ label: 'Home', href: '/' }, { label: 'Articles' }]))}
+>
+  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Articles' }]} />
+
+  <section class="container-max py-8 md:py-12">
+    <h1 class="text-3xl md:text-4xl font-bold mb-4" style="font-family: var(--font-heading);">
+      VPN <span class="gold-text">Articles</span> & Guides
+    </h1>
+    <p class="text-base md:text-lg mb-8 max-w-2xl" style="color: var(--color-muted);">
+      Practical, plain-language guides to help you choose and use a VPN. Whether you are looking for country-specific advice or general privacy tips, you will find it here.
+    </p>
+
+    {publishedArticles.length > 0 ? (
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        {publishedArticles.map((article) => (
+          <a
+            href={`/articles/${article.id}`}
+            class="card p-6 block transition-all hover:border-amber-400"
+          >
+            <div class="flex items-center gap-2 mb-3 text-xs" style="color: var(--color-muted-dark);">
+              <Icons name="doc" size={12} />
+              <span>{article.data.updatedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+            </div>
+            <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">{article.data.title}</h2>
+            <p class="text-sm mb-4" style="color: var(--color-muted);">{article.data.description}</p>
+            <div class="flex flex-wrap gap-1.5">
+              {article.data.tags.slice(0, 3).map((tag) => (
+                <span class="text-xs px-2 py-1 rounded-full" style="background: var(--color-bg-alt); border: 1px solid var(--color-border); color: var(--color-muted);">{tag}</span>
+              ))}
+            </div>
+          </a>
+        ))}
+      </div>
+    ) : (
+      <p class="text-sm mb-12" style="color: var(--color-muted);">Articles are coming soon. In the meantime, check out our VPN comparison below.</p>
+    )}
+
+    <div class="mt-12">
+      <div class="text-center mb-8">
+        <h2 class="text-2xl md:text-3xl font-bold mb-2" style="font-family: var(--font-heading);">Compare All VPNs</h2>
+        <p class="text-sm" style="color: var(--color-muted);">Side-by-side pricing and features for every provider we cover.</p>
+      </div>
+      <ComparisonSummary providers={providers} />
+    </div>
+  </section>
+</BaseLayout>

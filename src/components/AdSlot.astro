@@ -1,0 +1,20 @@
+---
+import { SITE } from '../lib/site';
+
+interface Props {
+  label?: string;
+  height?: number;
+}
+
+const { label = 'Advertisement', height = 90 } = Astro.props;
+---
+
+{SITE.ads && (
+  <div
+    class="flex items-center justify-center my-6"
+    style={`min-height: ${height}px; background: var(--color-bg-alt); border: 1px dashed var(--color-border); border-radius: 0.5rem;`}
+    aria-label="Advertisement"
+  >
+    <span class="text-xs uppercase tracking-wide" style="color: var(--color-muted-dark);">{label}</span>
+  </div>
+)}

@@ -1,0 +1,71 @@
+---
+import Logo from './Logo.astro';
+import Icons from './Icons.astro';
+
+const year = new Date().getFullYear();
+
+const footerLinks = [
+  { label: 'Home', href: '/' },
+  { label: 'About Us', href: '/about' },
+  { label: 'Compare VPNs', href: '/order-vpn' },
+  { label: 'VPN Guides', href: '/vpn-types-guide' },
+  { label: 'Articles', href: '/articles' },
+  { label: 'Apps', href: '/apps' },
+  { label: 'Connection Guide', href: '/connection-guide' },
+  { label: 'Advertise', href: '/advertise' },
+  { label: 'Contact', href: '/contact' },
+  { label: 'Privacy Policy', href: '/privacy-policy' },
+  { label: 'Terms of Service', href: '/terms' },
+  { label: 'Affiliate Disclosure', href: '/affiliate-disclosure' },
+];
+
+const paymentIcons = ['paypal', 'visa', 'mastercard', 'amex', 'applepay', 'googlepay', 'crypto'];
+---
+
+<footer style="background: var(--color-bg-alt); border-top: 1px solid var(--color-border);" class="mt-16">
+  <div class="container-max py-12">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+      <div class="md:col-span-1">
+        <Logo width={36} height={36} />
+        <p class="text-sm mt-4" style="color: var(--color-muted);">
+          Independent VPN comparisons and guides. Plain language, no hype.
+        </p>
+        <div class="flex items-center gap-2 mt-4">
+          <Icons name="padlock" size={16} />
+          <span class="text-xs font-semibold" style="color: var(--color-emerald);">SSL Secured</span>
+        </div>
+      </div>
+
+      <div class="md:col-span-2">
+        <h3 class="text-sm font-bold uppercase tracking-wide mb-3" style="color: var(--color-text);">Explore</h3>
+        <ul class="grid grid-cols-2 gap-2">
+          {footerLinks.map((link) => (
+            <li>
+              <a href={link.href} class="text-sm" style="color: var(--color-muted);">{link.label}</a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="md:col-span-1">
+        <h3 class="text-sm font-bold uppercase tracking-wide mb-3" style="color: var(--color-text);">Pay With</h3>
+        <p class="text-xs mb-3" style="color: var(--color-muted);">Most VPN providers accept these methods.</p>
+        <div class="flex flex-wrap gap-2">
+          {paymentIcons.map((name) => (
+            <Icons name={name} size={20} />
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <div class="pt-6" style="border-top: 1px solid var(--color-border);">
+      <p class="text-xs mb-4" style="color: var(--color-muted-dark);">
+        Affiliate Disclosure: TopVPN may earn a commission when you purchase through links on this site, at no extra cost to you. This never affects our honest reviews and comparisons.
+      </p>
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-2">
+        <p class="text-xs" style="color: var(--color-muted-dark);">&copy; {year} TopVPN.top — All rights reserved.</p>
+        <p class="text-xs" style="color: var(--color-muted-dark);">www.topvpn.top</p>
+      </div>
+    </div>
+  </div>
+</footer>

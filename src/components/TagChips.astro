@@ -1,0 +1,19 @@
+---
+interface Props {
+  chips: string[];
+  class?: string;
+}
+
+const { chips, class: className = '' } = Astro.props;
+---
+
+<div class:list={['flex flex-wrap gap-2', className]}>
+  {chips.map((chip) => (
+    <span
+      class="inline-block text-xs px-3 py-1.5 rounded-full"
+      style="background: var(--color-bg-alt); border: 1px solid var(--color-border); color: var(--color-muted);"
+    >
+      {chip}
+    </span>
+  ))}
+</div>

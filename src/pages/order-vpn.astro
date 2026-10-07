@@ -1,0 +1,172 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import ComparisonSummary from '../components/ComparisonSummary.astro';
+import FAQ from '../components/FAQ.astro';
+import Icons from '../components/Icons.astro';
+import { providers, formatPrice } from '../data/providers';
+import { itemListSchema, breadcrumbSchema, faqSchema, contextWrapper } from '../lib/schema';
+
+const paymentIcons = ['paypal', 'visa', 'mastercard', 'amex', 'applepay', 'googlepay', 'crypto'];
+
+const faqs = [
+  { question: 'How do I choose the right VPN plan?', answer: 'Start by deciding your priorities — privacy, streaming, budget, or number of devices. Then compare monthly and long-term prices. Long-term plans (1 or 2 years) are almost always cheaper per month than paying monthly.' },
+  { question: 'Are the prices shown here always up to date?', answer: 'VPN providers change their pricing frequently. A price is shown only when we have verified it. VPN prices change frequently, so always check the provider before purchasing.' },
+  { question: 'Can I get a refund if I am not satisfied?', answer: 'Most VPN providers offer a money-back guarantee, typically ranging from 7 to 45 days. Check the specific provider terms before purchasing, as refund windows and conditions vary.' },
+  { question: 'Will a VPN work on all my devices?', answer: 'All the providers listed here offer apps for Windows, macOS, Android, and iOS. Most also support Linux, routers, and browser extensions. The number of simultaneous connections varies — see the "Devices" column in the table above.' },
+];
+
+const orderJsonLd = [
+  itemListSchema(providers.map((p) => ({ name: p.name, url: `https://www.topvpn.top/order-vpn#${p.slug}`, description: p.bestFor }))),
+  breadcrumbSchema([{ label: 'Home', href: '/' }, { label: 'Compare VPNs' }]),
+  faqSchema(faqs),
+];
+---
+
+<BaseLayout
+  title="Compare VPN Plans and Prices"
+  description="Compare the top VPN services side by side — pricing, server locations, devices, and features. Find the right plan in minutes."
+  jsonLd={contextWrapper(orderJsonLd)}
+>
+  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Compare VPNs' }]} />
+
+  <section class="container-max py-8 md:py-12">
+    <h1 class="text-3xl md:text-4xl font-bold mb-4" style="font-family: var(--font-heading);">
+      Compare <span class="gold-text">VPN Plans</span> and Prices
+    </h1>
+    <p class="text-base md:text-lg mb-6 max-w-2xl" style="color: var(--color-muted);">
+      Side-by-side pricing and features for every VPN we recommend. Prices change often — when a price is shown, treat it as a verified snapshot and check the provider for the live rate before purchasing.
+    </p>
+
+    <div class="card p-4 mb-6 text-xs flex items-start gap-2" style="background: var(--color-bg-alt);">
+      <Icons name="shield" size={14} class="mt-0.5 shrink-0 text-amber-400" />
+      <p style="color: var(--color-muted);">
+        <strong style="color: var(--color-text);">Affiliate disclosure:</strong> Links to VPN providers are affiliate links. We may earn a commission at no extra cost to you. This never affects which providers we recommend or our honest pros and cons.
+      </p>
+    </div>
+
+    <ComparisonSummary providers={providers} linkBase="/order-vpn" showOrderButton={true} />
+
+    <div class="mt-10">
+      <h2 class="text-xl font-bold mb-4" style="font-family: var(--font-heading);">Detailed Provider Breakdown</h2>
+      <div class="space-y-4">
+        {providers.map((p) => (
+          <div id={p.slug} class="card p-5 scroll-mt-20">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-3">
+              <div>
+                <h3 class="text-lg font-bold" style="font-family: var(--font-heading);">{p.name}</h3>
+                <p class="text-sm" style="color: var(--color-muted);">{p.bestFor}</p>
+              </div>
+              <a
+                href={p.affiliateUrl}
+                rel="sponsored nofollow noopener"
+                class="btn-gold text-sm shrink-0"
+                style="min-height: 44px;"
+              >
+                Get {p.name}
+              </a>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-3 text-sm">
+              <div>
+                <span class="block text-xs mb-0.5" style="color: var(--color-muted-dark);">1-Month</span>
+                <span style={p.monthlyPrice === null ? 'color: var(--color-muted); font-size: 0.75rem;' : 'color: var(--color-text); font-weight: 600;'}>
+                  {formatPrice(p.monthlyPrice)}
+                </span>
+              </div>
+              <div>
+                <span class="block text-xs mb-0.5" style="color: var(--color-muted-dark);">6-Month</span>
+                <span style={p.sixMonthPrice === null ? 'color: var(--color-muted); font-size: 0.75rem;' : 'color: var(--color-text); font-weight: 600;'}>
+                  {formatPrice(p.sixMonthPrice)}
+                </span>
+              </div>
+              <div>
+                <span class="block text-xs mb-0.5" style="color: var(--color-muted-dark);">Long-term / mo</span>
+                <span style={p.longTermPrice === null ? 'color: var(--color-muted); font-size: 0.75rem;' : 'color: var(--color-text); font-weight: 600;'}>
+                  {formatPrice(p.longTermPrice)}
+                </span>
+              </div>
+              <div>
+                <span class="block text-xs mb-0.5" style="color: var(--color-muted-dark);">Locations</span>
+                <span style={p.locations === null ? 'color: var(--color-muted); font-size: 0.75rem;' : 'color: var(--color-text); font-weight: 600;'}>
+                  {p.locations !== null ? `${p.locations}+` : 'Check latest'}
+                </span>
+              </div>
+              <div>
+                <span class="block text-xs mb-0.5" style="color: var(--color-muted-dark);">Devices</span>
+                <span style={p.devices === null ? 'color: var(--color-muted); font-size: 0.75rem;' : 'color: var(--color-text); font-weight: 600;'}>
+                  {p.devices !== null ? `${p.devices}` : 'Check latest'}
+                </span>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-1.5 mt-3">
+              {p.protocols.map((proto) => (
+                <span class="text-xs px-2 py-1 rounded" style="background: var(--color-bg-alt); color: var(--color-muted);">{proto}</span>
+              ))}
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+              <div>
+                <p class="text-xs font-semibold mb-1" style="color: var(--color-emerald);">Pros</p>
+                <ul class="space-y-1">
+                  {p.pros.map((pro) => (
+                    <li class="flex items-start gap-2 text-xs" style="color: var(--color-muted);">
+                      <Icons name="check" size={12} class="mt-0.5 shrink-0" />
+                      <span>{pro}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <p class="text-xs font-semibold mb-1" style="color: var(--color-muted-dark);">Cons</p>
+                <ul class="space-y-1">
+                  {p.cons.map((con) => (
+                    <li class="flex items-start gap-2 text-xs" style="color: var(--color-muted);">
+                      <Icons name="x" size={12} class="mt-0.5 shrink-0" />
+                      <span>{con}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div class="mt-12 grid md:grid-cols-2 gap-8">
+      <div class="card p-6">
+        <h2 class="text-xl font-bold mb-4" style="font-family: var(--font-heading);">How to Pick in 60 Seconds</h2>
+        <ul class="space-y-3 text-sm" style="color: var(--color-muted);">
+          <li class="flex items-start gap-2">
+            <Icons name="check" size={16} class="mt-0.5 shrink-0 text-amber-400" />
+            <span><strong style="color: var(--color-text);">Know your main reason.</strong> Privacy? Streaming? Budget? This narrows the list fast.</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <Icons name="check" size={16} class="mt-0.5 shrink-0 text-amber-400" />
+            <span><strong style="color: var(--color-text);">Compare long-term prices.</strong> Long-term plans are usually cheaper per month than paying monthly, but check the full billing amount and renewal price.</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <Icons name="check" size={16} class="mt-0.5 shrink-0 text-amber-400" />
+            <span><strong style="color: var(--color-text);">Check device limits.</strong> Make sure the plan covers every phone, laptop, and tablet you use.</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card p-6">
+        <h2 class="text-xl font-bold mb-4" style="font-family: var(--font-heading);">Accepted Payment Methods</h2>
+        <div class="flex flex-wrap gap-3 mb-4">
+          {paymentIcons.map((name) => (
+            <Icons name={name} size={28} />
+          ))}
+        </div>
+        <p class="text-xs" style="color: var(--color-muted-dark);">
+          Most providers accept major credit cards, PayPal, and some accept cryptocurrency for extra privacy.
+        </p>
+      </div>
+    </div>
+
+    <div class="mt-12 max-w-3xl mx-auto">
+      <h2 class="text-2xl font-bold mb-6 text-center" style="font-family: var(--font-heading);">Frequently Asked Questions</h2>
+      <FAQ items={faqs} />
+    </div>
+  </section>
+</BaseLayout>

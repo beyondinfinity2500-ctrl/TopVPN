@@ -1,0 +1,41 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Icons from '../components/Icons.astro';
+
+const mainSections = [
+  { label: 'Home', href: '/', icon: 'globe' },
+  { label: 'Compare VPNs', href: '/order-vpn', icon: 'list' },
+  { label: 'VPN Guides', href: '/vpn-types-guide', icon: 'doc' },
+  { label: 'Articles', href: '/articles', icon: 'tag' },
+  { label: 'About Us', href: '/about', icon: 'heart' },
+  { label: 'Contact', href: '/contact', icon: 'mail' },
+];
+---
+
+<BaseLayout title="Page Not Found" description="The page you were looking for does not exist." noindex>
+  <section class="container-max py-16 md:py-24">
+    <div class="max-w-xl mx-auto text-center">
+      <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl mb-6" style="background: rgba(212, 175, 55, 0.1);">
+        <Icons name="shield" size={40} class="text-amber-400" />
+      </div>
+      <h1 class="text-4xl md:text-5xl font-bold mb-3 gold-text" style="font-family: var(--font-heading);">404</h1>
+      <h2 class="text-xl font-bold mb-3" style="font-family: var(--font-heading);">Page Not Found</h2>
+      <p class="text-sm mb-8" style="color: var(--color-muted);">
+        The page you are looking for may have been moved or no longer exists. Try one of these sections instead.
+      </p>
+      <div class="grid grid-cols-2 gap-3 mb-8">
+        {mainSections.map((section) => (
+          <a
+            href={section.href}
+            class="card p-4 flex items-center gap-3 transition-all hover:border-amber-400"
+            style="min-height: 48px;"
+          >
+            <Icons name={section.icon} size={20} class="text-amber-400 shrink-0" />
+            <span class="text-sm font-semibold" style="color: var(--color-text);">{section.label}</span>
+          </a>
+        ))}
+      </div>
+      <a href="/" class="btn-gold w-full sm:w-auto">Back to Home</a>
+    </div>
+  </section>
+</BaseLayout>

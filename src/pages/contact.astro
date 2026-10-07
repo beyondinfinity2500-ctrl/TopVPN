@@ -1,0 +1,170 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import TagChips from '../components/TagChips.astro';
+import Icons from '../components/Icons.astro';
+import { breadcrumbSchema, contextWrapper } from '../lib/schema';
+
+const updatedStr = 'October 2026';
+
+const faqs = [
+  { question: 'How long until I get a response?', answer: 'We aim to reply within 2 business days. Advertising and partnership inquiries may take slightly longer during busy periods.' },
+  { question: 'Can you help me choose the right VPN?', answer: 'Yes. Select "Order help" as the topic and tell us what you need — privacy, streaming, budget, or devices. We will point you to the right guide or comparison.' },
+  { question: 'Do you offer technical support for my VPN app?', answer: 'We can help with general guidance, but for account-specific or technical issues we recommend contacting your VPN provider support directly. They have access to your account details.' },
+  { question: 'Will you respond to partnership inquiries?', answer: 'Yes, we review all advertising and partnership inquiries. Make sure to include details about your service, pricing, and refund policy so we can evaluate fit.' },
+];
+
+const tags = ['contact', 'support', 'help'];
+---
+
+<BaseLayout
+  title="Contact Us"
+  description="Get in touch with TopVPN — order help, advertising inquiries, or general questions. We respond within 2 business days."
+  jsonLd={contextWrapper(breadcrumbSchema([{ label: 'Home', href: '/' }, { label: 'Contact' }]))}
+>
+  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Contact' }]} />
+
+  <section class="container-max py-8 md:py-12">
+    <div class="max-w-2xl">
+      <div class="mb-4 flex items-center gap-2 text-xs" style="color: var(--color-muted-dark);">
+        <Icons name="doc" size={14} />
+        <span>Updated {updatedStr}</span>
+      </div>
+
+      <h1 class="text-3xl md:text-4xl font-bold mb-4" style="font-family: var(--font-heading);">
+        Contact <span class="gold-text">Us</span>
+      </h1>
+
+      <p class="text-base md:text-lg mb-4" style="color: var(--color-muted);">
+        Need help choosing a VPN, interested in advertising, or have a general question? Send us an email using the form below. Pick the topic that fits so we can route your message to the right person.
+      </p>
+
+      <div class="card p-4 mb-6 text-sm" style="background: var(--color-bg-alt);">
+        <p style="color: var(--color-muted);"><strong style="color: var(--color-text);">Quick answer:</strong> Email us at the address below with your topic. We aim to respond within 2 business days.</p>
+      </div>
+
+      <TagChips chips={tags} class="mb-6" />
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-8 max-w-4xl">
+      <div>
+        <h2 class="text-xl font-bold mb-4" style="font-family: var(--font-heading);">Send a Message</h2>
+        <form
+          action="mailto:hello@topvpn.example"
+          method="post"
+          enctype="text/plain"
+          class="space-y-4"
+        >
+          <div>
+            <label for="name" class="block text-xs font-semibold mb-1.5" style="color: var(--color-text);">Your name</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              required
+              class="w-full px-4 py-3 rounded text-sm"
+              style="background: var(--color-bg); border: 1px solid var(--color-border); color: var(--color-text);"
+              placeholder="Jane Doe"
+            />
+          </div>
+          <div>
+            <label for="email" class="block text-xs font-semibold mb-1.5" style="color: var(--color-text);">Your email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              required
+              class="w-full px-4 py-3 rounded text-sm"
+              style="background: var(--color-bg); border: 1px solid var(--color-border); color: var(--color-text);"
+              placeholder="jane@example.com"
+            />
+          </div>
+          <div>
+            <label for="topic" class="block text-xs font-semibold mb-1.5" style="color: var(--color-text);">Topic</label>
+            <select
+              id="topic"
+              name="topic"
+              required
+              class="w-full px-4 py-3 rounded text-sm"
+              style="background: var(--color-bg); border: 1px solid var(--color-border); color: var(--color-text);"
+            >
+              <option value="">Select a topic</option>
+              <option value="order-help">Order help</option>
+              <option value="advertising">Advertising</option>
+              <option value="general">General</option>
+            </select>
+          </div>
+          <div>
+            <label for="message" class="block text-xs font-semibold mb-1.5" style="color: var(--color-text);">Message</label>
+            <textarea
+              id="message"
+              name="message"
+              rows="5"
+              required
+              class="w-full px-4 py-3 rounded text-sm resize-y"
+              style="background: var(--color-bg); border: 1px solid var(--color-border); color: var(--color-text);"
+              placeholder="Tell us how we can help..."
+            ></textarea>
+          </div>
+          <button type="submit" class="btn-gold w-full" style="min-height: 48px;">
+            <Icons name="mail" size={16} />
+            Send Message
+          </button>
+        </form>
+        <p class="text-xs mt-3" style="color: var(--color-muted-dark);">
+          This form opens your email app. If it does not work, email us directly at hello@topvpn.example
+        </p>
+      </div>
+
+      <div>
+        <h2 class="text-xl font-bold mb-4" style="font-family: var(--font-heading);">Response Time</h2>
+        <div class="card p-5 mb-4">
+          <div class="flex items-center gap-3 mb-2">
+            <Icons name="headset" size={20} class="text-amber-400" />
+            <h3 class="text-sm font-bold" style="font-family: var(--font-heading);">We reply within 2 business days</h3>
+          </div>
+          <p class="text-sm" style="color: var(--color-muted);">
+            Order help questions usually get a faster response. Advertising inquiries may take slightly longer during busy periods.
+          </p>
+        </div>
+
+        <h2 class="text-xl font-bold mb-4" style="font-family: var(--font-heading);">Direct Email</h2>
+        <div class="card p-5 mb-4">
+          <div class="flex items-center gap-3">
+            <Icons name="mail" size={20} class="text-amber-400" />
+            <a href="mailto:hello@topvpn.example" class="text-sm font-semibold gold-text">hello@topvpn.example</a>
+          </div>
+        </div>
+
+        <h2 class="text-xl font-bold mb-4" style="font-family: var(--font-heading);">FAQ</h2>
+        <div class="space-y-3">
+          {faqs.map((f) => (
+            <details class="card p-4 group">
+              <summary class="font-semibold cursor-pointer text-sm flex items-center justify-between" style="font-family: var(--font-heading);">
+                {f.question}
+                <Icons name="chevron-down" size={16} class="text-amber-400 transition-transform group-open:rotate-180" />
+              </summary>
+              <p class="text-sm mt-3" style="color: var(--color-muted);">{f.answer}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <h2 class="text-2xl font-bold mb-4 mt-10" style="font-family: var(--font-heading);">Related Pages</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
+      <a href="/order-vpn" class="card p-4 block transition-all hover:border-amber-400">
+        <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">Compare VPN Plans</h3>
+        <p class="text-xs" style="color: var(--color-muted);">Side-by-side pricing and features — a good starting point before contacting us</p>
+      </a>
+      <a href="/advertise" class="card p-4 block transition-all hover:border-amber-400">
+        <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">Advertise With Us</h3>
+        <p class="text-xs" style="color: var(--color-muted);">Partnership details, requirements, and editorial independence policy</p>
+      </a>
+      <a href="/" class="card p-4 block transition-all hover:border-amber-400">
+        <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">TopVPN Home</h3>
+        <p class="text-xs" style="color: var(--color-muted);">Our top VPN picks and comparison guides</p>
+      </a>
+    </div>
+  </section>
+</BaseLayout>

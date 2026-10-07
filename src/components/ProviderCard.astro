@@ -1,0 +1,101 @@
+---
+import type { Provider } from '../data/providers';
+import { formatPrice, formatRating } from '../data/providers';
+import Icons from './Icons.astro';
+
+interface Props {
+  provider: Provider;
+  rank?: number;
+  featured?: boolean;
+}
+
+const { provider, rank, featured = false } = Astro.props;
+
+const hasNumbers = [provider.monthlyPrice, provider.longTermPrice, provider.locations, provider.devices].some((v) => v !== null);
+---
+
+<article
+  class:list={[
+    'card card-hover p-6 flex flex-col h-full',
+    featured ? 'border-2' : '',
+  ]}
+  style={featured ? 'border-color: var(--color-gold);' : ''}
+>
+  {rank !== undefined && (
+    <div class="flex items-center gap-2 mb-4">
+      <span
+        class="inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold"
+        style="background: linear-gradient(135deg, #D4AF37, #F5D77A); color: #0B1020;"
+      >
+        {rank}
+      </span>
+      <span class="text-xs font-semibold uppercase tracking-wide" style="color: var(--color-muted);">Shortlist</span>
+    </div>
+  )}
+
+  <div class="flex items-start justify-between mb-3">
+    <h3 class="text-xl font-bold" style="font-family: var(--font-heading);">{provider.name}</h3>
+    {provider.rating !== null && (
+      <div class="flex items-center gap-1">
+        <Icons name="star" size={16} class="text-amber-400" />
+        <span class="text-sm font-semibold">{formatRating(provider.rating)}</span>
+      </div>
+    )}
+  </div>
+
+  <p class="text-sm mb-4" style="color: var(--color-muted);">{provider.bestFor}</p>
+
+  {hasNumbers && (
+  <div class="grid grid-cols-2 gap-3 mb-4 text-sm">
+    <div>
+      <span class="block text-xs mb-0.5" style="color: var(--color-muted-dark);">Monthly</span>
+      <span class={provider.monthlyPrice === null ? 'text-xs' : 'font-semibold'} style={provider.monthlyPrice === null ? 'color: var(--color-muted);' : 'color: var(--color-text);'}>
+        {formatPrice(provider.monthlyPrice)}
+      </span>
+    </div>
+    <div>
+      <span class="block text-xs mb-0.5" style="color: var(--color-muted-dark);">Long-term / mo</span>
+      <span class={provider.longTermPrice === null ? 'text-xs' : 'font-semibold'} style={provider.longTermPrice === null ? 'color: var(--color-muted);' : 'color: var(--color-text);'}>
+        {formatPrice(provider.longTermPrice)}
+      </span>
+    </div>
+    <div>
+      <span class="block text-xs mb-0.5" style="color: var(--color-muted-dark);">Locations</span>
+      <span class={provider.locations === null ? 'text-xs' : 'font-semibold'} style={provider.locations === null ? 'color: var(--color-muted);' : 'color: var(--color-text);'}>
+        {provider.locations !== null ? `${provider.locations}+` : 'Check latest'}
+      </span>
+    </div>
+    <div>
+      <span class="block text-xs mb-0.5" style="color: var(--color-muted-dark);">Devices</span>
+      <span class={provider.devices === null ? 'text-xs' : 'font-semibold'} style={provider.devices === null ? 'color: var(--color-muted);' : 'color: var(--color-text);'}>
+        {provider.devices !== null ? `${provider.devices}` : 'Check latest'}
+      </span>
+    </div>
+  </div>
+  )}
+
+  <div class="space-y-1.5 mb-4 flex-grow">
+    {provider.pros.map((pro) => (
+      <div class="flex items-start gap-2 text-sm">
+        <Icons name="check" size={16} class="mt-0.5 shrink-0" />
+        <span style="color: var(--color-text);">{pro}</span>
+      </div>
+    ))}
+    {provider.cons.map((con) => (
+      <div class="flex items-start gap-2 text-sm">
+        <Icons name="x" size={16} class="mt-0.5 shrink-0" style="color: var(--color-muted-dark);" />
+        <span style="color: var(--color-muted);">{con}</span>
+      </div>
+    ))}
+  </div>
+
+  <div class="flex flex-wrap gap-1.5 mb-4">
+    {provider.protocols.map((p) => (
+      <span class="text-xs px-2 py-1 rounded" style="background: var(--color-bg-alt); color: var(--color-muted);">{p}</span>
+    ))}
+  </div>
+
+  <a href={provider.affiliateUrl} class="btn-gold w-full mt-auto" rel="noopener nofollow sponsored">
+    Check {provider.name} price
+  </a>
+</article>

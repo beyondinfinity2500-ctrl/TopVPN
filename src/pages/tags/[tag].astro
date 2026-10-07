@@ -1,0 +1,54 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Icons from '../../components/Icons.astro';
+
+export async function getStaticPaths() {
+  const articles = await getCollection('articles', ({ data }) => !data.draft);
+  const tags = [...new Set(articles.flatMap((a) => a.data.tags))];
+  return tags.map((tag) => ({
+    params: { tag },
+    props: {
+      tag,
+      articles: articles
+        .filter((a) => a.data.tags.includes(tag))
+        .sort((a, b) => b.data.updatedDate.getTime() - a.data.updatedDate.getTime()),
+    },
+  }));
+}
+
+const { tag, articles } = Astro.props;
+const tagLabel = tag.charAt(0).toUpperCase() + tag.slice(1);
+---
+
+<BaseLayout title={`Articles tagged "${tagLabel}"`} description={`Browse all TopVPN articles tagged with ${tagLabel}.`}>
+  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Articles', href: '/articles' }, { label: tagLabel }]} />
+
+  <section class="container-max py-8 md:py-12">
+    <div class="flex items-center gap-2 mb-2">
+      <Icons name="tag" size={20} class="text-amber-400" />
+      <span class="text-xs uppercase tracking-wide font-semibold" style="color: var(--color-muted);">Tag</span>
+    </div>
+    <h1 class="text-3xl md:text-4xl font-bold mb-4" style="font-family: var(--font-heading);">{tagLabel}</h1>
+    <p class="text-base mb-8 max-w-2xl" style="color: var(--color-muted);">
+      All articles tagged with {tagLabel}. {articles.length} {articles.length === 1 ? 'guide' : 'guides'} found.
+    </p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {articles.map((article) => (
+        <a
+          href={`/articles/${article.id}`}
+          class="card p-6 block transition-all hover:border-amber-400"
+        >
+          <div class="flex items-center gap-2 mb-3 text-xs" style="color: var(--color-muted-dark);">
+            <Icons name="doc" size={12} />
+            <span>{article.data.updatedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+          </div>
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">{article.data.title}</h2>
+          <p class="text-sm" style="color: var(--color-muted);">{article.data.description}</p>
+        </a>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

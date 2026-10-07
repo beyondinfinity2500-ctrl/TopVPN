@@ -1,0 +1,9 @@
+{
+  "name": "topvpn",
+  "compatibility_date": "2025-01-01",
+  "assets": {
+    "directory": "./dist",
+    // Serve the generated dist/404.html (with a real 404 status) for unknown URLs.
+    "not_found_handling": "404-page"
+  }
+}

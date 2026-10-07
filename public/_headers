@@ -1,0 +1,20 @@
+# Hashed build assets never change: cache for a year.
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Brand files keep their names, so cache them for a week only.
+/*.svg
+  Cache-Control: public, max-age=604800
+/*.png
+  Cache-Control: public, max-age=604800
+/favicon.ico
+  Cache-Control: public, max-age=604800
+
+# Everything else (HTML): revalidate quickly, plus basic security headers.
+# No strict CSP on purpose: it would break AdSense/GA when you enable them.
+/*
+  Cache-Control: public, max-age=0, must-revalidate
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), browsing-topics=()
+  X-Frame-Options: SAMEORIGIN

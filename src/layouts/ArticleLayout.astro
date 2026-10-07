@@ -1,0 +1,158 @@
+---
+import BaseLayout from './BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import TagChips from '../components/TagChips.astro';
+import FAQ from '../components/FAQ.astro';
+import AdSlot from '../components/AdSlot.astro';
+import Icons from '../components/Icons.astro';
+import type { CollectionEntry } from 'astro:content';
+import { articleSchema, breadcrumbSchema, faqSchema, contextWrapper } from '../lib/schema';
+import { SITE } from '../lib/site';
+
+interface Props {
+  entry: CollectionEntry<'articles'>;
+  headings: { depth: number; slug: string; text: string }[];
+  body: string;
+  related: { title: string; href: string; reason: string }[];
+}
+
+const { entry, headings, related, body } = Astro.props;
+const { title, description, updatedDate, tags, country, legalNote, publishedDate } = entry.data;
+
+const updatedStr = updatedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+const articleUrl = `${SITE.url}/articles/${entry.id}`;
+const breadcrumbCrumbs = [
+  { label: 'Home', href: '/' },
+  { label: 'Articles', href: '/articles' },
+  { label: title },
+];
+
+const faqMatches: { question: string; answer: string }[] = [];
+const lines = (body || '').split('\n');
+let inFaqSection = false;
+let currentQ: string | null = null;
+let currentA: string[] = [];
+
+for (const line of lines) {
+  if (line.startsWith('## FAQ')) { inFaqSection = true; continue; }
+  if (inFaqSection && line.startsWith('## ')) {
+    if (currentQ) { faqMatches.push({ question: currentQ, answer: currentA.join(' ').trim() }); }
+    inFaqSection = false; currentQ = null; currentA = [];
+    continue;
+  }
+  if (inFaqSection && line.startsWith('**') && line.endsWith('?**')) {
+    if (currentQ) { faqMatches.push({ question: currentQ, answer: currentA.join(' ').trim() }); }
+    currentQ = line.replace(/\*\*/g, '');
+    currentA = [];
+    continue;
+  }
+  if (inFaqSection && currentQ && line.trim()) {
+    currentA.push(line.trim());
+  }
+}
+if (currentQ) { faqMatches.push({ question: currentQ, answer: currentA.join(' ').trim() }); }
+
+const tocHeadings = headings.filter(h => h.depth >= 2 && h.depth <= 3);
+
+const articleJsonLd = [articleSchema({
+  headline: title,
+  description,
+  datePublished: (publishedDate || updatedDate).toISOString(),
+  dateModified: updatedDate.toISOString(),
+  url: articleUrl,
+  tags,
+}), breadcrumbSchema(breadcrumbCrumbs)];
+if (faqMatches.length > 0) {
+  articleJsonLd.push(faqSchema(faqMatches));
+}
+---
+
+<BaseLayout title={title} description={description} ogType="article" jsonLd={contextWrapper(articleJsonLd)}>
+  <Breadcrumbs items={breadcrumbCrumbs} />
+
+  <article class="container-max py-8 md:py-12">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div class="lg:col-span-3 max-w-3xl">
+        <div class="mb-4 flex items-center gap-2 text-xs" style="color: var(--color-muted-dark);">
+          <Icons name="doc" size={14} />
+          <span>Updated {updatedStr}</span>
+        </div>
+
+        <h1 class="text-3xl md:text-4xl font-bold mb-4" style="font-family: var(--font-heading);">{title}</h1>
+
+        <p class="text-base md:text-lg mb-4" style="color: var(--color-muted);">{description}</p>
+
+        {country && (
+          <p class="text-sm mb-4">
+            <span class="inline-flex items-center gap-1 px-2 py-1 rounded text-xs" style="background: var(--color-bg-alt); color: var(--color-muted);">
+              <Icons name="globe" size={12} /> {country}
+            </span>
+          </p>
+        )}
+
+        <TagChips chips={tags} class="mb-6" />
+
+        {legalNote && (
+          <div class="card p-4 mb-6 text-sm" style="border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.05);">
+            <div class="flex items-start gap-2">
+              <Icons name="shield" size={18} class="mt-0.5 shrink-0 text-amber-400" />
+              <p style="color: var(--color-muted);"><strong style="color: var(--color-text);">Legal note:</strong> VPN laws in this country may be restrictive. Check your local regulations before using a VPN here.</p>
+            </div>
+          </div>
+        )}
+
+        <div class="prose-content text-base leading-relaxed">
+          <slot />
+        </div>
+
+        {faqMatches.length > 0 && (
+          <section class="mt-10">
+            <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">FAQ</h2>
+            <FAQ items={faqMatches} />
+          </section>
+        )}
+
+        <AdSlot />
+
+        {related.length > 0 && (
+          <section class="mt-10">
+            <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">Related Guides</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {related.map((r) => (
+                <a href={r.href} class="card p-4 block transition-all hover:border-amber-400">
+                  <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">{r.title}</h3>
+                  <p class="text-xs" style="color: var(--color-muted);">{r.reason}</p>
+                </a>
+              ))}
+            </div>
+          </section>
+        )}
+      </div>
+
+      <aside class="hidden lg:block">
+        <div class="sticky top-20">
+          {tocHeadings.length > 0 && (
+            <div class="card p-4 mb-4">
+              <h3 class="text-sm font-bold mb-3" style="font-family: var(--font-heading);">Table of Contents</h3>
+              <nav class="space-y-1.5">
+                {tocHeadings.map((h) => (
+                  <a
+                    href={`#${h.slug}`}
+                    class:list={[
+                      'block text-xs hover:text-amber-400 transition-colors',
+                      h.depth === 3 ? 'pl-3' : '',
+                    ]}
+                    style="color: var(--color-muted);"
+                  >
+                    {h.text}
+                  </a>
+                ))}
+              </nav>
+            </div>
+          )}
+        </div>
+      </aside>
+    </div>
+  </article>
+</BaseLayout>

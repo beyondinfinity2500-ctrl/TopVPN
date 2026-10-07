@@ -1,0 +1,84 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import Icons from '../components/Icons.astro';
+import { breadcrumbSchema, contextWrapper } from '../lib/schema';
+
+const updatedStr = 'October 2026';
+---
+
+<BaseLayout
+  title="Privacy Policy"
+  description="How TopVPN handles your information. We do not collect personal data beyond what is necessary to operate the site."
+  jsonLd={contextWrapper(breadcrumbSchema([{ label: 'Home', href: '/' }, { label: 'Privacy Policy' }]))}
+>
+  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Privacy Policy' }]} />
+
+  <section class="container-max py-8 md:py-12">
+    <div class="max-w-3xl">
+      <div class="mb-4 flex items-center gap-2 text-xs" style="color: var(--color-muted-dark);">
+        <Icons name="doc" size={14} />
+        <span>Updated {updatedStr}</span>
+      </div>
+
+      <h1 class="text-3xl md:text-4xl font-bold mb-6" style="font-family: var(--font-heading);">
+        Privacy <span class="gold-text">Policy</span>
+      </h1>
+
+      <p class="text-sm mb-6" style="color: var(--color-muted);">
+        This privacy policy explains what information TopVPN collects, how we use it, and the choices you have. We aim to keep this simple and honest.
+      </p>
+
+      <div class="space-y-6">
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">What We Collect</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            TopVPN is a static website. We do not require you to create an account, and we do not ask for your name, email, or payment information directly. Any interaction with our contact form opens your email client, so your message goes directly from your email to ours.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">Cookies and Analytics</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            We may use privacy-respecting analytics to understand which pages are visited and how people find the site. We do not use advertising cookies or sell data to third parties. If we add analytics in the future, this page will be updated.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">Affiliate Links</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            Some links on this site are affiliate links. When you click one and make a purchase, the VPN provider may set cookies on your browser. Those cookies are governed by the provider privacy policy, not ours. We do not control or access that data.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">Third-Party Websites</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            Links to VPN provider websites take you to services we do not control. Once you leave TopVPN, their privacy policy applies. We encourage you to read it before signing up.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">Contact</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            If you have questions about this policy, email us at hello@topvpn.example. We will respond as soon as we can.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">Changes to This Policy</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            We may update this policy from time to time. Changes take effect when we post the updated version on this page. The "Updated" date above reflects the most recent revision.
+          </p>
+        </div>
+      </div>
+
+      <div class="mt-8">
+        <a href="/" class="inline-flex items-center gap-2 text-sm font-semibold gold-text">
+          <Icons name="arrow-right" size={14} class="rotate-180 text-amber-400" />
+          Back to Home
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

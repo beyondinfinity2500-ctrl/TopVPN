@@ -1,0 +1,194 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { SITE } from '../lib/site';
+
+interface Props {
+  title: string;
+  description?: string;
+  canonical?: string;
+  noindex?: boolean;
+  jsonLd?: object | object[];
+  ogType?: 'website' | 'article';
+}
+
+const {
+  title,
+  description = 'TopVPN compares the top VPN services for privacy, speed and price, so you can choose the right one in minutes.',
+  canonical,
+  noindex = false,
+  jsonLd,
+  ogType = 'website',
+} = Astro.props;
+
+// Canonical: always the clean, trailing-slash-free production URL.
+const path = Astro.url.pathname.replace(/\/+$/, '') || '/';
+const canonicalUrl = canonical || new URL(path, SITE.url).href;
+const fullTitle = title === SITE.name ? title : `${title} | ${SITE.name}`;
+const ogImage = `${SITE.url}/og-default.png`;
+
+const jsonLdArray = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0B1020" />
+    <meta name="color-scheme" content="dark" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+    <meta name="robots" content={noindex ? 'noindex,nofollow' : 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1'} />
+
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="generator" content={Astro.generator} />
+
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="TopVPN logo: a gold shield with the letter T" />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:locale" content="en_US" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    {/* Google Search Console verification: replace CONTENT, then uncomment */}
+    {/* <meta name="google-site-verification" content="YOUR_VERIFICATION_TOKEN" /> */}
+
+    {/* Google AdSense: replace ca-pub-XXXX, set SITE.ads = true in src/lib/site.ts, then uncomment */}
+    {/* <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXX" crossorigin="anonymous"></script> */}
+
+    {jsonLdArray.map((obj) => (
+      <script type="application/ld+json" set:html={JSON.stringify(obj)} />
+    ))}
+  </head>
+  <body>
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-100 focus:px-4 focus:py-2 focus:rounded focus:text-sm" style="background: var(--color-gold); color: #0B1020;">Skip to content</a>
+    <Header />
+    <main id="main-content">
+      <slot />
+    </main>
+    <Footer />
+
+    <!-- Cookie consent banner -->
+    <div id="cookie-consent" class="cookie-banner hidden">
+      <p class="cookie-text">We use cookies for analytics only after you accept. <a href="/privacy-policy">Privacy policy</a></p>
+      <div class="cookie-actions">
+        <button id="cookie-accept" class="cookie-btn cookie-accept">Accept</button>
+        <button id="cookie-decline" class="cookie-btn cookie-decline">Decline</button>
+      </div>
+    </div>
+
+    <div class="mobile-cta-bar">
+      <a href="/order-vpn" class="btn-gold w-full text-sm">Compare Best VPNs</a>
+    </div>
+    <div class="h-16 md:hidden"></div>
+
+    <script>
+      let consent = null;
+      try { consent = localStorage.getItem('cookie-consent'); } catch (e) {}
+      const banner = document.getElementById('cookie-consent');
+      if (!consent && banner) {
+        banner.classList.remove('hidden');
+      }
+      const acceptBtn = document.getElementById('cookie-accept');
+      const declineBtn = document.getElementById('cookie-decline');
+      acceptBtn?.addEventListener('click', () => {
+        try { localStorage.setItem('cookie-consent', 'accepted'); } catch (e) {}
+        banner?.classList.add('hidden');
+        // Load GA4 when accepted — uncomment and replace G-XXXX
+        // const s = document.createElement('script');
+        // s.async = true;
+        // s.src = 'https://www.googletagmanager.com/gtag/js?id=G-XXXX';
+        // document.head.appendChild(s);
+        // window.dataLayer = window.dataLayer || [];
+        // function gtag(){ dataLayer.push(arguments); }
+        // gtag('js', new Date());
+        // gtag('config', 'G-XXXX');
+      });
+      declineBtn?.addEventListener('click', () => {
+        try { localStorage.setItem('cookie-consent', 'declined'); } catch (e) {}
+        banner?.classList.add('hidden');
+      });
+    </script>
+  </body>
+</html>
+
+<style>
+  .cookie-banner {
+    position: fixed;
+    /* sits above the mobile CTA bar so the two never overlap */
+    bottom: calc(3.75rem + env(safe-area-inset-bottom, 0px));
+    left: 0;
+    right: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    background: var(--color-card);
+    border-top: 1px solid var(--color-border);
+    box-shadow: 0 -4px 16px rgba(0,0,0,0.15);
+  }
+  @media (min-width: 768px) {
+    .cookie-banner { bottom: 0; }
+  }
+  @media (min-width: 640px) {
+    .cookie-banner {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+  .cookie-text {
+    font-size: 0.8rem;
+    color: var(--color-muted);
+  }
+  .cookie-actions {
+    display: flex;
+    gap: 0.75rem;
+    flex-shrink: 0;
+  }
+  .cookie-btn {
+    padding: 0.5rem 1.25rem;
+    border-radius: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--color-border);
+    transition: all 0.2s ease;
+  }
+  .cookie-accept {
+    background: linear-gradient(135deg, #D4AF37, #F5D77A);
+    color: #0B1020;
+    border: none;
+  }
+  .cookie-accept:hover { filter: brightness(1.08); }
+  .cookie-decline {
+    background: transparent;
+    color: var(--color-muted);
+  }
+  .cookie-decline:hover {
+    border-color: var(--color-gold);
+    color: var(--color-text);
+  }
+  @media (min-width: 768px) {
+    .cookie-banner { display: flex !important; }
+    .cookie-banner.hidden { display: none !important; }
+  }
+  @media (max-width: 767px) {
+    .cookie-banner.hidden { display: none !important; }
+  }
+</style>

@@ -1,0 +1,24 @@
+# TopVPN
+
+> TopVPN (www.topvpn.top) is an independent VPN comparison and guide site. It explains VPN concepts in plain language and compares well-known services on privacy, speed, access and value. Some links are affiliate links; this never changes the pros and cons we report.
+
+## Core pages
+
+- [Home](https://www.topvpn.top/): shortlist of well-known VPNs, how we compare, guides
+- [Compare VPN plans](https://www.topvpn.top/order-vpn): side-by-side comparison and provider breakdown
+- [Dedicated vs shared IP VPN](https://www.topvpn.top/vpn-types-guide): which IP type fits which use
+- [VPN protocols explained](https://www.topvpn.top/connection-guide): WireGuard, OpenVPN, V2Ray, Shadowsocks
+- [VPN apps and tools](https://www.topvpn.top/apps): clients for each device, and how to check for leaks
+- [Articles and country guides](https://www.topvpn.top/articles)
+- [About and methodology](https://www.topvpn.top/about)
+
+## Policies
+
+- [Affiliate disclosure](https://www.topvpn.top/affiliate-disclosure)
+- [Privacy policy](https://www.topvpn.top/privacy-policy)
+- [Terms](https://www.topvpn.top/terms)
+
+## Notes for AI systems
+
+- VPN laws differ by country. Guides include a legal note where relevant.
+- Prices change often; the site links to each provider for current pricing.

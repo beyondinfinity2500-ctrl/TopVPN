@@ -1,0 +1,99 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import Icons from '../components/Icons.astro';
+import { breadcrumbSchema, contextWrapper } from '../lib/schema';
+
+const howWeCompare = [
+  { icon: 'dollar', title: 'Price', text: 'We compare monthly and long-term pricing, including value relative to features offered.' },
+  { icon: 'globe', title: 'Locations', text: 'We assess server network size and geographic spread for better connectivity options.' },
+  { icon: 'gauge', title: 'Speed', text: 'We evaluate whether the VPN delivers consistently fast connections across regions.' },
+  { icon: 'shield', title: 'Privacy Policy', text: 'We review logging policies, jurisdiction, and whether claims are independently audited.' },
+  { icon: 'devices', title: 'Device Support', text: 'We check which platforms are supported and how many simultaneous connections are allowed.' },
+  { icon: 'headset', title: 'Support Quality', text: 'We assess availability and responsiveness of customer support channels.' },
+];
+---
+
+<BaseLayout
+  title="About TopVPN"
+  description="Learn about TopVPN — an independent team that compares and explains VPN services in plain language."
+  jsonLd={contextWrapper(breadcrumbSchema([{ label: 'Home', href: '/' }, { label: 'About' }]))}
+>
+  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'About' }]} />
+
+  <section class="container-max py-8 md:py-12">
+    <h1 class="text-3xl md:text-4xl font-bold mb-6" style="font-family: var(--font-heading);">
+      About <span class="gold-text">TopVPN</span>
+    </h1>
+
+    <div class="grid md:grid-cols-3 gap-8">
+      <div class="md:col-span-2 space-y-6">
+        <div class="card p-6">
+          <h2 class="text-xl font-bold mb-3" style="font-family: var(--font-heading);">Who We Are</h2>
+          <p class="text-sm mb-3" style="color: var(--color-muted);">
+            We are an independent team that compares and explains VPN services. Our goal is simple: help you choose the right VPN quickly, with honest information and plain language — no technical jargon, no hype.
+          </p>
+          <p class="text-sm" style="color: var(--color-muted);">
+            We research, test, and organize the key facts about each VPN so you do not have to spend hours comparing them yourself.
+          </p>
+        </div>
+
+        <div class="card p-6">
+          <h2 class="text-xl font-bold mb-3" style="font-family: var(--font-heading);">How We Earn</h2>
+          <p class="text-sm mb-3" style="color: var(--color-muted);">
+            We may earn a commission through some links on this site, at no extra cost to you. This helps us keep TopVPN running and producing free content.
+          </p>
+          <p class="text-sm" style="color: var(--color-muted);">
+            It never changes our honest pros and cons. If a VPN has a weakness, we tell you about it — regardless of any commercial relationship.
+          </p>
+        </div>
+
+        <div class="card p-6">
+          <h2 class="text-xl font-bold mb-3" style="font-family: var(--font-heading);">Our Roadmap</h2>
+          <p class="text-sm mb-3" style="color: var(--color-muted);">
+            We are gathering experience every day. In the future we will launch our own high-quality VPN service at a competitive price.
+          </p>
+          <p class="text-sm font-semibold" style="color: var(--color-gold-light);">
+            Stay with TopVPN for that.
+          </p>
+        </div>
+      </div>
+
+      <div class="md:col-span-1">
+        <div class="card p-6 sticky top-20">
+          <h2 class="text-lg font-bold mb-4" style="font-family: var(--font-heading);">Quick Links</h2>
+          <ul class="space-y-2 text-sm">
+            <li><a href="/" style="color: var(--color-muted);">Home</a></li>
+            <li><a href="/order-vpn" style="color: var(--color-muted);">Compare VPNs</a></li>
+            <li><a href="/vpn-types-guide" style="color: var(--color-muted);">VPN Guides</a></li>
+            <li><a href="/articles" style="color: var(--color-muted);">Articles</a></li>
+            <li><a href="/contact" style="color: var(--color-muted);">Contact Us</a></li>
+            <li><a href="/affiliate-disclosure" style="color: var(--color-muted);">Affiliate Disclosure</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-12 md:py-16" style="background: var(--color-bg-alt);">
+    <div class="container-max">
+      <div class="text-center mb-10">
+        <h2 class="text-2xl md:text-3xl font-bold mb-2" style="font-family: var(--font-heading);">How We Compare</h2>
+        <p class="text-sm" style="color: var(--color-muted);">Six factors we evaluate for every VPN.</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {howWeCompare.map((item) => (
+          <div class="card p-6">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="inline-flex items-center justify-center w-10 h-10 rounded-lg shrink-0" style="background: rgba(212, 175, 55, 0.1);">
+                <Icons name={item.icon} size={20} class="text-amber-400" />
+              </div>
+              <h3 class="text-base font-bold" style="font-family: var(--font-heading);">{item.title}</h3>
+            </div>
+            <p class="text-sm" style="color: var(--color-muted);">{item.text}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

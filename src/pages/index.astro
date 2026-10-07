@@ -1,0 +1,200 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import ProviderCard from '../components/ProviderCard.astro';
+import ComparisonSummary from '../components/ComparisonSummary.astro';
+import FAQ from '../components/FAQ.astro';
+import AdSlot from '../components/AdSlot.astro';
+import Icons from '../components/Icons.astro';
+import { getCollection } from 'astro:content';
+import { providers } from '../data/providers';
+import { orgSchema, websiteSchema, faqSchema, contextWrapper } from '../lib/schema';
+
+const top3 = providers.slice(0, 3);
+
+const guides = (await getCollection('articles', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.updatedDate.getTime() - a.data.updatedDate.getTime())
+  .slice(0, 3);
+
+const criteria = [
+  { icon: 'shield', title: 'Privacy & security', text: 'Logging policy, encryption, independent audits, and the jurisdiction the company operates in.' },
+  { icon: 'gauge', title: 'Speed & reliability', text: 'How consistently a service connects and performs, from nearby and distant servers.' },
+  { icon: 'globe', title: 'Servers & access', text: 'Country coverage, protocol options, and how well it works where blocks are common.' },
+  { icon: 'devices', title: 'Value & ease of use', text: 'Real prices over 1 month, 6 months and 1 year, apps for your devices, and support.' },
+];
+
+const explore = [
+  { href: '/vpn-types-guide', title: 'Dedicated vs Shared IP', text: 'Which type fits streaming, banking or work.' },
+  { href: '/connection-guide', title: 'Protocols explained', text: 'WireGuard, OpenVPN, V2Ray and Shadowsocks in plain words.' },
+  { href: '/apps', title: 'Apps for every device', text: 'Windows, macOS, Linux, Android, iOS and routers.' },
+  { href: '/articles', title: 'Country guides', text: 'Why people in each country use a VPN, and what to look for.' },
+];
+
+const whyUseVpn = [
+  { icon: 'wifi', title: 'Privacy on Public Wi-Fi', text: 'Encrypt your connection on coffee shop, airport, and hotel networks so no one can intercept your data.' },
+  { icon: 'globe', title: 'Access While Traveling', text: 'Reach your favorite services and content securely, even when geo-restrictions block them abroad.' },
+  { icon: 'eye', title: 'Avoid Tracking', text: 'Prevent ISPs, advertisers, and third parties from monitoring your browsing activity.' },
+];
+
+const howToChoose = [
+  { icon: 'gauge', title: 'Check Speed & Servers', text: 'Look for a VPN with a large server network and consistently fast connections in your region.' },
+  { icon: 'shield', title: 'Review Privacy Policy', text: 'Choose a no-logs VPN in a privacy-friendly jurisdiction with independently audited practices.' },
+  { icon: 'devices', title: 'Confirm Device Support', text: 'Make sure the VPN has apps for every device you use, with enough simultaneous connections.' },
+];
+
+const faqs = [
+  { question: 'What is a VPN and why do I need one?', answer: 'A VPN (Virtual Private Network) encrypts your internet connection and routes it through a remote server, hiding your IP address and protecting your data from interception. You need one for privacy on public Wi-Fi, accessing geo-restricted content, and preventing tracking by ISPs and advertisers.' },
+  { question: 'Are VPNs legal to use?', answer: 'Yes, VPNs are legal in most countries. However, a few countries restrict or ban VPN usage. Always check your local laws before using a VPN, especially when traveling.' },
+  { question: 'Will a VPN slow down my internet?', answer: 'A VPN adds a small amount of overhead because your traffic is encrypted and routed through an additional server. Quality VPNs minimize this impact, and sometimes a VPN can even improve speeds if your ISP is throttling certain traffic.' },
+  { question: 'Can I use one VPN on multiple devices?', answer: 'Most VPN providers allow multiple simultaneous connections on a single subscription. The exact number varies by provider, so check our comparison table for details.' },
+];
+---
+
+<BaseLayout
+  title="The Best VPN Services, Compared Honestly"
+  description="TopVPN compares the top VPNs for privacy, speed and price, so you can choose the right one in minutes, not hours."
+  jsonLd={contextWrapper([orgSchema, websiteSchema, faqSchema(faqs)])}
+>
+  <Hero />
+
+  <section class="container-max py-12 md:py-16">
+    <div class="text-center mb-8">
+      <h2 class="text-2xl md:text-3xl font-bold mb-2">Our Shortlist: 3 Well-Known VPNs to Start With</h2>
+      <p class="text-sm" style="color: var(--color-muted);">Popular services with different strengths. Compare them side by side below.</p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {top3.map((provider, i) => (
+        <ProviderCard provider={provider} rank={i + 1} featured={i === 0} />
+      ))}
+    </div>
+  </section>
+
+  <AdSlot />
+
+  <section class="container-max py-12 md:py-16">
+    <div class="text-center mb-8">
+      <h2 class="text-2xl md:text-3xl font-bold mb-2">Full Comparison</h2>
+      <p class="text-sm" style="color: var(--color-muted);">Compare all six providers side by side. Tap any row for details.</p>
+    </div>
+    <ComparisonSummary providers={providers} />
+    <div class="text-center mt-6">
+      <a href="/order-vpn" class="btn-outline">See Full Breakdown</a>
+    </div>
+  </section>
+
+  <section class="py-12 md:py-16" style="background: var(--color-bg-alt);">
+    <div class="container-max">
+      <div class="text-center mb-10">
+        <h2 class="text-2xl md:text-3xl font-bold mb-2">Why Use a VPN?</h2>
+        <p class="text-sm" style="color: var(--color-muted);">Three reasons millions of people rely on VPNs every day.</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {whyUseVpn.map((item) => (
+          <div class="card p-6 text-center">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl mb-4" style="background: rgba(212, 175, 55, 0.1);">
+              <Icons name={item.icon} size={24} class="text-amber-400" />
+            </div>
+            <h3 class="text-lg font-bold mb-2">{item.title}</h3>
+            <p class="text-sm" style="color: var(--color-muted);">{item.text}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="container-max py-12 md:py-16">
+    <div class="text-center mb-10">
+      <h2 class="text-2xl md:text-3xl font-bold mb-2">How to Choose a VPN</h2>
+      <p class="text-sm" style="color: var(--color-muted);">Three simple steps to find the right VPN for you.</p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {howToChoose.map((item, i) => (
+        <div class="card p-6">
+          <div class="flex items-center gap-3 mb-3">
+            <span class="inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold shrink-0" style="background: linear-gradient(135deg, #D4AF37, #F5D77A); color: #0B1020;">{i + 1}</span>
+            <Icons name={item.icon} size={24} class="text-amber-400" />
+          </div>
+          <h3 class="text-lg font-bold mb-2">{item.title}</h3>
+          <p class="text-sm" style="color: var(--color-muted);">{item.text}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="py-12 md:py-16" style="background: var(--color-bg-alt);">
+    <div class="container-max">
+      <div class="text-center mb-10">
+        <span class="eyebrow">How we compare</span>
+        <h2 class="section-title">Four criteria, applied the same way to every VPN</h2>
+        <p class="section-sub">Rankings are never sold. Where we have not tested something ourselves, we say so and point to the provider's own information.</p>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {criteria.map((c) => (
+          <div class="card card-hover p-5">
+            <div class="inline-flex items-center justify-center w-10 h-10 rounded-lg mb-3" style="background: rgba(212, 175, 55, 0.1);">
+              <Icons name={c.icon} size={22} class="text-amber-400" />
+            </div>
+            <h3 class="text-base font-bold mb-1">{c.title}</h3>
+            <p class="text-sm" style="color: var(--color-muted);">{c.text}</p>
+          </div>
+        ))}
+      </div>
+      <div class="text-center mt-8">
+        <a href="/about" class="btn-outline">Read our full approach</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-max py-12 md:py-16">
+    <div class="text-center mb-10">
+      <span class="eyebrow">Guides</span>
+      <h2 class="section-title">Learn before you buy</h2>
+      <p class="section-sub">Short, practical guides on the questions people actually search for.</p>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {explore.map((g) => (
+        <a href={g.href} class="card card-hover p-5 block">
+          <h3 class="text-base font-bold mb-1" style="color: var(--color-text);">{g.title}</h3>
+          <p class="text-sm mb-3" style="color: var(--color-muted);">{g.text}</p>
+          <span class="text-xs font-semibold gold-text">Read guide</span>
+        </a>
+      ))}
+    </div>
+
+    {guides.length > 0 && (
+      <div class="mt-10">
+        <h3 class="text-lg font-bold mb-4">Popular country guides</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {guides.map((a) => (
+            <a href={`/articles/${a.id}`} class="card card-hover p-5 block">
+              <h4 class="text-base font-bold mb-1" style="color: var(--color-text);">{a.data.title}</h4>
+              <p class="text-sm" style="color: var(--color-muted);">{a.data.description}</p>
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+  </section>
+
+  <section class="container-max py-12 md:py-16">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="text-2xl md:text-3xl font-bold mb-6 text-center">Frequently Asked Questions</h2>
+      <FAQ items={faqs} />
+    </div>
+  </section>
+
+  <section class="py-16 md:py-20" style="background: var(--color-bg-alt);">
+    <div class="container-max text-center">
+      <h2 class="text-2xl md:text-4xl font-bold mb-4">
+        Ready to Protect Your <span class="gold-text">Privacy?</span>
+      </h2>
+      <p class="text-base mb-8 max-w-xl mx-auto" style="color: var(--color-muted);">
+        Compare the best VPNs and choose the one that fits your needs in minutes.
+      </p>
+      <a href="/order-vpn" class="btn-gold">
+        Compare Best VPNs
+        <Icons name="arrow-right" size={18} />
+      </a>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,101 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import TagChips from '../components/TagChips.astro';
+import Icons from '../components/Icons.astro';
+import { breadcrumbSchema, contextWrapper } from '../lib/schema';
+
+const updatedStr = 'October 2026';
+
+const faqs = [
+  { question: 'Does the commission affect which VPNs you recommend?', answer: 'No. We recommend VPNs based on their merits — privacy, speed, features, and value. If a provider we earn commission from has a weakness, we mention it openly. We would rather lose a commission than mislead a reader.' },
+  { question: 'Do you earn commission on every VPN listed?', answer: 'Not necessarily. Some links are affiliate links and some are not. We list VPNs we think are worth comparing regardless of whether we earn from them.' },
+  { question: 'Do I pay more if I use your link?', answer: 'No. The price you pay is the same whether you use our link or go directly. The commission comes from the provider margin, not from your pocket.' },
+  { question: 'Can I buy a VPN without using your affiliate link?', answer: 'Of course. You are free to visit any provider directly. Our content is free to read either way.' },
+];
+
+const tags = ['disclosure', 'affiliate', 'transparency'];
+---
+
+<BaseLayout
+  title="Affiliate Disclosure"
+  description="TopVPN earns a commission when you buy through some links, at no extra cost to you. It does not affect our opinions."
+  jsonLd={contextWrapper(breadcrumbSchema([{ label: 'Home', href: '/' }, { label: 'Affiliate Disclosure' }]))}
+>
+  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Affiliate Disclosure' }]} />
+
+  <section class="container-max py-8 md:py-12">
+    <div class="max-w-3xl">
+      <div class="mb-4 flex items-center gap-2 text-xs" style="color: var(--color-muted-dark);">
+        <Icons name="doc" size={14} />
+        <span>Updated {updatedStr}</span>
+      </div>
+
+      <h1 class="text-3xl md:text-4xl font-bold mb-6" style="font-family: var(--font-heading);">
+        Affiliate <span class="gold-text">Disclosure</span>
+      </h1>
+
+      <div class="card p-4 mb-6 text-sm" style="background: var(--color-bg-alt);">
+        <p style="color: var(--color-muted);"><strong style="color: var(--color-text);">Quick answer:</strong> We earn a commission when you buy through some links, at no extra cost to you. It does not affect our opinions.</p>
+      </div>
+
+      <TagChips chips={tags} class="mb-6" />
+
+      <div class="space-y-6">
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">How We Earn</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            Some links on TopVPN are affiliate links. When you click one of these links and sign up for a VPN service, we may earn a commission from the provider. This does not increase the price you pay. The commission comes from the provider, not from you.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">Our Editorial Independence</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            Commission never determines our ratings, rankings, or recommendations. We test and compare VPNs based on real criteria — privacy policies, speed, server networks, device support, and value for money. If a VPN has a weakness, we say so, whether or not we earn from it.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">Why This Matters to You</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            You deserve to know when a site has a financial relationship with the products it covers. Transparency lets you weigh our recommendations with the right context. If a site hides its affiliate relationships, you cannot trust that its advice is independent. We want you to trust ours.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">Questions?</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            If you have questions about how we earn or how affiliate links work, email us at hello@topvpn.example. We are happy to explain further.
+          </p>
+        </div>
+      </div>
+
+      <div class="mt-8">
+        <h2 class="text-xl font-bold mb-4" style="font-family: var(--font-heading);">FAQ</h2>
+        <div class="space-y-3">
+          {faqs.map((f) => (
+            <details class="card p-4 group">
+              <summary class="font-semibold cursor-pointer text-sm flex items-center justify-between" style="font-family: var(--font-heading);">
+                {f.question}
+                <Icons name="chevron-down" size={16} class="text-amber-400 transition-transform group-open:rotate-180" />
+              </summary>
+              <p class="text-sm mt-3" style="color: var(--color-muted);">{f.answer}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+
+      <div class="mt-8 flex flex-col sm:flex-row gap-4">
+        <a href="/" class="inline-flex items-center gap-2 text-sm font-semibold gold-text">
+          <Icons name="arrow-right" size={14} class="rotate-180 text-amber-400" />
+          Back to Home
+        </a>
+        <a href="/order-vpn" class="inline-flex items-center gap-2 text-sm font-semibold gold-text">
+          Compare VPN Plans
+          <Icons name="arrow-right" size={14} class="text-amber-400" />
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

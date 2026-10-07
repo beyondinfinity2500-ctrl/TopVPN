@@ -1,0 +1,149 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import TagChips from '../components/TagChips.astro';
+import Icons from '../components/Icons.astro';
+import { breadcrumbSchema, contextWrapper } from '../lib/schema';
+
+const updatedStr = 'October 2026';
+
+const platforms = [
+  { icon: 'windows', name: 'Windows', suits: 'Most desktop users — full-featured apps with settings for protocols, kill switch, and split tunneling' },
+  { icon: 'macos', name: 'macOS', suits: 'Apple desktop and laptop users — native apps with menu-bar quick connect' },
+  { icon: 'linux', name: 'Linux', suits: 'Power users and developers — command-line tools and some GUI clients; open-source options available' },
+  { icon: 'android', name: 'Android', suits: 'Phone and tablet users — quick-toggle widget, auto-connect on untrusted Wi-Fi' },
+  { icon: 'ios', name: 'iOS', suits: 'iPhone and iPad users — seamless on/off toggle, integrates with Apple privacy features' },
+  { icon: 'router', name: 'Routers', suits: 'Households wanting every device protected without installing apps — covers smart TVs and game consoles' },
+  { icon: 'chrome', name: 'Browser extensions', suits: 'Lightweight browsing privacy — only protects browser traffic, not other apps' },
+];
+
+const openSourceClients = [
+  { name: 'WireGuard', description: 'The official WireGuard client — available on multiple platforms, fast and minimal.' },
+  { name: 'OpenVPN Connect', description: 'The official client for OpenVPN — works on Windows, macOS, Android, and iOS.' },
+  { name: 'v2rayN', description: 'A Windows client for V2Ray — popular in regions where standard VPN protocols are blocked.' },
+  { name: 'Hiddify', description: 'A cross-platform client that supports multiple protocols including Shadowsocks and V2Ray.' },
+];
+
+const leakTestSteps = [
+  { step: 1, title: 'Note your real IP address', text: 'Before connecting the VPN, visit a site like whatismyipaddress.com and write down your IP.' },
+  { step: 2, title: 'Connect your VPN', text: 'Open your VPN app and connect to a server in any country.' },
+  { step: 3, title: 'Check your IP again', text: 'Reload the same site. The IP should now show the VPN server country, not your real location.' },
+  { step: 4, title: 'Run a DNS leak test', text: 'Visit dnsleaktest.com and run the extended test. All DNS servers should belong to your VPN provider, not your ISP.' },
+  { step: 5, title: 'Disconnect and verify', text: 'Turn off the VPN and reload the page. Your real IP should return. If it does not, there may be a connection issue.' },
+];
+
+const faqs = [
+  { question: 'Do I need to install a VPN on every device separately?', answer: 'Yes, for full protection you need the VPN app on each device you use. Alternatively, you can install the VPN on your router to cover all devices on your home network, including smart TVs and game consoles.' },
+  { question: 'Are open-source VPN clients safe to use?', answer: 'Open-source clients like WireGuard and OpenVPN Connect are generally considered trustworthy because their code is publicly auditable. However, you still need a VPN subscription to connect to servers — the client is just the software.' },
+  { question: 'Does a browser extension protect my whole computer?', answer: 'No. A browser extension only encrypts traffic from your browser. Other apps on your device — email, games, system updates — still use your real connection. For full protection, use the VPN app.' },
+  { question: 'Can I use a VPN on my smart TV?', answer: 'Some smart TVs support VPN apps directly. If yours does not, you can install the VPN on your router or use the VPN on a streaming device like a Fire Stick that supports VPN apps.' },
+];
+
+const tags = ['apps', 'devices', 'Windows', 'macOS', 'Android', 'iOS', 'guide'];
+---
+
+<BaseLayout
+  title="VPN Apps and Tools for Every Device"
+  description="A guide to VPN apps for Windows, macOS, Linux, Android, iOS, routers, and browsers — plus how to check your VPN is working."
+  jsonLd={contextWrapper(breadcrumbSchema([{ label: 'Home', href: '/' }, { label: 'Apps' }]))}
+>
+  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Apps' }]} />
+
+  <section class="container-max py-8 md:py-12">
+    <div class="max-w-3xl">
+      <div class="mb-4 flex items-center gap-2 text-xs" style="color: var(--color-muted-dark);">
+        <Icons name="doc" size={14} />
+        <span>Updated {updatedStr}</span>
+      </div>
+
+      <h1 class="text-3xl md:text-4xl font-bold mb-4" style="font-family: var(--font-heading);">
+        VPN Apps and Tools <span class="gold-text">for Every Device</span>
+      </h1>
+
+      <p class="text-base md:text-lg mb-4" style="color: var(--color-muted);">
+        Most VPN providers offer apps for all major platforms — Windows, macOS, Linux, Android, iOS, routers, and browsers. The right setup depends on which devices you use and whether you want full or partial protection. For complete privacy, install the app on each device; for household-wide coverage, set up the VPN on your router.
+      </p>
+
+      <div class="card p-4 mb-6 text-sm" style="background: var(--color-bg-alt);">
+        <p style="color: var(--color-muted);"><strong style="color: var(--color-text);">Quick answer:</strong> Install the VPN app on every phone, laptop, and tablet you use. For smart TVs and game consoles, set up the VPN on your router instead. VPN laws differ by country — check local rules before use.</p>
+      </div>
+
+      <TagChips chips={tags} class="mb-6" />
+    </div>
+
+    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">Apps by Platform</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 max-w-4xl">
+      {platforms.map((p) => (
+        <div class="card p-5 flex items-start gap-4">
+          <div class="inline-flex items-center justify-center w-10 h-10 rounded-lg shrink-0" style="background: rgba(212, 175, 55, 0.1);">
+            <Icons name={p.icon} size={20} class="text-amber-400" />
+          </div>
+          <div>
+            <h3 class="text-base font-bold mb-1" style="font-family: var(--font-heading);">{p.name}</h3>
+            <p class="text-sm" style="color: var(--color-muted);">{p.suits}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">Open-Source Clients</h2>
+    <p class="text-sm mb-4 max-w-3xl" style="color: var(--color-muted);">
+      Some VPN protocols have open-source client software you can use independently. These are generally well-maintained and auditable, but availability varies by platform and you still need a server to connect to.
+    </p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 max-w-4xl">
+      {openSourceClients.map((c) => (
+        <div class="card p-4">
+          <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">{c.name}</h3>
+          <p class="text-xs" style="color: var(--color-muted);">{c.description}</p>
+        </div>
+      ))}
+    </div>
+
+    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">How to Check Your VPN Works</h2>
+    <p class="text-sm mb-4 max-w-3xl" style="color: var(--color-muted);">
+      After setting up your VPN, run a quick IP and DNS leak test to confirm your traffic is actually going through the VPN.
+    </p>
+    <div class="space-y-3 mb-8 max-w-3xl">
+      {leakTestSteps.map((s) => (
+        <div class="card p-4 flex items-start gap-4">
+          <span class="inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold shrink-0" style="background: linear-gradient(135deg, #D4AF37, #F5D77A); color: #0B1020;">{s.step}</span>
+          <div>
+            <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">{s.title}</h3>
+            <p class="text-xs" style="color: var(--color-muted);">{s.text}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <div class="max-w-3xl mb-8">
+      <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">FAQ</h2>
+      <div class="space-y-3">
+        {faqs.map((f) => (
+          <details class="card p-4 group">
+            <summary class="font-semibold cursor-pointer text-sm flex items-center justify-between" style="font-family: var(--font-heading);">
+              {f.question}
+              <Icons name="chevron-down" size={16} class="text-amber-400 transition-transform group-open:rotate-180" />
+            </summary>
+            <p class="text-sm mt-3" style="color: var(--color-muted);">{f.answer}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+
+    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">Related Guides</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
+      <a href="/connection-guide" class="card p-4 block transition-all hover:border-amber-400">
+        <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">VPN Protocols Explained</h3>
+        <p class="text-xs" style="color: var(--color-muted);">WireGuard, OpenVPN, V2Ray, and Shadowsocks compared</p>
+      </a>
+      <a href="/order-vpn" class="card p-4 block transition-all hover:border-amber-400">
+        <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">Compare VPN Plans</h3>
+        <p class="text-xs" style="color: var(--color-muted);">See which providers offer apps for your devices</p>
+      </a>
+      <a href="/" class="card p-4 block transition-all hover:border-amber-400">
+        <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">TopVPN Home</h3>
+        <p class="text-xs" style="color: var(--color-muted);">Our top recommendations and why we picked them</p>
+      </a>
+    </div>
+  </section>
+</BaseLayout>

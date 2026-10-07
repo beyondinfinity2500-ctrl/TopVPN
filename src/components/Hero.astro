@@ -1,0 +1,60 @@
+---
+import Icons from './Icons.astro';
+import { providers } from '../data/providers';
+import { SITE } from '../lib/site';
+
+const updated = new Date(SITE.updated).toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'UTC' });
+
+const stats = [
+  { value: String(providers.length), label: 'VPNs compared' },
+  { value: '4', label: 'criteria, same for all' },
+  { value: updated, label: 'last reviewed' },
+];
+---
+
+<section class="relative overflow-hidden" style="background: var(--color-bg);">
+  <div class="hero-grid absolute inset-0" aria-hidden="true"></div>
+  <div class="absolute inset-0 pointer-events-none" aria-hidden="true" style="background: radial-gradient(ellipse 70% 55% at 50% 0%, rgba(212, 175, 55, 0.14), transparent);"></div>
+
+  <div class="container-max relative pt-14 pb-16 md:pt-24 md:pb-24">
+    <div class="max-w-3xl mx-auto text-center">
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 mb-6 rounded-full" style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.28);">
+        <Icons name="check" size={14} />
+        <span class="text-xs font-semibold" style="color: var(--color-emerald);">Independent comparisons. Plain language. No hype.</span>
+      </div>
+
+      <h1 class="text-4xl md:text-6xl font-bold leading-tight mb-5">
+        The Best <span class="gold-text">VPN Services</span>, Compared Honestly
+      </h1>
+
+      <p class="text-base md:text-lg mb-8 max-w-2xl mx-auto" style="color: var(--color-muted);">
+        We compare the top VPNs for privacy, speed and price, so you can choose the right one in minutes, not hours.
+      </p>
+
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mb-3">
+        <a href="/order-vpn" class="btn-gold w-full sm:w-auto">
+          Compare Top VPNs
+          <Icons name="arrow-right" size={18} />
+        </a>
+        <a href="/vpn-types-guide" class="btn-outline w-full sm:w-auto">Read VPN Guides</a>
+      </div>
+      <p class="text-xs" style="color: var(--color-muted-dark);">
+        We may earn a commission if you buy through our links, at no extra cost to you.
+        <a href="/affiliate-disclosure" style="text-decoration: underline;">How this works</a>
+      </p>
+    </div>
+
+    <dl class="grid grid-cols-3 gap-3 max-w-2xl mx-auto mt-10 md:mt-14">
+      {stats.map((s) => (
+        <div class="card px-3 py-4 text-center">
+          <dt class="sr-only">{s.label}</dt>
+          <dd class="m-0">
+            <span class="block text-lg md:text-2xl font-bold gold-text" style="font-family: var(--font-heading);">{s.value}</span>
+            <span class="block text-[11px] md:text-xs mt-1" style="color: var(--color-muted);">{s.label}</span>
+          </dd>
+        </div>
+      ))}
+    </dl>
+  </div>
+  <div class="divider-gold"></div>
+</section>

@@ -1,0 +1,84 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import Icons from '../components/Icons.astro';
+import { breadcrumbSchema, contextWrapper } from '../lib/schema';
+
+const updatedStr = 'October 2026';
+---
+
+<BaseLayout
+  title="Terms of Service"
+  description="The terms under which TopVPN provides its content and services. Please read before using the site."
+  jsonLd={contextWrapper(breadcrumbSchema([{ label: 'Home', href: '/' }, { label: 'Terms' }]))}
+>
+  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Terms' }]} />
+
+  <section class="container-max py-8 md:py-12">
+    <div class="max-w-3xl">
+      <div class="mb-4 flex items-center gap-2 text-xs" style="color: var(--color-muted-dark);">
+        <Icons name="doc" size={14} />
+        <span>Updated {updatedStr}</span>
+      </div>
+
+      <h1 class="text-3xl md:text-4xl font-bold mb-6" style="font-family: var(--font-heading);">
+        Terms of <span class="gold-text">Service</span>
+      </h1>
+
+      <p class="text-sm mb-6" style="color: var(--color-muted);">
+        By using TopVPN, you agree to these terms. They are written in plain language so you know what to expect.
+      </p>
+
+      <div class="space-y-6">
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">What We Provide</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            TopVPN offers informational content about VPN services, including reviews, comparisons, and guides. We do not sell VPN services directly. Any purchase you make happens on a third-party provider website under their own terms.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">No Warranties</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            We do our best to keep information accurate and up to date, but VPN pricing, features, and availability change frequently. We cannot guarantee that every detail is current at the time you read it. Always verify details on the provider website before purchasing.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">Affiliate Relationship</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            We earn a commission when you buy through some links, at no extra cost to you. It does not affect our opinions. This relationship does not create a contractual obligation between you and TopVPN.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">Not Legal or Professional Advice</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            Our content is for general information only. It is not legal advice. VPN laws differ by country and can change. You are responsible for checking whether using a VPN is legal in your location and for complying with local regulations.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">Limitation of Liability</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            TopVPN is not liable for any losses arising from your use of the site or from decisions made based on our content. Your use of any VPN service is at your own risk and subject to that provider terms.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">Changes to These Terms</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            We may update these terms at any time. Continued use of the site after changes are posted means you accept the updated terms.
+          </p>
+        </div>
+      </div>
+
+      <div class="mt-8">
+        <a href="/" class="inline-flex items-center gap-2 text-sm font-semibold gold-text">
+          <Icons name="arrow-right" size={14} class="rotate-180 text-amber-400" />
+          Back to Home
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

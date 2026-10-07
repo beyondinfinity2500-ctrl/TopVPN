@@ -1,0 +1,28 @@
+---
+import Icons from './Icons.astro';
+
+interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+interface Props {
+  items: FAQItem[];
+}
+
+const { items } = Astro.props;
+---
+
+<div class="space-y-3">
+  {items.map((item, i) => (
+    <details class="card overflow-hidden" id={`faq-${i}`}>
+      <summary class="flex items-center justify-between p-4 cursor-pointer" style="color: var(--color-text);">
+        <span class="font-semibold pr-4" style="font-family: var(--font-heading);">{item.question}</span>
+        <Icons name="chevron-down" size={20} class="faq-chevron shrink-0" />
+      </summary>
+      <div class="px-4 pb-4 text-sm" style="color: var(--color-muted);">
+        {item.answer}
+      </div>
+    </details>
+  ))}
+</div>

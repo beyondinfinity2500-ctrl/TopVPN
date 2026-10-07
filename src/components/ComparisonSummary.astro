@@ -1,0 +1,76 @@
+---
+import type { Provider } from '../data/providers';
+import { formatPrice } from '../data/providers';
+import Icons from './Icons.astro';
+
+interface Props {
+  providers: Provider[];
+  linkBase?: string;
+  showOrderButton?: boolean;
+}
+
+const { providers, linkBase = '/order-vpn', showOrderButton = false } = Astro.props;
+
+// Columns appear only when there is real data, so the table never shows a wall of "Check latest".
+const hasPrices = providers.some((p) => p.monthlyPrice !== null || p.sixMonthPrice !== null || p.longTermPrice !== null);
+const hasSpecs = providers.some((p) => p.locations !== null || p.devices !== null);
+
+const priceCols = [
+  { label: '1-Month', key: 'monthlyPrice' },
+  { label: '6-Month', key: 'sixMonthPrice' },
+  { label: 'Long-term / mo', key: 'longTermPrice' },
+] as const;
+---
+
+<div class="overflow-x-auto">
+  <table class="responsive-table w-full text-sm" style="border-collapse: collapse;">
+    <thead>
+      <tr style="border-bottom: 2px solid var(--color-border);">
+        <th scope="col" class="text-left py-3 px-2 md:px-4 font-semibold">VPN</th>
+        <th scope="col" class="text-left py-3 px-2 md:px-4 font-semibold">Best For</th>
+        {!hasPrices && <th scope="col" class="text-left py-3 px-2 md:px-4 font-semibold">Protocols</th>}
+        {hasPrices && priceCols.map((c) => <th scope="col" class="text-left py-3 px-2 md:px-4 font-semibold">{c.label}</th>)}
+        {hasSpecs && <th scope="col" class="text-left py-3 px-2 md:px-4 font-semibold">Locations</th>}
+        {hasSpecs && <th scope="col" class="text-left py-3 px-2 md:px-4 font-semibold">Devices</th>}
+        <th scope="col" class="text-right py-3 px-2 md:px-4 font-semibold">
+          <span class="sr-only">Action</span>
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      {providers.map((p, i) => (
+        <tr style={i < providers.length - 1 ? 'border-bottom: 1px solid var(--color-border);' : ''}>
+          <td data-label="VPN" class="py-3 px-2 md:px-4">
+            <a href={`${linkBase}#${p.slug}`} class="font-semibold" style="color: var(--color-text);">{p.name}</a>
+          </td>
+          <td data-label="Best For" class="py-3 px-2 md:px-4" style="color: var(--color-muted);">{p.bestFor}</td>
+          {!hasPrices && (
+            <td data-label="Protocols" class="py-3 px-2 md:px-4" style="color: var(--color-muted);">{p.protocols.join(', ')}</td>
+          )}
+          {hasPrices && priceCols.map((c) => (
+            <td data-label={c.label} class="py-3 px-2 md:px-4 font-semibold">{p[c.key] === null ? '—' : formatPrice(p[c.key])}</td>
+          ))}
+          {hasSpecs && <td data-label="Locations" class="py-3 px-2 md:px-4">{p.locations !== null ? `${p.locations}+` : '—'}</td>}
+          {hasSpecs && <td data-label="Devices" class="py-3 px-2 md:px-4">{p.devices !== null ? p.devices : '—'}</td>}
+          <td data-label="" class="py-3 px-2 md:px-4 text-right">
+            {showOrderButton ? (
+              <a
+                href={p.affiliateUrl}
+                rel="sponsored nofollow noopener"
+                class="inline-flex items-center justify-center text-xs font-bold px-4 py-2 rounded-lg"
+                style="background: linear-gradient(135deg, #D4AF37, #F5D77A); color: #0B1020; min-height: 40px;"
+              >
+                Check price
+              </a>
+            ) : (
+              <a href={`${linkBase}#${p.slug}`} class="inline-flex items-center gap-1 text-xs font-semibold gold-text">
+                Details
+                <Icons name="arrow-right" size={14} class="text-amber-400" />
+              </a>
+            )}
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>

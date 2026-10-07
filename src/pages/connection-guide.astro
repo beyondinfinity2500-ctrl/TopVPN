@@ -1,0 +1,208 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import TagChips from '../components/TagChips.astro';
+import Icons from '../components/Icons.astro';
+import { breadcrumbSchema, contextWrapper } from '../lib/schema';
+
+const updatedStr = 'October 2026';
+
+const protocolSituations = [
+  { situation: 'Everyday browsing and streaming', recommendation: 'WireGuard', reason: 'Fastest, modern encryption, low overhead' },
+  { situation: 'Networks that block WireGuard', recommendation: 'OpenVPN (UDP)', reason: 'Reliable fallback, widely supported' },
+  { situation: 'Restrictive firewalls', recommendation: 'OpenVPN (TCP)', reason: 'Slower but passes through firewalls better' },
+  { situation: 'Mobile and on-the-go', recommendation: 'IKEv2/IPSec', reason: 'Reconnects quickly when switching networks' },
+  { situation: 'Heavily restricted networks', recommendation: 'Shadowsocks or V2Ray', reason: 'Designed to disguise traffic as normal HTTPS' },
+  { situation: 'Maximum speed on trusted devices', recommendation: 'WireGuard', reason: 'Lean codebase, minimal latency' },
+];
+
+const countryProtocols = [
+  { country: 'China', pop: '1.1B+', oftenWorks: 'Shadowsocks, V2Ray', mayBeBlocked: 'WireGuard, OpenVPN', note: 'Deep packet inspection targets standard VPN traffic; obfuscation tools often work better' },
+  { country: 'India', pop: '700M+', oftenWorks: 'WireGuard, OpenVPN', mayBeBlocked: 'Shadowsocks (rarely needed)', note: 'Standard protocols usually work; occasional throttling on certain networks' },
+  { country: 'United States', pop: '310M+', oftenWorks: 'WireGuard, OpenVPN, IKEv2', mayBeBlocked: 'V2Ray (rarely needed)', note: 'All standard protocols work freely' },
+  { country: 'Indonesia', pop: '210M+', oftenWorks: 'WireGuard, OpenVPN', mayBeBlocked: 'Some servers on mobile networks', note: 'Occasional restrictions on gaming and social traffic' },
+  { country: 'Brazil', pop: '180M+', oftenWorks: 'WireGuard, OpenVPN', mayBeBlocked: 'IKEv2 (uncommon)', note: 'Standard protocols generally work without issues' },
+  { country: 'Turkey', pop: '80M+', oftenWorks: 'OpenVPN (TCP), Shadowsocks', mayBeBlocked: 'WireGuard (intermittent)', note: 'Periodic throttling; TCP-based protocols often more reliable' },
+  { country: 'Russia', pop: '130M+', oftenWorks: 'Shadowsocks, V2Ray, OpenVPN (TCP)', mayBeBlocked: 'WireGuard, OpenVPN (UDP)', note: 'Active blocking of standard VPN protocols; obfuscation recommended' },
+  { country: 'Iran', pop: '90M+', oftenWorks: 'Shadowsocks, V2Ray', mayBeBlocked: 'WireGuard, OpenVPN, IKEv2', note: 'Extensive filtering; obfuscation tools are typically necessary' },
+];
+
+const protocols = [
+  {
+    name: 'WireGuard',
+    badge: 'Fastest',
+    description: 'The newest mainstream protocol. Uses modern cryptography and a lean codebase, which makes it fast and easy to audit. Best for everyday use.',
+    bestFor: 'Streaming, browsing, mobile data',
+  },
+  {
+    name: 'OpenVPN (UDP)',
+    badge: 'Reliable',
+    description: 'A battle-tested open-source protocol. UDP variant prioritizes speed. A good fallback when WireGuard is blocked or unstable on your network.',
+    bestFor: 'Fallback when WireGuard does not work',
+  },
+  {
+    name: 'OpenVPN (TCP)',
+    badge: 'Stealthy',
+    description: 'Same encryption as UDP but over TCP, which is more tolerant of unstable connections. Slower, but can pass through firewalls that drop UDP.',
+    bestFor: 'Restrictive networks and firewalls',
+  },
+  {
+    name: 'IKEv2/IPSec',
+    badge: 'Mobile-friendly',
+    description: 'Built into most phones natively. Reconnects quickly when you switch between Wi-Fi and cellular, making it ideal for mobile use.',
+    bestFor: 'Phones, tablets, on-the-go',
+  },
+  {
+    name: 'Shadowsocks',
+    badge: 'Obfuscation',
+    description: 'A proxy designed to disguise your traffic as normal HTTPS. Not a full VPN protocol, but often used where standard VPNs are blocked.',
+    bestFor: 'Heavily restricted networks',
+  },
+  {
+    name: 'V2Ray',
+    badge: 'Advanced obfuscation',
+    description: 'A flexible tool that can disguise VPN traffic in multiple ways. More complex to set up, but effective in regions with deep packet inspection.',
+    bestFor: 'Countries with active VPN blocking',
+  },
+];
+
+const faqs = [
+  { question: 'Which protocol should I use by default?', answer: 'Start with WireGuard if your VPN offers it. It is the fastest and works well for streaming, browsing, and mobile data. Switch to OpenVPN (UDP) only if WireGuard is blocked or unreliable on your network.' },
+  { question: 'What is the difference between Shadowsocks and a VPN?', answer: 'Shadowsocks is a proxy that encrypts your traffic and disguises it as HTTPS, but it does not encrypt all your device traffic the way a full VPN does. It is mainly used to get past blocking, not for general privacy.' },
+  { question: 'Is V2Ray better than Shadowsocks?', answer: 'V2Ray is more flexible and can disguise traffic in more ways, but it is harder to set up. For most people in restricted regions, Shadowsocks is simpler and often sufficient. V2Ray is worth trying if Shadowsocks stops working.' },
+  { question: 'Why does WireGuard sometimes not connect?', answer: 'Some networks and countries actively block WireGuard traffic because its packets have a recognizable pattern. If this happens, switch to OpenVPN (TCP) or try an obfuscation tool like Shadowsocks if your provider supports it.' },
+];
+
+const tags = ['protocols', 'WireGuard', 'OpenVPN', 'V2Ray', 'Shadowsocks', 'guide'];
+---
+
+<BaseLayout
+  title="VPN Protocols Explained: WireGuard, OpenVPN, V2Ray, Shadowsocks"
+  description="A plain-language guide to VPN protocols — which to use for streaming, gaming, and restrictive networks. Includes a country-by-country overview."
+  jsonLd={contextWrapper(breadcrumbSchema([{ label: 'Home', href: '/' }, { label: 'Connection Guide' }]))}
+>
+  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Connection Guide' }]} />
+
+  <section class="container-max py-8 md:py-12">
+    <div class="max-w-3xl">
+      <div class="mb-4 flex items-center gap-2 text-xs" style="color: var(--color-muted-dark);">
+        <Icons name="doc" size={14} />
+        <span>Updated {updatedStr}</span>
+      </div>
+
+      <h1 class="text-3xl md:text-4xl font-bold mb-4" style="font-family: var(--font-heading);">
+        VPN Protocols <span class="gold-text">Explained</span>: WireGuard, OpenVPN, V2Ray, Shadowsocks
+      </h1>
+
+      <p class="text-base md:text-lg mb-4" style="color: var(--color-muted);">
+        A VPN protocol is the method your VPN uses to encrypt and route your traffic. The right choice affects speed, reliability, and whether your connection works in restricted regions. Most people should use WireGuard; people in heavily filtered networks may need Shadowsocks or V2Ray.
+      </p>
+
+      <div class="card p-4 mb-6 text-sm" style="background: var(--color-bg-alt);">
+        <p style="color: var(--color-muted);"><strong style="color: var(--color-text);">Quick answer:</strong> Use WireGuard for speed and everyday browsing. Use OpenVPN (UDP) as a fallback. Use OpenVPN (TCP), Shadowsocks, or V2Ray in countries or networks that block standard VPN traffic. VPN laws differ by country — check local rules before use.</p>
+      </div>
+
+      <TagChips chips={tags} class="mb-6" />
+    </div>
+
+    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">Which Protocol for Which Situation</h2>
+    <div class="overflow-x-auto mb-8">
+      <table class="responsive-table w-full text-sm" style="border-collapse: collapse;">
+        <thead>
+          <tr style="border-bottom: 2px solid var(--color-border);">
+            <th class="text-left py-3 px-2 md:px-4 font-semibold" style="color: var(--color-text);">Situation</th>
+            <th class="text-left py-3 px-2 md:px-4 font-semibold" style="color: var(--color-text);">Recommended</th>
+            <th class="text-left py-3 px-2 md:px-4 font-semibold" style="color: var(--color-text);">Why</th>
+          </tr>
+        </thead>
+        <tbody>
+          {protocolSituations.map((row, i) => (
+            <tr style={i < protocolSituations.length - 1 ? 'border-bottom: 1px solid var(--color-border);' : ''}>
+              <td data-label="Situation" class="py-3 px-2 md:px-4 font-semibold" style="color: var(--color-text);">{row.situation}</td>
+              <td data-label="Recommended" class="py-3 px-2 md:px-4" style="color: var(--color-gold-light); font-weight: 600;">{row.recommendation}</td>
+              <td data-label="Why" class="py-3 px-2 md:px-4" style="color: var(--color-muted);">{row.reason}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">Protocols That Often Work Better by Country</h2>
+    <p class="text-sm mb-4 max-w-3xl" style="color: var(--color-muted);">
+      This table is based on general experience, not guarantees. Protocol effectiveness changes over time as filtering methods evolve. "Often works well" means users frequently report success; "may be blocked" means it can fail or be throttled.
+    </p>
+    <div class="overflow-x-auto mb-8">
+      <table class="responsive-table w-full text-sm" style="border-collapse: collapse;">
+        <thead>
+          <tr style="border-bottom: 2px solid var(--color-border);">
+            <th class="text-left py-3 px-2 md:px-4 font-semibold" style="color: var(--color-text);">Country</th>
+            <th class="text-left py-3 px-2 md:px-4 font-semibold" style="color: var(--color-text);">Internet users</th>
+            <th class="text-left py-3 px-2 md:px-4 font-semibold" style="color: var(--color-text);">Often works well</th>
+            <th class="text-left py-3 px-2 md:px-4 font-semibold" style="color: var(--color-text);">May be blocked</th>
+            <th class="text-left py-3 px-2 md:px-4 font-semibold" style="color: var(--color-text);">Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          {countryProtocols.map((row, i) => (
+            <tr style={i < countryProtocols.length - 1 ? 'border-bottom: 1px solid var(--color-border);' : ''}>
+              <td data-label="Country" class="py-3 px-2 md:px-4 font-semibold" style="color: var(--color-text);">{row.country}</td>
+              <td data-label="Internet users" class="py-3 px-2 md:px-4" style="color: var(--color-muted);">{row.pop}</td>
+              <td data-label="Often works well" class="py-3 px-2 md:px-4" style="color: var(--color-emerald); font-weight: 600;">{row.oftenWorks}</td>
+              <td data-label="May be blocked" class="py-3 px-2 md:px-4" style="color: var(--color-muted-dark);">{row.mayBeBlocked}</td>
+              <td data-label="Notes" class="py-3 px-2 md:px-4" style="color: var(--color-muted);">{row.note}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">Protocol Breakdown</h2>
+    <div class="space-y-4 mb-8">
+      {protocols.map((p) => (
+        <div class="card p-5">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-lg font-bold" style="font-family: var(--font-heading);">{p.name}</h3>
+            <span class="text-xs px-2 py-1 rounded" style="background: rgba(212, 175, 55, 0.1); color: var(--color-gold-light);">{p.badge}</span>
+          </div>
+          <p class="text-sm mb-2" style="color: var(--color-muted);">{p.description}</p>
+          <p class="text-xs mb-3" style="color: var(--color-muted-dark);">Best for: {p.bestFor}</p>
+          <a href="/order-vpn" class="inline-flex items-center gap-1 text-xs font-semibold gold-text">
+            See VPN plans that support {p.name}
+            <Icons name="arrow-right" size={14} class="text-amber-400" />
+          </a>
+        </div>
+      ))}
+    </div>
+
+    <div class="max-w-3xl mb-8">
+      <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">FAQ</h2>
+      <div class="space-y-3">
+        {faqs.map((f) => (
+          <details class="card p-4 group">
+            <summary class="font-semibold cursor-pointer text-sm flex items-center justify-between" style="font-family: var(--font-heading);">
+              {f.question}
+              <Icons name="chevron-down" size={16} class="text-amber-400 transition-transform group-open:rotate-180" />
+            </summary>
+            <p class="text-sm mt-3" style="color: var(--color-muted);">{f.answer}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+
+    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">Related Guides</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
+      <a href="/vpn-types-guide" class="card p-4 block transition-all hover:border-amber-400">
+        <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">Dedicated vs Shared IP</h3>
+        <p class="text-xs" style="color: var(--color-muted);">Which IP type fits your needs for banking, streaming, and work</p>
+      </a>
+      <a href="/order-vpn" class="card p-4 block transition-all hover:border-amber-400">
+        <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">Compare VPN Plans</h3>
+        <p class="text-xs" style="color: var(--color-muted);">Side-by-side pricing and protocol support for every provider</p>
+      </a>
+      <a href="/" class="card p-4 block transition-all hover:border-amber-400">
+        <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">TopVPN Home</h3>
+        <p class="text-xs" style="color: var(--color-muted);">Our top picks and what makes them stand out</p>
+      </a>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,154 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import TagChips from '../components/TagChips.astro';
+import Icons from '../components/Icons.astro';
+import { breadcrumbSchema, contextWrapper } from '../lib/schema';
+
+const updatedStr = 'October 2026';
+
+const comparison = [
+  { use: 'Streaming', sharedIp: 'Good — many users share the same IP, harder to block individually', dedicatedIp: 'Better — fewer people on your IP, less likely flagged by streaming sites' },
+  { use: 'Online banking', sharedIp: 'Risky — another user on the same IP could trigger fraud alerts', dedicatedIp: 'Safer — consistent IP reduces false security locks' },
+  { use: 'Remote work', sharedIp: 'Often blocked — corporate firewalls distrust shared IPs', dedicatedIp: 'Often allowed — your IP looks stable and predictable' },
+  { use: 'Gaming', sharedIp: 'Adequate — NAT and shared IPs can add latency', dedicatedIp: 'Smoother — consistent routing, lower ping variance' },
+  { use: 'Hosting services', sharedIp: 'Not suitable — you cannot run a server on a shared IP', dedicatedIp: 'Possible — you can host services on a known, stable IP' },
+  { use: 'Avoiding CAPTCHAs', sharedIp: 'Frequent CAPTCHAs — shared IPs get flagged by search engines', dedicatedIp: 'Fewer CAPTCHAs — a clean, dedicated IP draws less scrutiny' },
+];
+
+const faqs = [
+  { question: 'Is a dedicated IP VPN safer than a shared IP VPN?', answer: 'Not necessarily. Both offer the same encryption. A dedicated IP is about convenience and stability, not stronger security. The encryption and privacy protections are identical — the difference is whether other people share your IP address.' },
+  { question: 'Can I switch between shared and dedicated IP on the same VPN?', answer: 'Some providers let you toggle between modes in the app, while others assign your dedicated IP to a specific server you connect to manually. Check your provider settings or contact their support to see how it works.' },
+  { question: 'Does a dedicated IP mean I am less anonymous?', answer: 'A dedicated IP is more traceable to you because no one else uses it. If your priority is maximum anonymity, a shared IP is better. If your priority is stability and fewer interruptions, a dedicated IP is the trade-off.' },
+  { question: 'Will a dedicated IP cost more?', answer: 'Yes, most providers charge an additional monthly fee for a dedicated IP on top of your subscription. The cost varies, so compare options before deciding.' },
+];
+
+const tags = ['VPN types', 'dedicated IP', 'shared IP', 'guide'];
+---
+
+<BaseLayout
+  title="Dedicated IP vs Shared IP VPN: Which Do You Need?"
+  description="A plain-language comparison of dedicated IP and shared IP VPNs — streaming, banking, remote work, gaming, and more. Find out which fits you."
+  jsonLd={contextWrapper(breadcrumbSchema([{ label: 'Home', href: '/' }, { label: 'VPN Types Guide' }]))}
+>
+  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'VPN Types Guide' }]} />
+
+  <section class="container-max py-8 md:py-12">
+    <div class="max-w-3xl">
+      <div class="mb-4 flex items-center gap-2 text-xs" style="color: var(--color-muted-dark);">
+        <Icons name="doc" size={14} />
+        <span>Updated {updatedStr}</span>
+      </div>
+
+      <h1 class="text-3xl md:text-4xl font-bold mb-4" style="font-family: var(--font-heading);">
+        Dedicated IP vs Shared IP VPN: <span class="gold-text">Which Do You Need?</span>
+      </h1>
+
+      <p class="text-base md:text-lg mb-4" style="color: var(--color-muted);">
+        A shared IP VPN hides you in a crowd — many users share the same IP address, making it hard to trace activity to any one person. A dedicated IP VPN gives you an IP address that only you use. Most people want a shared IP; some need a dedicated one for banking, remote work, or hosting.
+      </p>
+
+      <div class="card p-4 mb-6 text-sm" style="background: var(--color-bg-alt);">
+        <p style="color: var(--color-muted);"><strong style="color: var(--color-text);">Quick answer:</strong> Choose a shared IP for privacy and streaming on a budget. Choose a dedicated IP if you need stable access to banking, remote work tools, or services that block shared IPs. VPN laws differ by country — check local rules before use.</p>
+      </div>
+
+      <TagChips chips={tags} class="mb-6" />
+    </div>
+
+    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">What Is a Shared IP VPN?</h2>
+    <p class="text-sm mb-6 max-w-3xl" style="color: var(--color-muted);">
+      When you connect to a standard VPN server, you get an IP address that dozens or hundreds of other users also share. This is good for privacy — your traffic blends in with everyone else's, making it nearly impossible to link a specific action to you. The downside is that some websites flag shared IPs as suspicious, which can trigger CAPTCHAs or access blocks.
+    </p>
+
+    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">What Is a Dedicated IP VPN?</h2>
+    <p class="text-sm mb-6 max-w-3xl" style="color: var(--color-muted);">
+      A dedicated IP assigns you a personal IP address that no one else uses. You still get VPN encryption, but your IP stays the same every time you connect. This is useful for services that need to recognize your connection — like your bank or your employer's network — but it costs extra and reduces anonymity since the IP is traceable to you alone.
+    </p>
+
+    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">Side-by-Side Comparison</h2>
+    <div class="overflow-x-auto mb-8">
+      <table class="responsive-table w-full text-sm" style="border-collapse: collapse;">
+        <thead>
+          <tr style="border-bottom: 2px solid var(--color-border);">
+            <th class="text-left py-3 px-2 md:px-4 font-semibold" style="color: var(--color-text);">Use case</th>
+            <th class="text-left py-3 px-2 md:px-4 font-semibold" style="color: var(--color-text);">Shared IP</th>
+            <th class="text-left py-3 px-2 md:px-4 font-semibold" style="color: var(--color-text);">Dedicated IP</th>
+          </tr>
+        </thead>
+        <tbody>
+          {comparison.map((row, i) => (
+            <tr style={i < comparison.length - 1 ? 'border-bottom: 1px solid var(--color-border);' : ''}>
+              <td data-label="Use case" class="py-3 px-2 md:px-4 font-semibold" style="color: var(--color-text);">{row.use}</td>
+              <td data-label="Shared IP" class="py-3 px-2 md:px-4" style="color: var(--color-muted);">{row.sharedIp}</td>
+              <td data-label="Dedicated IP" class="py-3 px-2 md:px-4" style="color: var(--color-muted);">{row.dedicatedIp}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">Honest Trade-Offs</h2>
+    <div class="grid md:grid-cols-2 gap-4 mb-8 max-w-4xl">
+      <div class="card p-5">
+        <h3 class="text-base font-bold mb-2" style="font-family: var(--font-heading);">Shared IP trade-offs</h3>
+        <ul class="space-y-1.5 text-sm" style="color: var(--color-muted);">
+          <li class="flex items-start gap-2"><Icons name="check" size={12} class="mt-1 shrink-0 text-emerald-400" /> Best for anonymity</li>
+          <li class="flex items-start gap-2"><Icons name="check" size={12} class="mt-1 shrink-0 text-emerald-400" /> Included in standard plans</li>
+          <li class="flex items-start gap-2"><Icons name="x" size={12} class="mt-1 shrink-0" /> More CAPTCHAs and blocks</li>
+          <li class="flex items-start gap-2"><Icons name="x" size={12} class="mt-1 shrink-0" /> May trigger bank fraud alerts</li>
+        </ul>
+      </div>
+      <div class="card p-5">
+        <h3 class="text-base font-bold mb-2" style="font-family: var(--font-heading);">Dedicated IP trade-offs</h3>
+        <ul class="space-y-1.5 text-sm" style="color: var(--color-muted);">
+          <li class="flex items-start gap-2"><Icons name="check" size={12} class="mt-1 shrink-0 text-emerald-400" /> Stable, predictable connection</li>
+          <li class="flex items-start gap-2"><Icons name="check" size={12} class="mt-1 shrink-0 text-emerald-400" /> Fewer CAPTCHAs and access issues</li>
+          <li class="flex items-start gap-2"><Icons name="x" size={12} class="mt-1 shrink-0" /> Costs extra on most plans</li>
+          <li class="flex items-start gap-2"><Icons name="x" size={12} class="mt-1 shrink-0" /> Less anonymous — IP is yours alone</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">If You… Choose This</h2>
+    <div class="card p-5 mb-8 max-w-3xl">
+      <ul class="space-y-3 text-sm">
+        <li class="flex items-start gap-2"><Icons name="arrow-right" size={16} class="mt-0.5 shrink-0 text-amber-400" /><span style="color: var(--color-muted);"><strong style="color: var(--color-text);">Want maximum privacy on a budget</strong> → Shared IP</span></li>
+        <li class="flex items-start gap-2"><Icons name="arrow-right" size={16} class="mt-0.5 shrink-0 text-amber-400" /><span style="color: var(--color-muted);"><strong style="color: var(--color-text);">Need reliable access to online banking</strong> → Dedicated IP</span></li>
+        <li class="flex items-start gap-2"><Icons name="arrow-right" size={16} class="mt-0.5 shrink-0 text-amber-400" /><span style="color: var(--color-muted);"><strong style="color: var(--color-text);">Work remotely and connect to corporate tools</strong> → Dedicated IP</span></li>
+        <li class="flex items-start gap-2"><Icons name="arrow-right" size={16} class="mt-0.5 shrink-0 text-amber-400" /><span style="color: var(--color-muted);"><strong style="color: var(--color-text);">Want fewer CAPTCHAs when browsing</strong> → Dedicated IP</span></li>
+        <li class="flex items-start gap-2"><Icons name="arrow-right" size={16} class="mt-0.5 shrink-0 text-amber-400" /><span style="color: var(--color-muted);"><strong style="color: var(--color-text);">Stream content from other countries</strong> → Shared IP (usually fine)</span></li>
+      </ul>
+    </div>
+
+    <div class="max-w-3xl mb-8">
+      <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">FAQ</h2>
+      <div class="space-y-3">
+        {faqs.map((f) => (
+          <details class="card p-4 group">
+            <summary class="font-semibold cursor-pointer text-sm flex items-center justify-between" style="font-family: var(--font-heading);">
+              {f.question}
+              <Icons name="chevron-down" size={16} class="text-amber-400 transition-transform group-open:rotate-180" />
+            </summary>
+            <p class="text-sm mt-3" style="color: var(--color-muted);">{f.answer}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+
+    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">Related Guides</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 max-w-4xl">
+      <a href="/connection-guide" class="card p-4 block transition-all hover:border-amber-400">
+        <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">VPN Protocols Explained</h3>
+        <p class="text-xs" style="color: var(--color-muted);">WireGuard, OpenVPN, and more — which protocol suits your setup</p>
+      </a>
+      <a href="/order-vpn" class="card p-4 block transition-all hover:border-amber-400">
+        <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">Compare VPN Plans</h3>
+        <p class="text-xs" style="color: var(--color-muted);">Side-by-side pricing and features for every provider we cover</p>
+      </a>
+      <a href="/" class="card p-4 block transition-all hover:border-amber-400">
+        <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">TopVPN Home</h3>
+        <p class="text-xs" style="color: var(--color-muted);">Our top picks and why we recommend them</p>
+      </a>
+    </div>
+  </section>
+</BaseLayout>

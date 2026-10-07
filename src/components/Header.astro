@@ -1,0 +1,87 @@
+---
+import Logo from './Logo.astro';
+
+const navLinks = [
+  { label: 'Home', href: '/' },
+  { label: 'Compare', href: '/order-vpn' },
+  { label: 'Guides', href: '/vpn-types-guide' },
+  { label: 'Articles', href: '/articles' },
+  { label: 'About', href: '/about' },
+];
+
+const currentPath = Astro.url.pathname;
+const isActive = (href: string) =>
+  href === '/' ? currentPath === '/' : currentPath.startsWith(href);
+---
+
+<header class="sticky top-0 z-50" style="background: var(--color-bg); border-bottom: 1px solid var(--color-border); backdrop-filter: blur(12px);">
+  <div class="container-max flex items-center justify-between" style="height: var(--header-h);">
+    <a href="/" aria-label="TopVPN home" class="flex items-center" style="min-height: 44px;">
+      <Logo width={32} height={32} />
+    </a>
+
+    <nav class="hidden md:flex items-center gap-6" aria-label="Primary navigation">
+      {navLinks.map((link) => (
+        <a
+          href={link.href}
+          class:list={[
+            'text-sm font-medium transition-colors',
+            isActive(link.href) ? 'gold-text' : '',
+          ]}
+          style={isActive(link.href) ? '' : 'color: var(--color-muted);'}
+          aria-current={isActive(link.href) ? 'page' : undefined}
+        >
+          {link.label}
+        </a>
+      ))}
+      <a href="/order-vpn" class="btn-gold text-sm" style="min-height: 40px; padding: 0.5rem 1.25rem;">Compare Now</a>
+    </nav>
+
+    <button
+      type="button"
+      class="md:hidden flex items-center justify-center"
+      style="min-width: 44px; min-height: 44px; color: var(--color-text);"
+      aria-label="Toggle menu"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+      id="menu-toggle"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="menu-icon" aria-hidden="true"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="close-icon" class="hidden" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+
+  <div id="mobile-menu" class="hidden md:hidden" style="background: var(--color-bg-alt); border-top: 1px solid var(--color-border);">
+    <nav class="container-max flex flex-col gap-1 py-3" aria-label="Mobile navigation">
+      {navLinks.map((link) => (
+        <a
+          href={link.href}
+          class:list={[
+            'block px-3 py-3 text-sm font-medium rounded-lg transition-colors',
+            isActive(link.href) ? 'gold-text' : '',
+          ]}
+          style={isActive(link.href) ? '' : 'color: var(--color-muted);'}
+          aria-current={isActive(link.href) ? 'page' : undefined}
+        >
+          {link.label}
+        </a>
+      ))}
+      <a href="/order-vpn" class="btn-gold text-sm mt-2 mx-3">Compare Best VPNs</a>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const toggle = document.getElementById('menu-toggle');
+  const menu = document.getElementById('mobile-menu');
+  const menuIcon = document.getElementById('menu-icon');
+  const closeIcon = document.getElementById('close-icon');
+
+  toggle?.addEventListener('click', () => {
+    const expanded = toggle.getAttribute('aria-expanded') === 'true';
+    toggle.setAttribute('aria-expanded', String(!expanded));
+    menu?.classList.toggle('hidden');
+    menuIcon?.classList.toggle('hidden');
+    closeIcon?.classList.toggle('hidden');
+  });
+</script>
