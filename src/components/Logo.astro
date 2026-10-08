@@ -23,33 +23,37 @@ const { width = 40, height = 40, showWordmark = true, class: className = '' } = 
 <style>
   /* ------------------------------------------------------------------
      Micro-motion logo accents (pure CSS transforms/opacity, no JS):
-     1) "Top" orbits its resting position on a tiny ellipse — a fast,
-        tightly-constrained atomic/electron drift (rx 3px / ry 1.5px,
-        0.45s cycle). No rotation, no scaling, no layout impact.
+     1) "Top" performs a subtle organic settle — a tiny lift, a soft
+        overshoot, and a calm return to its exact resting point, then a
+        pause before repeating. Damped oscillation sampled to ~1.3px max,
+        so it reads as "slightly alive" rather than an animation.
+        No rotation, no scaling, no orbit, no layout impact.
      2) "VPN" stays completely static; 10 tiny gold particles (1.5–2px)
         spark softly around it, anchored in % / em so they scale with
         the wordmark instead of hard-coded pixel positions.
      Everything is disabled under prefers-reduced-motion.
   ------------------------------------------------------------------- */
 
-  /* 1. "Top" — tiny elliptical orbit around the normal position. */
+  /* 1. "Top" — damped settle. ~0.7s of motion inside a 2.2s loop, so the
+     word rests, flicks up ~1.3px, overshoots by a fraction of a pixel,
+     and decays back to exactly 0 before going still again. */
   .logo-top {
     display: inline-block; /* transforms don't apply to plain inline boxes */
-    animation: logoTopElectron 0.45s linear infinite;
+    animation: logoTopSettle 2.2s linear infinite;
     will-change: transform;
   }
 
-  /* 8-stop orbit ≈ ellipse (rx 3px, ry 1.5px); linear = steady path. */
-  @keyframes logoTopElectron {
-    0%   { transform: translate3d(3px, 0, 0); }
-    12%  { transform: translate3d(2.12px, -1.06px, 0); }
-    25%  { transform: translate3d(0, -1.5px, 0); }
-    37%  { transform: translate3d(-2.12px, -1.06px, 0); }
-    50%  { transform: translate3d(-3px, 0, 0); }
-    62%  { transform: translate3d(-2.12px, 1.06px, 0); }
-    75%  { transform: translate3d(0, 1.5px, 0); }
-    87%  { transform: translate3d(2.12px, 1.06px, 0); }
-    100% { transform: translate3d(3px, 0, 0); }
+  /* Sampled damped oscillation: ease-in lift, decaying echo, exact return. */
+  @keyframes logoTopSettle {
+    0%   { transform: translate3d(0, 0, 0); }
+    68%  { transform: translate3d(0, 0, 0); }
+    71%  { transform: translate3d(0.15px, -0.5px, 0); }
+    74%  { transform: translate3d(0.4px, -1.3px, 0); }
+    80%  { transform: translate3d(-0.1px, 0.42px, 0); }
+    86%  { transform: translate3d(0.12px, -0.35px, 0); }
+    91%  { transform: translate3d(-0.03px, 0.14px, 0); }
+    96%  { transform: translate3d(0.02px, -0.05px, 0); }
+    100% { transform: translate3d(0, 0, 0); }
   }
 
   /* 2. Gold particles — absolutely positioned, so layout never changes. */
