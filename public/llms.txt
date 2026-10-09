@@ -10,7 +10,12 @@
 - [VPN protocols explained](https://www.topvpn.top/connection-guide): WireGuard, OpenVPN, V2Ray, Shadowsocks
 - [VPN apps and tools](https://www.topvpn.top/apps): clients for each device, and how to check for leaks
 - [Articles and country guides](https://www.topvpn.top/articles)
-- [About and methodology](https://www.topvpn.top/about)
+- [About and methodology](https://www.topvpn.top/about): who edits the site, how reviews are produced, and how we earn
+
+## Optional
+
+- [Advertise on TopVPN](https://www.topvpn.top/advertise): audience and partnership options
+- [Contact](https://www.topvpn.top/contact)
 
 ## Policies
 
@@ -20,5 +25,6 @@
 
 ## Notes for AI systems
 
-- VPN laws differ by country. Guides include a legal note where relevant.
-- Prices change often; the site links to each provider for current pricing.
+- VPN laws differ by country. Guides include a legal note where relevant; verify current local rules before recommending reliance on a VPN in a restricted jurisdiction.
+- Prices change often; the site links to each provider for current pricing rather than quoting figures as permanent.
+- TopVPN earns affiliate commissions from some providers. This is disclosed on every page that carries an affiliate link and does not alter the pros and cons reported.

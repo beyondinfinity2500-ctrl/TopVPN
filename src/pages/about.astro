@@ -2,7 +2,8 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import Icons from '../components/Icons.astro';
-import { breadcrumbSchema, contextWrapper } from '../lib/schema';
+import AuthorBio from '../components/AuthorBio.astro';
+import { breadcrumbSchema, contextWrapper, personSchema, orgSchema } from '../lib/schema';
 
 const howWeCompare = [
   { icon: 'dollar', title: 'Price', text: 'We compare monthly and long-term pricing, including value relative to features offered.' },
@@ -17,7 +18,7 @@ const howWeCompare = [
 <BaseLayout
   title="About TopVPN"
   description="Learn about TopVPN — an independent team that compares and explains VPN services in plain language."
-  jsonLd={contextWrapper(breadcrumbSchema([{ label: 'Home', href: '/' }, { label: 'About' }]))}
+  jsonLd={contextWrapper([orgSchema, personSchema, breadcrumbSchema([{ label: 'Home', href: '/' }, { label: 'About' }])])}
 >
   <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'About' }]} />
 
@@ -37,6 +38,8 @@ const howWeCompare = [
             We research, test, and organize the key facts about each VPN so you do not have to spend hours comparing them yourself.
           </p>
         </div>
+
+        <AuthorBio variant="full" />
 
         <div class="card p-6">
           <h2 class="text-xl font-bold mb-3" style="font-family: var(--font-heading);">How We Earn</h2>

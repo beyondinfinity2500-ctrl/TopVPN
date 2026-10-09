@@ -1,8 +1,12 @@
 import { SITE } from './site';
+import { AUTHOR } from '../data/author';
 
 const ORG_ID = `${SITE.url}/#organization`;
+export const AUTHOR_ID = `${SITE.url}/about/#editor`;
 
-/** Organization entity. Emitted on every page that references it, so the @id never dangles. */
+/**
+ * Organization entity. Emitted on every page that references it, so the @id never dangles.
+ */
 export const orgSchema = {
   '@type': 'Organization',
   '@id': ORG_ID,
@@ -15,6 +19,23 @@ export const orgSchema = {
     width: 512,
     height: 512,
   },
+};
+
+/**
+ * Person entity for the site's human editor. Emitted on the About page so the
+ * @id is a real, resolvable node rather than a dangling reference. Defined
+ * after orgSchema because worksFor references it by value.
+ */
+export const personSchema = {
+  '@type': 'Person',
+  '@id': AUTHOR_ID,
+  name: AUTHOR.name,
+  url: `${SITE.url}/about/#editor`,
+  jobTitle: AUTHOR.role,
+  description: AUTHOR.summary,
+  image: `${SITE.url}${AUTHOR.avatar}`,
+  worksFor: orgSchema,
+  ...(AUTHOR.sameAs.length ? { sameAs: AUTHOR.sameAs } : {}),
 };
 
 export const websiteSchema = {
@@ -58,7 +79,9 @@ export function articleSchema(opts: {
     inLanguage: 'en',
     // Full inline entities: a bare @id reference is invalid when the Organization
     // is not defined on the same page.
-    author: { '@type': 'Organization', name: SITE.name, url: SITE.url },
+    // Author is a Person, not the Organization — Google's E-E-A-T guidance rewards
+    // a named human author with their own resolvable entity.
+    author: personSchema,
     publisher: orgSchema,
     ...(opts.tags ? { keywords: opts.tags.join(', ') } : {}),
   };

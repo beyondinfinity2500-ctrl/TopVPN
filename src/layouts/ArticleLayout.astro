@@ -8,12 +8,13 @@ import Icons from '../components/Icons.astro';
 import type { CollectionEntry } from 'astro:content';
 import { articleSchema, breadcrumbSchema, faqSchema, contextWrapper } from '../lib/schema';
 import { SITE } from '../lib/site';
+import AuthorBio from '../components/AuthorBio.astro';
 
 interface Props {
   entry: CollectionEntry<'articles'>;
   headings: { depth: number; slug: string; text: string }[];
   body: string;
-  related: { title: string; href: string; reason: string }[];
+  related: { title: string; href: string; reason?: string }[];
 }
 
 const { entry, headings, related, body } = Astro.props;
@@ -55,7 +56,9 @@ if (currentQ) { faqMatches.push({ question: currentQ, answer: currentA.join(' ')
 
 const tocHeadings = headings.filter(h => h.depth >= 2 && h.depth <= 3);
 
-const articleJsonLd = [articleSchema({
+// Mixed node types (Article + BreadcrumbList + optional FAQPage), so the array
+// is typed loosely to accept any of them.
+const articleJsonLd: Record<string, unknown>[] = [articleSchema({
   headline: title,
   description,
   datePublished: (publishedDate || updatedDate).toISOString(),
@@ -92,6 +95,10 @@ if (faqMatches.length > 0) {
         )}
 
         <TagChips chips={tags} class="mb-6" />
+
+        <div class="mb-6">
+          <AuthorBio variant="compact" />
+        </div>
 
         {legalNote && (
           <div class="card p-4 mb-6 text-sm" style="border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.05);">

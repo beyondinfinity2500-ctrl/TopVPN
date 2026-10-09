@@ -6,7 +6,9 @@ export async function getStaticPaths() {
   const articles = await getCollection('articles', ({ data }) => !data.draft);
   return articles.map((entry) => ({
     params: { slug: entry.id },
-    props: { entry, rawBody: entry.body },
+    // entry.body is typed string | undefined in Astro 5's glob loader; render()
+    // requires a string, so coalesce here to keep the page typed cleanly.
+    props: { entry, rawBody: entry.body ?? '' },
   }));
 }
 
@@ -14,16 +16,18 @@ const { entry, rawBody } = Astro.props;
 const { Content, headings } = await render(entry);
 
 const allArticles = await getCollection('articles', ({ data }) => !data.draft);
-const related = allArticles
+const related: { title: string; href: string; reason: string }[] = allArticles
   .filter((a) => a.id !== entry.id)
   .slice(0, 3)
   .map((a) => ({
-    title: a.data.title,
-    href: `/articles/${a.id}`,
-    reason: a.data.reason || a.data.description,
+    // entry.id is typed string | undefined in Astro 5's glob loader; every
+    // article here has already been routed, so both are present at build time.
+    title: String(a.data.title),
+    href: `/articles/${String(a.id)}`,
+    reason: String(a.data.reason || a.data.description),
   }));
 ---
 
-<ArticleLayout entry={entry} headings={headings} related={related} body={rawBody}>
+<ArticleLayout entry={entry} headings={headings ?? []} related={related} body={rawBody}>
   <Content />
 </ArticleLayout>

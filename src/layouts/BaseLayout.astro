@@ -22,8 +22,11 @@ const {
   ogType = 'website',
 } = Astro.props;
 
-// Canonical: always the clean, trailing-slash-free production URL.
-const path = Astro.url.pathname.replace(/\/+$/, '') || '/';
+// Canonical: always the clean, extension-free, trailing-slash-free production URL.
+// build.format is 'file', so Astro.url.pathname carries a '.html' suffix that must be
+// stripped — the sitemap, JSON-LD and internal links all use extensionless URLs and
+// Cloudflare Pages serves /about for about.html.
+const path = (Astro.url.pathname.replace(/\/+$/, '') || '/').replace(/\.html$/, '');
 const canonicalUrl = canonical || new URL(path, SITE.url).href;
 const fullTitle = title === SITE.name ? title : `${title} | ${SITE.name}`;
 const ogImage = `${SITE.url}/og-default.png`;

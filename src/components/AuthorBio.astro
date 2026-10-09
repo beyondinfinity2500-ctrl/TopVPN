@@ -1,0 +1,63 @@
+---
+import { AUTHOR } from '../data/author';
+import Icons from './Icons.astro';
+
+interface Props {
+  /** Compact = byline under an article title; full = About page block. */
+  variant?: 'compact' | 'full';
+  class?: string;
+}
+
+const { variant = 'compact', class: className = '' } = Astro.props;
+const isFull = variant === 'full';
+---
+
+<div
+  id="editor"
+  class:list={['flex scroll-mt-24', isFull ? 'card p-6 md:p-8 gap-6' : 'gap-3 items-center', className]}
+>
+  <img
+    src={AUTHOR.avatar}
+    alt={`Portrait of ${AUTHOR.name}`}
+    width={isFull ? 88 : 48}
+    height={isFull ? 88 : 48}
+    loading="lazy"
+    decoding="async"
+    class:list={[isFull ? 'w-22 h-22' : 'w-12 h-12', 'rounded-full shrink-0 border-2']}
+    style="border-color: rgba(212, 175, 55, 0.45);"
+  />
+  <div class="min-w-0">
+    <div class="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+      <span class="font-bold" class:list={[isFull ? 'text-lg' : 'text-sm', 'font-bold']} style="font-family: var(--font-heading);">{AUTHOR.name}</span>
+      <span class="text-xs px-2 py-0.5 rounded-full" style="background: rgba(212, 175, 55, 0.12); color: var(--color-gold-light);">{AUTHOR.role}</span>
+    </div>
+    {isFull ? (
+      <>
+        <p class="text-sm mt-3" style="color: var(--color-muted);">{AUTHOR.bio}</p>
+        <h3 class="text-base font-bold mt-6 mb-2" style="font-family: var(--font-heading);">What I do here</h3>
+        <ul class="space-y-1.5">
+          {AUTHOR.responsibilities.map((r) => (
+            <li class="flex items-start gap-2 text-sm" style="color: var(--color-muted);">
+              <Icons name="check" size={15} class="mt-0.5 shrink-0 text-amber-400" />
+              <span>{r}</span>
+            </li>
+          ))}
+        </ul>
+        <h3 class="text-base font-bold mt-6 mb-2" style="font-family: var(--font-heading);">How reviews are produced</h3>
+        <p class="text-sm" style="color: var(--color-muted);">{AUTHOR.methodology}</p>
+        {AUTHOR.sameAs.length > 0 && (
+          <div class="flex flex-wrap gap-3 mt-5">
+            {AUTHOR.sameAs.map((url) => {
+              const host = (() => { try { return new URL(url).hostname.replace('www.', ''); } catch { return url; } })();
+              return (
+                <a href={url} rel="noopener nofollow" class="text-xs font-semibold underline" style="color: var(--color-gold-light);">{host}</a>
+              );
+            })}
+          </div>
+        )}
+      </>
+    ) : (
+      <p class="text-xs mt-0.5" style="color: var(--color-muted-dark);">{AUTHOR.summary}</p>
+    )}
+  </div>
+</div>
