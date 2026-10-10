@@ -12,6 +12,11 @@ interface Props {
 const { provider, rank, featured = false } = Astro.props;
 
 const hasNumbers = [provider.monthlyPrice, provider.longTermPrice, provider.locations, provider.devices].some((v) => v !== null);
+
+// Providers without a live partner link fall back to their row in the
+// comparison table instead of pointing at a dead "#".
+const hasAffiliate = provider.affiliateUrl.startsWith('http');
+const linkHref = hasAffiliate ? provider.affiliateUrl : `/order-vpn#${provider.slug}`;
 ---
 
 <article
@@ -95,7 +100,11 @@ const hasNumbers = [provider.monthlyPrice, provider.longTermPrice, provider.loca
     ))}
   </div>
 
-  <a href={provider.affiliateUrl} class="btn-gold w-full mt-auto" rel="noopener nofollow sponsored">
-    Check {provider.name} price
+  <a
+    href={linkHref}
+    class="btn-gold w-full mt-auto"
+    rel={hasAffiliate ? 'noopener nofollow sponsored' : undefined}
+  >
+    {hasAffiliate ? `Check ${provider.name} price` : `Compare ${provider.name} plans`}
   </a>
 </article>

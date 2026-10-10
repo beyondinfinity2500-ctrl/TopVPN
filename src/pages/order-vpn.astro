@@ -58,12 +58,12 @@ const orderJsonLd = [
                 <p class="text-sm" style="color: var(--color-muted);">{p.bestFor}</p>
               </div>
               <a
-                href={p.affiliateUrl}
-                rel="sponsored nofollow noopener"
+                href={p.affiliateUrl.startsWith('http') ? p.affiliateUrl : `#${p.slug}`}
+                rel={p.affiliateUrl.startsWith('http') ? 'sponsored nofollow noopener' : undefined}
                 class="btn-gold text-sm shrink-0"
                 style="min-height: 44px;"
               >
-                Get {p.name}
+                {p.affiliateUrl.startsWith('http') ? `Get ${p.name}` : `View ${p.name} details`}
               </a>
             </div>
             <div class="grid grid-cols-2 md:grid-cols-5 gap-3 text-sm">

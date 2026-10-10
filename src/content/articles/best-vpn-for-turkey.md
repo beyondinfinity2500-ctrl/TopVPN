@@ -43,6 +43,8 @@ These are three services that come up most often when people ask about the best 
 
 **Surfshark** stands out for allowing unlimited simultaneous devices on a single plan, which is great for families or anyone with a lot of gadgets. You can [view Surfshark's pricing and features alongside the others](/order-vpn#surfshark) to see if it fits your budget.
 
+If price is the deciding factor, PureVPN is also worth a look. Its long-term plan is among the cheapest advertised rates we track, though the renewal price is higher than the introductory rate, so check the terms before committing.
+
 ## Which Protocol Tends to Work Best
 
 Most modern VPNs offer several protocols, and the one you choose can affect both speed and reliability. WireGuard is generally the fastest and works well in most situations. OpenVPN (UDP) is a good fallback if WireGuard is blocked or unstable on your network.

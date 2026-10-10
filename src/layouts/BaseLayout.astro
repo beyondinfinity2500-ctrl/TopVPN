@@ -3,6 +3,7 @@ import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { SITE } from '../lib/site';
+import { injectArticleLinks } from '../lib/autolinks';
 
 interface Props {
   title: string;
@@ -21,6 +22,11 @@ const {
   jsonLd,
   ogType = 'website',
 } = Astro.props;
+
+// Inject internal + affiliate links into the rendered page body (see
+// src/lib/autolinks). Runs on rendered HTML so Astro's pipeline is untouched.
+const rawSlot = await Astro.slots.render('default');
+const processedSlot = rawSlot ? await injectArticleLinks(rawSlot) : rawSlot;
 
 // Canonical: always the clean, extension-free, trailing-slash-free production URL.
 // build.format is 'file', so Astro.url.pathname carries a '.html' suffix that must be
@@ -81,7 +87,7 @@ const jsonLdArray = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
     <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-100 focus:px-4 focus:py-2 focus:rounded focus:text-sm" style="background: var(--color-gold); color: #0B1020;">Skip to content</a>
     <Header />
     <main id="main-content">
-      <slot />
+      <Fragment set:html={processedSlot} />
     </main>
     <Footer />
 

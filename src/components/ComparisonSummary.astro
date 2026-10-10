@@ -55,12 +55,12 @@ const priceCols = [
           <td data-label="" class="py-3 px-2 md:px-4 text-right">
             {showOrderButton ? (
               <a
-                href={p.affiliateUrl}
-                rel="sponsored nofollow noopener"
+                href={p.affiliateUrl.startsWith('http') ? p.affiliateUrl : `${linkBase}#${p.slug}`}
+                rel={p.affiliateUrl.startsWith('http') ? 'sponsored nofollow noopener' : undefined}
                 class="inline-flex items-center justify-center text-xs font-bold px-4 py-2 rounded-lg"
                 style="background: linear-gradient(135deg, #D4AF37, #F5D77A); color: #0B1020; min-height: 40px;"
               >
-                Check price
+                {p.affiliateUrl.startsWith('http') ? 'Check price' : 'Details'}
               </a>
             ) : (
               <a href={`${linkBase}#${p.slug}`} class="inline-flex items-center gap-1 text-xs font-semibold gold-text">
