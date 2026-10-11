@@ -1,0 +1,327 @@
+---
+/**
+ * NEWSIQ promotional placement. Three layouts (hero banner, themed card,
+ * footer CTA) that rotate their copy independently every ~7s with a fade.
+ *
+ * Design notes:
+ *  - All copy variants are rendered and stacked in one CSS grid cell
+ *    (`grid-area: 1/1`), so the box is always as tall as the LONGEST variant.
+ *    Rotation therefore fades text in place with zero layout shift.
+ *  - Image, theme and destination are fixed per placement; only text rotates.
+ *  - Rotation pauses on hover/focus and is disabled entirely under
+ *    prefers-reduced-motion (the first variant stays put).
+ *  - The whole card is one link, so its accessible name updates with the copy.
+ */
+import type { NewsiqPlacement } from '../../data/newsiq-ads';
+
+interface Props {
+  placement: NewsiqPlacement;
+  /** Optional id when several placements share a page. */
+  id?: string;
+}
+
+const { placement, id } = Astro.props;
+const { variant, theme, destination, ctaBase, variants, internal, brand, badge, ctaLabel } = placement;
+
+// House ads point back into our own site, so they skip the sponsored rel and
+// the new tab, and carry the TopVPN wordmark instead of "Sponsored".
+const linkRel = internal ? undefined : 'sponsored nofollow noopener';
+const linkTarget = internal ? undefined : '_blank';
+const brandName = brand?.name ?? 'NEWS';
+const brandAccent = brand?.accent ?? 'IQ';
+const badgeText = badge ?? 'Sponsored';
+const ctaText = ctaLabel ?? 'Learn more';
+---
+
+<div
+  class:list={['newsiq', `newsiq--${variant}`, `newsiq--${theme}`]}
+  data-newsiq-ad
+  data-rotation-interval="7000"
+  {...id ? { id } : {}}
+>
+  <a
+    class="newsiq-link"
+    href={destination}
+    target={linkTarget}
+    rel={linkRel}
+    aria-label={`${ctaBase} — ${variants[0].headline}`}
+  >
+    <!-- Decorative visual: pure SVG, no external assets -->
+    <div class="newsiq-visual" aria-hidden="true">
+      {variant === 'hero' && (
+        <svg viewBox="0 0 120 120" class="newsiq-globe" focusable="false" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="60" cy="60" r="44" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.55" />
+          <ellipse cx="60" cy="60" rx="44" ry="18" fill="none" stroke="currentColor" stroke-width="1" opacity="0.35" />
+          <ellipse cx="60" cy="60" rx="18" ry="44" fill="none" stroke="currentColor" stroke-width="1" opacity="0.35" />
+          <line x1="16" y1="60" x2="104" y2="60" stroke="currentColor" stroke-width="1" opacity="0.35" />
+          <path d="M38 22 Q54 44 50 60 Q46 76 40 98" fill="none" stroke="currentColor" stroke-width="1" opacity="0.45" />
+          <path d="M82 22 Q66 44 70 60 Q74 76 80 98" fill="none" stroke="currentColor" stroke-width="1" opacity="0.45" />
+        </svg>
+      )}
+      {variant === 'card' && theme === 'bitcoin' && (
+        <svg viewBox="0 0 64 64" class="newsiq-mark" focusable="false" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="32" cy="32" r="26" fill="none" stroke="currentColor" stroke-width="2.5" opacity="0.6" />
+          <path d="M26 18 V46 M38 18 V46 M26 26 H40 M26 38 H40 M22 22 H30 M34 22 H42 M22 42 H30 M34 42 H42" stroke="currentColor" stroke-width="3" stroke-linecap="round" fill="none" />
+        </svg>
+      )}
+      {variant === 'card' && theme === 'markets' && (
+        <svg viewBox="0 0 64 64" class="newsiq-mark" focusable="false" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10 48 L24 34 L34 40 L54 18" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M10 56 H54" stroke="currentColor" stroke-width="2" opacity="0.4" stroke-linecap="round" />
+          <circle cx="54" cy="18" r="4" fill="currentColor" />
+        </svg>
+      )}
+      {variant === 'card' && theme === 'ai' && (
+        <svg viewBox="0 0 64 64" class="newsiq-mark" focusable="false" xmlns="http://www.w3.org/2000/svg">
+          <path d="M32 8 L40 24 L56 26 L44 38 L48 54 L32 46 L16 54 L20 38 L8 26 L24 24 Z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" />
+          <circle cx="32" cy="32" r="5" fill="currentColor" />
+        </svg>
+      )}
+      {variant === 'card' && theme === 'global' && (
+        <svg viewBox="0 0 64 64" class="newsiq-mark" focusable="false" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="32" cy="32" r="24" fill="none" stroke="currentColor" stroke-width="2" opacity="0.7" />
+          <ellipse cx="32" cy="32" rx="24" ry="10" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.45" />
+          <line x1="8" y1="32" x2="56" y2="32" stroke="currentColor" stroke-width="1.2" opacity="0.45" />
+          <path d="M20 10 Q30 26 27 32 Q24 40 22 54" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.5" />
+          <path d="M44 10 Q34 26 37 32 Q40 40 42 54" fill="none" stroke="currentColor" stroke-width="1.2" opacity="0.5" />
+        </svg>
+      )}
+      {variant === 'footer' && (
+        <svg viewBox="0 0 120 120" class="newsiq-globe" focusable="false" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="60" cy="60" r="44" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.55" />
+          <ellipse cx="60" cy="60" rx="44" ry="18" fill="none" stroke="currentColor" stroke-width="1" opacity="0.35" />
+          <ellipse cx="60" cy="60" rx="18" ry="44" fill="none" stroke="currentColor" stroke-width="1" opacity="0.35" />
+          <line x1="16" y1="60" x2="104" y2="60" stroke="currentColor" stroke-width="1" opacity="0.35" />
+          <path d="M38 22 Q54 44 50 60 Q46 76 40 98" fill="none" stroke="currentColor" stroke-width="1" opacity="0.45" />
+          <path d="M82 22 Q66 44 70 60 Q74 76 80 98" fill="none" stroke="currentColor" stroke-width="1" opacity="0.45" />
+        </svg>
+      )}
+    </div>
+
+    <div class="newsiq-body">
+      <span class="newsiq-brand">{brandName}{brandAccent && <span class="newsiq-brand-iq">{brandAccent}</span>}</span>
+      <span class="newsiq-sponsored">{badgeText}</span>
+      <div class="newsiq-copy">
+        {variants.map((v: { headline: string; description: string }, i: number) => (
+          <div class:list={['newsiq-copy-item', i === 0 ? 'is-active' : '']} data-variant-index={i}>
+            <h3 class="newsiq-headline">{v.headline}</h3>
+            <p class="newsiq-desc">{v.description}</p>
+          </div>
+        ))}
+      </div>
+      <span class="newsiq-cta">
+        {ctaText}
+        <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><polyline points="12 5 19 12 12 19" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+    </div>
+  </a>
+</div>
+
+<style>
+  /* ---- Structure ---- */
+  .newsiq-link {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    border-radius: 1rem;
+    text-decoration: none;
+    color: var(--color-text);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    border: 1px solid var(--color-border);
+    background:
+      radial-gradient(ellipse 60% 130% at 12% 50%, var(--newsiq-glow, rgba(59, 130, 246, 0.14)), transparent 60%),
+      linear-gradient(135deg, var(--color-bg-alt), var(--color-bg));
+    box-shadow: 0 10px 30px -18px rgba(2, 6, 23, 0.9);
+  }
+  .newsiq-link:hover, .newsiq-link:focus-visible {
+    transform: translateY(-2px);
+    border-color: var(--color-gold);
+    box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.35), 0 18px 40px -20px rgba(2, 6, 23, 0.9);
+  }
+  .newsiq-link:focus-visible {
+    outline: 2px solid var(--color-gold-light);
+    outline-offset: 3px;
+  }
+
+  /* ---- Visual ---- */
+  .newsiq-visual {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-gold);
+    filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.25));
+  }
+  .newsiq-globe { width: 104px; height: 104px; }
+  .newsiq-mark { width: 52px; height: 52px; }
+
+  /* Per-theme accent glow + mark colour */
+  .newsiq--global { --newsiq-glow: rgba(59, 130, 246, 0.16); }
+  .newsiq--global .newsiq-visual { color: #7FB2F5; filter: drop-shadow(0 0 12px rgba(59, 130, 246, 0.35)); }
+  .newsiq--bitcoin { --newsiq-glow: rgba(245, 158, 11, 0.16); }
+  .newsiq--bitcoin .newsiq-visual { color: #F5B84C; filter: drop-shadow(0 0 12px rgba(245, 158, 11, 0.35)); }
+  .newsiq--markets { --newsiq-glow: rgba(34, 197, 94, 0.14); }
+  .newsiq--markets .newsiq-visual { color: #4ADE80; filter: drop-shadow(0 0 12px rgba(34, 197, 94, 0.3)); }
+  .newsiq--ai { --newsiq-glow: rgba(168, 85, 247, 0.16); }
+  .newsiq--ai .newsiq-visual { color: #C4B5FD; filter: drop-shadow(0 0 12px rgba(168, 85, 247, 0.35)); }
+
+  /* ---- Body ---- */
+  .newsiq-body {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    min-width: 0;
+  }
+  .newsiq-brand {
+    font-size: 0.7rem;
+    letter-spacing: 0.18em;
+    font-weight: 700;
+    color: var(--color-gold-light);
+    text-transform: uppercase;
+  }
+  .newsiq-brand-iq { color: var(--color-muted); }
+  .newsiq-sponsored {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 0.625rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--color-muted-dark);
+    border: 1px solid var(--color-border);
+    padding: 0.1rem 0.4rem;
+    border-radius: 0.3rem;
+  }
+
+  /* ---- Rotating copy: all variants stacked in one grid cell so the box is
+     always tall enough for the longest one — no layout shift on rotation. ---- */
+  .newsiq-copy { display: grid; }
+  .newsiq-copy-item {
+    grid-area: 1 / 1;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.55s ease, visibility 0.55s ease;
+  }
+  .newsiq-copy-item.is-active { opacity: 1; visibility: visible; }
+  .newsiq-headline {
+    font-size: 1.125rem;
+    line-height: 1.3;
+    font-weight: 700;
+    font-family: var(--font-heading);
+    margin: 0;
+  }
+  .newsiq-desc {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--color-muted);
+    margin: 0;
+  }
+
+  .newsiq-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    align-self: flex-start;
+    margin-top: 0.35rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--color-gold-light);
+  }
+  .newsiq-link:hover .newsiq-cta svg { transform: translateX(3px); }
+  .newsiq-cta svg { transition: transform 0.2s ease; }
+
+  /* ---- Variant sizing ---- */
+  .newsiq--hero .newsiq-link { padding: 1.5rem 1.75rem; }
+  .newsiq--hero .newsiq-headline { font-size: 1.5rem; }
+  .newsiq--hero .newsiq-desc { font-size: 0.95rem; max-width: 46ch; }
+
+  .newsiq--card .newsiq-link { flex-direction: column; align-items: flex-start; padding: 1.25rem; gap: 1rem; height: 100%; }
+  .newsiq--card .newsiq-body { height: 100%; }
+  .newsiq--card .newsiq-cta { margin-top: auto; }
+  .newsiq--card .newsiq-sponsored { top: 1.25rem; right: 1.25rem; }
+
+  .newsiq--footer .newsiq-link { padding: 1.5rem 1.75rem; }
+  .newsiq--footer .newsiq-headline { font-size: 1.375rem; }
+  .newsiq--footer .newsiq-desc { max-width: 52ch; }
+  .newsiq--footer .newsiq-body { align-items: center; text-align: center; }
+  .newsiq--footer .newsiq-copy { justify-items: center; }
+  .newsiq--footer .newsiq-cta { align-self: center; }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 640px) {
+    .newsiq--hero .newsiq-link,
+    .newsiq--footer .newsiq-link { flex-direction: column; align-items: flex-start; gap: 1rem; padding: 1.25rem; }
+    .newsiq--footer .newsiq-body { align-items: flex-start; text-align: left; }
+    .newsiq--footer .newsiq-copy { justify-items: stretch; }
+    .newsiq--footer .newsiq-cta { align-self: flex-start; }
+    .newsiq-globe { width: 64px; height: 64px; }
+    .newsiq--hero .newsiq-headline { font-size: 1.25rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .newsiq-copy-item { transition: none; }
+    .newsiq-link { transition: none; }
+  }
+</style>
+
+<script>
+  // One module-level pass handles every placement on the page. Guarded so that
+  // if several instances ship the same script, only the first pass runs.
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let rotationInitialised = false;
+
+  function initRotation(root: HTMLElement) {
+    const link = root.querySelector<HTMLAnchorElement>('.newsiq-link');
+    const items = Array.from(root.querySelectorAll<HTMLElement>('.newsiq-copy-item'));
+    if (!link || items.length < 2) return;
+
+    const interval = Number(root.dataset.rotationInterval) || 7000;
+    const ctaBase = link.getAttribute('aria-label')?.split(' — ')[0] ?? 'Visit NEWSIQ';
+    let index = 0;
+    let timer: ReturnType<typeof setInterval> | undefined;
+
+    const show = (next: number) => {
+      items[index].classList.remove('is-active');
+      items[next].classList.add('is-active');
+      index = next;
+      // Keep the link's accessible name in sync with the visible copy.
+      const headline = items[next].querySelector('.newsiq-headline')?.textContent ?? '';
+      link.setAttribute('aria-label', `${ctaBase} — ${headline}`);
+    };
+
+    const start = () => {
+      if (prefersReduced.matches || timer) return;
+      timer = setInterval(() => show((index + 1) % items.length), interval);
+    };
+    const stop = () => {
+      if (timer) { clearInterval(timer); timer = undefined; }
+    };
+
+    // Pause while the user is interacting with the ad.
+    root.addEventListener('mouseenter', stop);
+    root.addEventListener('mouseleave', start);
+    root.addEventListener('focusin', stop);
+    root.addEventListener('focusout', start);
+    document.addEventListener('visibilitychange', () => {
+      document.hidden ? stop() : start();
+    });
+
+    start();
+  }
+
+  const run = () => {
+    if (rotationInitialised) return;
+    rotationInitialised = true;
+    document.querySelectorAll<HTMLElement>('[data-newsiq-ad]').forEach(initRotation);
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', run);
+  } else {
+    run();
+  }
+</script>

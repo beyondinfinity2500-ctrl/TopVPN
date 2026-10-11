@@ -2,6 +2,8 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import Icons from '../components/Icons.astro';
+import NewsiqAd from '../components/newsiq/NewsiqAd.astro';
+import { newsiqHero, newsiqCards, newsiqFooter, newsiqHouse } from '../data/newsiq-ads';
 import { breadcrumbSchema, contextWrapper } from '../lib/schema';
 
 const valueCards = [
@@ -236,7 +238,49 @@ const principles = [
     </div>
   </section>
 
-  <!-- ============ FINAL CTA ============ -->
+  <!-- ============ LIVE CAMPAIGN PREVIEW (NEWSIQ) ============ -->
+  <!--
+    A live preview of the promotional formats TopVPN can host, shown running
+    with a real partner (NEWSIQ). Kept clearly separate from TopVPN's own
+    advertising-sales message above: it is labelled as a preview, and every
+    placement is marked "Sponsored" in-component.
+  -->
+  <section class="container-max py-12 md:py-16">
+    <div class="text-center mb-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 mb-4 rounded-full" style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.28);">
+        <span class="text-xs font-semibold tracking-wider" style="color: #93C5FD;">LIVE CAMPAIGN PREVIEW</span>
+      </div>
+      <h2 class="text-2xl md:text-3xl font-bold mb-3">See the Formats Running With NEWSIQ</h2>
+      <p class="section-sub max-w-2xl mx-auto">
+        A live partner campaign, running on TopVPN today. Headlines rotate every
+        few seconds — hover or focus an ad to pause it.
+      </p>
+    </div>
+
+    <NewsiqAd id="newsiq-preview-hero" placement={newsiqHero} />
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+      {newsiqCards.map((placement, i) => (
+        <NewsiqAd id={`newsiq-preview-card-${i + 1}`} placement={placement} />
+      ))}
+    </div>
+
+    <div class="mt-8">
+      <NewsiqAd id="newsiq-preview-footer" placement={newsiqFooter} />
+    </div>
+
+    <p class="text-xs text-center mt-6" style="color: var(--color-muted-dark);">
+      These are paid promotional placements for NEWSIQ and are not editorial
+      recommendations by TopVPN.
+    </p>
+
+    <!-- House ad: TopVPN's own "your ad here" slot, driving to /advertise -->
+    <div class="mt-6">
+      <NewsiqAd id="newsiq-preview-house" placement={newsiqHouse} />
+    </div>
+  </section>
+
+
   <section class="py-16 md:py-20" style="background: var(--color-bg-alt);">
     <div class="container-max text-center">
       <h2 class="text-2xl md:text-4xl font-bold mb-4">

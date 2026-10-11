@@ -4,7 +4,7 @@ export const SITE = {
   url: 'https://www.topvpn.top',
   tagline: 'Independent VPN comparisons and guides in plain language.',
   /** Date the static pages were last meaningfully edited (used in the sitemap). Update when you change page content. */
-  updated: '2026-10-07',
+  updated: '2026-10-12',
   /** Set to true once AdSense is approved; empty placeholder boxes are hidden until then. */
   ads: false,
 } as const;
