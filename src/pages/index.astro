@@ -2,7 +2,6 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Hero from '../components/Hero.astro';
 import ProviderCard from '../components/ProviderCard.astro';
-import ComparisonSummary from '../components/ComparisonSummary.astro';
 import FAQ from '../components/FAQ.astro';
 import AdSlot from '../components/AdSlot.astro';
 import Icons from '../components/Icons.astro';
@@ -75,13 +74,15 @@ const faqs = [
   <AdSlot />
 
   <section class="container-max py-12 md:py-16">
-    <div class="text-center mb-8">
-      <h2 class="text-2xl md:text-3xl font-bold mb-2">Full Comparison</h2>
-      <p class="text-sm" style="color: var(--color-muted);">Compare all six providers side by side. Tap any row for details.</p>
-    </div>
-    <ComparisonSummary providers={providers} />
-    <div class="text-center mt-6">
-      <a href="/order-vpn" class="btn-outline">See Full Breakdown</a>
+    <div class="card p-8 md:p-12 text-center" style="border-color: rgba(212, 175, 55, 0.35);">
+      <h2 class="text-2xl md:text-3xl font-bold mb-3">The Full Side-by-Side Comparison</h2>
+      <p class="text-sm md:text-base mb-6 max-w-xl mx-auto" style="color: var(--color-muted);">
+        Prices, features, protocols and device limits for all providers in one
+        table — with an honest pros-and-cons breakdown for each one.
+      </p>
+      <a href="/order-vpn" class="btn-gold inline-flex" style="min-height: 48px; padding: 0.75rem 2rem;">
+        Open the Full Comparison
+      </a>
     </div>
   </section>
 
