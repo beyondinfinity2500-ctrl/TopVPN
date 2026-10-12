@@ -15,11 +15,13 @@ const MARKETS = 'https://www.newsiq.top/en/markets';
 export interface AdVariant {
   headline: string;
   description: string;
+  /** Optional CTA shown on the button/link for this variant (falls back to the placement's ctaBase). */
+  cta?: string;
 }
 
 export interface NewsiqPlacement {
-  /** Which layout to render: wide hero banner, a themed card, or the footer CTA. */
-  variant: 'hero' | 'card' | 'footer';
+  /** Which layout to render: compact header strip, wide hero/banner, themed card, or the footer CTA. */
+  variant: 'strip' | 'hero' | 'card' | 'footer';
   /** Visual identity. Cards keep a fixed theme while only their copy rotates. */
   theme: 'global' | 'bitcoin' | 'markets' | 'ai';
   destination: string;
@@ -36,6 +38,39 @@ export interface NewsiqPlacement {
   /** CTA text. Defaults to "Learn more". */
   ctaLabel?: string;
 }
+
+/**
+ * Approved campaign copy shared by the site-wide strip and in-content banners.
+ * Each promotion carries its own CTA; the destination stays the safe general
+ * homepage because deep NEWSIQ routes only exist for the ones we verified.
+ */
+export const newsiqBroadcast: AdVariant[] = [
+  { headline: 'Turn Global News Into Better Decisions', description: 'AI-powered market intelligence for the stories, markets, and events that matter.', cta: 'Explore NEWSIQ' },
+  { headline: 'Global News, Explained by AI', description: 'Stay ahead of the world’s biggest stories with concise AI-powered analysis of global events, markets, companies, and economic developments.', cta: 'Explore NEWSIQ' },
+  { headline: 'Bitcoin Market Intelligence', description: 'Follow Bitcoin news, market events, price-moving developments, and AI analysis in one place.', cta: 'Explore Bitcoin Intelligence' },
+  { headline: 'Make Sense of Global Markets', description: 'Stocks. Oil. Gold. USD. Bitcoin. Understand what happened, why it matters, and which markets may be affected.', cta: 'Explore Market Intelligence' },
+  { headline: 'From Breaking Event to AI Analysis', description: 'News moves fast. Understanding it shouldn’t take hours.', cta: 'See AI Analysis' },
+];
+
+/* ---------- Site-wide header strip (compact, under the sticky nav) ---------- */
+export const newsiqHeaderStrip: NewsiqPlacement = {
+  variant: 'strip',
+  theme: 'global',
+  destination: HOME,
+  ctaBase: 'Explore NEWSIQ',
+  badge: 'Ad',
+  variants: newsiqBroadcast,
+};
+
+/* ---------- In-content banner (articles, comparison, guides) ---------- */
+export const newsiqInline: NewsiqPlacement = {
+  variant: 'hero',
+  theme: 'global',
+  destination: HOME,
+  ctaBase: 'Explore NEWSIQ',
+  badge: 'ADVERTISING & FEATURED CONTENT',
+  variants: newsiqBroadcast,
+};
 
 /* ---------- Header / Hero ---------- */
 export const newsiqHero: NewsiqPlacement = {

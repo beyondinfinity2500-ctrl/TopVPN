@@ -21,7 +21,7 @@ interface Props {
 }
 
 const { placement, id } = Astro.props;
-const { variant, theme, destination, ctaBase, variants, internal, brand, badge, ctaLabel } = placement;
+const { variant, theme, destination, variants, internal, brand, badge, ctaLabel } = placement;
 
 // House ads point back into our own site, so they skip the sponsored rel and
 // the new tab, and carry the TopVPN wordmark instead of "Sponsored".
@@ -31,6 +31,9 @@ const brandName = brand?.name ?? 'NEWS';
 const brandAccent = brand?.accent ?? 'IQ';
 const badgeText = badge ?? 'Sponsored';
 const ctaText = ctaLabel ?? 'Learn more';
+// Visible CTA on load must match the accessible name so screen-reader users
+// and sighted users hear the same label (WCAG label-content-name-mismatch).
+const initialCta = variants[0].cta ?? ctaText;
 ---
 
 <div
@@ -44,7 +47,6 @@ const ctaText = ctaLabel ?? 'Learn more';
     href={destination}
     target={linkTarget}
     rel={linkRel}
-    aria-label={`${ctaBase} — ${variants[0].headline}`}
   >
     <!-- Decorative visual: pure SVG, no external assets -->
     <div class="newsiq-visual" aria-hidden="true">
@@ -102,15 +104,19 @@ const ctaText = ctaLabel ?? 'Learn more';
       <span class="newsiq-brand">{brandName}{brandAccent && <span class="newsiq-brand-iq">{brandAccent}</span>}</span>
       <span class="newsiq-sponsored">{badgeText}</span>
       <div class="newsiq-copy">
-        {variants.map((v: { headline: string; description: string }, i: number) => (
-          <div class:list={['newsiq-copy-item', i === 0 ? 'is-active' : '']} data-variant-index={i}>
-            <h3 class="newsiq-headline">{v.headline}</h3>
+        {variants.map((v: { headline: string; description: string; cta?: string }, i: number) => (
+          <div class:list={['newsiq-copy-item', i === 0 ? 'is-active' : '']} data-variant-index={i} data-cta={v.cta ?? ctaText}>
+            {/* Strip sits under the nav and before the page <h1>, so it must not
+                insert a heading into the document outline. */}
+            {variant === 'strip'
+              ? <span class="newsiq-headline">{v.headline}</span>
+              : <h3 class="newsiq-headline">{v.headline}</h3>}
             <p class="newsiq-desc">{v.description}</p>
           </div>
         ))}
       </div>
       <span class="newsiq-cta">
-        {ctaText}
+        <span class="newsiq-cta-text">{initialCta}</span>
         <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg"><line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><polyline points="12 5 19 12 12 19" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </span>
     </div>
@@ -251,6 +257,55 @@ const ctaText = ctaLabel ?? 'Learn more';
   .newsiq--footer .newsiq-copy { justify-items: center; }
   .newsiq--footer .newsiq-cta { align-self: center; }
 
+  /* ---- Compact header strip ---- */
+  .newsiq--strip .newsiq-link {
+    border-radius: 0;
+    border-left: 0;
+    border-right: 0;
+    border-top: 0;
+    padding: 0.5rem 1rem;
+    gap: 0.9rem;
+    box-shadow: none;
+  }
+  .newsiq--strip .newsiq-link:hover,
+  .newsiq--strip .newsiq-link:focus-visible {
+    transform: none;
+    box-shadow: none;
+    border-color: var(--color-border);
+  }
+  .newsiq--strip .newsiq-visual { display: none; }
+  .newsiq--strip .newsiq-body {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.9rem;
+    width: 100%;
+  }
+  .newsiq--strip .newsiq-sponsored {
+    position: static;
+    flex: 0 0 auto;
+    order: -1;
+  }
+  .newsiq--strip .newsiq-brand { flex: 0 0 auto; }
+  .newsiq--strip .newsiq-copy { flex: 1 1 auto; min-width: 0; }
+  /* One line, truncated: keeps the strip's height stable as copy rotates. */
+  .newsiq--strip .newsiq-headline {
+    font-size: 0.85rem;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .newsiq--strip .newsiq-desc { display: none; }
+  .newsiq--strip .newsiq-cta {
+    margin-top: 0;
+    flex: 0 0 auto;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+
+  /* Long labels (e.g. "ADVERTISING & FEATURED CONTENT") stay tidy top-right. */
+  .newsiq-sponsored { max-width: 9rem; text-align: right; line-height: 1.3; }
+
   /* ---- Responsive ---- */
   @media (max-width: 640px) {
     .newsiq--hero .newsiq-link,
@@ -260,6 +315,10 @@ const ctaText = ctaLabel ?? 'Learn more';
     .newsiq--footer .newsiq-cta { align-self: flex-start; }
     .newsiq-globe { width: 64px; height: 64px; }
     .newsiq--hero .newsiq-headline { font-size: 1.25rem; }
+    .newsiq--strip .newsiq-brand { display: none; }
+    .newsiq--strip .newsiq-link { padding: 0.5rem 0.75rem; gap: 0.5rem; }
+    .newsiq--strip .newsiq-headline { font-size: 0.78rem; }
+    .newsiq--strip .newsiq-cta { font-size: 0.7rem; }
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -276,21 +335,27 @@ const ctaText = ctaLabel ?? 'Learn more';
 
   function initRotation(root: HTMLElement) {
     const link = root.querySelector<HTMLAnchorElement>('.newsiq-link');
+    const ctaTextEl = link?.querySelector<HTMLElement>('.newsiq-cta-text') ?? null;
     const items = Array.from(root.querySelectorAll<HTMLElement>('.newsiq-copy-item'));
     if (!link || items.length < 2) return;
 
     const interval = Number(root.dataset.rotationInterval) || 7000;
-    const ctaBase = link.getAttribute('aria-label')?.split(' — ')[0] ?? 'Visit NEWSIQ';
     let index = 0;
     let timer: ReturnType<typeof setInterval> | undefined;
+
+    const sync = (next: number) => {
+      // Keep the visible CTA in sync with the copy currently shown. The
+      // accessible name needs no updating: it is read from the visible content
+      // itself (inactive variants are visibility:hidden), so it always matches.
+      const cta = items[next].dataset.cta ?? ctaTextEl?.textContent ?? 'Visit NEWSIQ';
+      if (ctaTextEl) ctaTextEl.textContent = cta;
+    };
 
     const show = (next: number) => {
       items[index].classList.remove('is-active');
       items[next].classList.add('is-active');
       index = next;
-      // Keep the link's accessible name in sync with the visible copy.
-      const headline = items[next].querySelector('.newsiq-headline')?.textContent ?? '';
-      link.setAttribute('aria-label', `${ctaBase} — ${headline}`);
+      sync(next);
     };
 
     const start = () => {

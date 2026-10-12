@@ -56,6 +56,7 @@ const priceCols = [
             {showOrderButton ? (
               <a
                 href={p.affiliateUrl.startsWith('http') ? p.affiliateUrl : `${linkBase}#${p.slug}`}
+                target={p.affiliateUrl.startsWith('http') ? '_blank' : undefined}
                 rel={p.affiliateUrl.startsWith('http') ? 'sponsored nofollow noopener' : undefined}
                 class="inline-flex items-center justify-center text-xs font-bold px-4 py-2 rounded-lg"
                 style="background: linear-gradient(135deg, #D4AF37, #F5D77A); color: #0B1020; min-height: 40px;"

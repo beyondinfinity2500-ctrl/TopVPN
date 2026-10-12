@@ -3,6 +3,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import TagChips from '../components/TagChips.astro';
 import Icons from '../components/Icons.astro';
+import NewsiqAd from '../components/newsiq/NewsiqAd.astro';
+import { newsiqInline } from '../data/newsiq-ads';
 import { breadcrumbSchema, contextWrapper } from '../lib/schema';
 
 const updatedStr = 'October 2026';
@@ -113,6 +115,10 @@ const tags = ['apps', 'devices', 'Windows', 'macOS', 'Android', 'iOS', 'guide'];
           </div>
         </div>
       ))}
+    </div>
+
+    <div class="my-10">
+      <NewsiqAd placement={newsiqInline} id="newsiq-guide-apps" />
     </div>
 
     <div class="max-w-3xl mb-8">

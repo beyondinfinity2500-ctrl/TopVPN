@@ -4,6 +4,8 @@ import Breadcrumbs from '../components/Breadcrumbs.astro';
 import TagChips from '../components/TagChips.astro';
 import FAQ from '../components/FAQ.astro';
 import AdSlot from '../components/AdSlot.astro';
+import NewsiqAd from '../components/newsiq/NewsiqAd.astro';
+import { newsiqInline } from '../data/newsiq-ads';
 import Icons from '../components/Icons.astro';
 import type { CollectionEntry } from 'astro:content';
 import { articleSchema, breadcrumbSchema, faqSchema, contextWrapper } from '../lib/schema';
@@ -111,6 +113,10 @@ if (faqMatches.length > 0) {
 
         <div class="prose-content text-base leading-relaxed">
           <slot />
+        </div>
+
+        <div class="my-10">
+          <NewsiqAd placement={newsiqInline} id="newsiq-article-inline" />
         </div>
 
         {faqMatches.length > 0 && (

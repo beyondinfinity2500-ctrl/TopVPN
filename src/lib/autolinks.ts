@@ -75,7 +75,9 @@ function splitText(value: string, state: LinkState): HastNode[] | null {
       tagName: 'a',
       properties: {
         href: target.href,
-        ...(target.affiliate ? { rel: AFFILIATE_REL } : {}),
+        // Affiliate links open in a new tab (the relaunch referral behavior);
+        // noopener is already in AFFILIATE_REL.
+        ...(target.affiliate ? { target: '_blank', rel: AFFILIATE_REL } : {}),
       },
       children: [{ type: 'text', value: match[0] }],
     });
@@ -95,6 +97,9 @@ function splitText(value: string, state: LinkState): HastNode[] | null {
  */
 function walk(node: HastNode, state: LinkState) {
   if (node.type === 'element') {
+    // Skip ad subtrees entirely: their own copy must never be rewritten with
+    // internal links, and their existing CTA anchors are already correct.
+    if (node.properties && 'dataNewsiqAd' in node.properties) return;
     if (node.tagName === 'p' && node.children) {
       const children = [];
       for (const child of node.children) {

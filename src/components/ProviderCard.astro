@@ -103,6 +103,7 @@ const linkHref = hasAffiliate ? provider.affiliateUrl : `/order-vpn#${provider.s
   <a
     href={linkHref}
     class="btn-gold w-full mt-auto"
+    target={hasAffiliate ? '_blank' : undefined}
     rel={hasAffiliate ? 'noopener nofollow sponsored' : undefined}
   >
     {hasAffiliate ? `Check ${provider.name} price` : `Compare ${provider.name} plans`}

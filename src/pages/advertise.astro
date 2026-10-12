@@ -3,7 +3,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import Icons from '../components/Icons.astro';
 import NewsiqAd from '../components/newsiq/NewsiqAd.astro';
-import { newsiqHero, newsiqCards, newsiqFooter, newsiqHouse } from '../data/newsiq-ads';
+import NewsiqCardsGrid from '../components/newsiq/NewsiqCardsGrid.astro';
+import { newsiqHero, newsiqHouse } from '../data/newsiq-ads';
 import { breadcrumbSchema, contextWrapper } from '../lib/schema';
 
 const valueCards = [
@@ -259,19 +260,12 @@ const principles = [
 
     <NewsiqAd id="newsiq-preview-hero" placement={newsiqHero} />
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
-      {newsiqCards.map((placement, i) => (
-        <NewsiqAd id={`newsiq-preview-card-${i + 1}`} placement={placement} />
-      ))}
-    </div>
-
-    <div class="mt-8">
-      <NewsiqAd id="newsiq-preview-footer" placement={newsiqFooter} />
-    </div>
+    <NewsiqCardsGrid id="newsiq-preview-cards" />
 
     <p class="text-xs text-center mt-6" style="color: var(--color-muted-dark);">
       These are paid promotional placements for NEWSIQ and are not editorial
-      recommendations by TopVPN.
+      recommendations by TopVPN. The same formats also run site-wide — a compact
+      strip under the navigation and a banner above the footer.
     </p>
 
     <!-- House ad: TopVPN's own "your ad here" slot, driving to /advertise -->

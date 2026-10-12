@@ -3,6 +3,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import Breadcrumbs from '../components/Breadcrumbs.astro';
 import TagChips from '../components/TagChips.astro';
 import Icons from '../components/Icons.astro';
+import NewsiqAd from '../components/newsiq/NewsiqAd.astro';
+import { newsiqInline } from '../data/newsiq-ads';
 import { breadcrumbSchema, contextWrapper } from '../lib/schema';
 
 const updatedStr = 'October 2026';
@@ -118,6 +120,10 @@ const tags = ['VPN types', 'dedicated IP', 'shared IP', 'guide'];
         <li class="flex items-start gap-2"><Icons name="arrow-right" size={16} class="mt-0.5 shrink-0 text-amber-400" /><span style="color: var(--color-muted);"><strong style="color: var(--color-text);">Want fewer CAPTCHAs when browsing</strong> → Dedicated IP</span></li>
         <li class="flex items-start gap-2"><Icons name="arrow-right" size={16} class="mt-0.5 shrink-0 text-amber-400" /><span style="color: var(--color-muted);"><strong style="color: var(--color-text);">Stream content from other countries</strong> → Shared IP (usually fine)</span></li>
       </ul>
+    </div>
+
+    <div class="my-10">
+      <NewsiqAd placement={newsiqInline} id="newsiq-guide-vpntypes" />
     </div>
 
     <div class="max-w-3xl mb-8">

@@ -1,0 +1,21 @@
+---
+/**
+ * The four themed NEWSIQ featured cards, as one responsive grid. Reused by the
+ * homepage and the advertise-page campaign preview so the markup stays in one
+ * place.
+ */
+import NewsiqAd from './NewsiqAd.astro';
+import { newsiqCards } from '../../data/newsiq-ads';
+
+interface Props {
+  id?: string;
+}
+
+const { id } = Astro.props;
+---
+
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" {...id ? { id } : {}}>
+  {newsiqCards.map((placement, i) => (
+    <NewsiqAd id={`newsiq-card-${i + 1}`} placement={placement} />
+  ))}
+</div>

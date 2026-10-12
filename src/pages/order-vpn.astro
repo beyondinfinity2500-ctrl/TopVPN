@@ -4,7 +4,9 @@ import Breadcrumbs from '../components/Breadcrumbs.astro';
 import ComparisonSummary from '../components/ComparisonSummary.astro';
 import FAQ from '../components/FAQ.astro';
 import Icons from '../components/Icons.astro';
+import NewsiqAd from '../components/newsiq/NewsiqAd.astro';
 import { providers, formatPrice } from '../data/providers';
+import { newsiqInline } from '../data/newsiq-ads';
 import { itemListSchema, breadcrumbSchema, faqSchema, contextWrapper } from '../lib/schema';
 
 const paymentIcons = ['paypal', 'visa', 'mastercard', 'amex', 'applepay', 'googlepay', 'crypto'];
@@ -47,6 +49,11 @@ const orderJsonLd = [
 
     <ComparisonSummary providers={providers} linkBase="/order-vpn" showOrderButton={true} />
 
+    <!-- Sponsored in-content placement, at the boundary before the breakdowns -->
+    <div class="my-10">
+      <NewsiqAd placement={newsiqInline} id="newsiq-order-inline" />
+    </div>
+
     <div class="mt-10">
       <h2 class="text-xl font-bold mb-4" style="font-family: var(--font-heading);">Detailed Provider Breakdown</h2>
       <div class="space-y-4">
@@ -59,6 +66,7 @@ const orderJsonLd = [
               </div>
               <a
                 href={p.affiliateUrl.startsWith('http') ? p.affiliateUrl : `#${p.slug}`}
+                target={p.affiliateUrl.startsWith('http') ? '_blank' : undefined}
                 rel={p.affiliateUrl.startsWith('http') ? 'sponsored nofollow noopener' : undefined}
                 class="btn-gold text-sm shrink-0"
                 style="min-height: 44px;"
