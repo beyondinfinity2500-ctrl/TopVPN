@@ -1,0 +1,209 @@
+---
+/**
+ * Single-step advertising order interface. Prices are rendered from the shared
+ * pricing module at build time; the Worker re-calculates them server-side and
+ * never trusts a client-submitted amount.
+ */
+import {
+  DURATIONS,
+  PLACEMENTS,
+  PLACEMENT_LABELS,
+  ALLOWED_IMAGE_EXTENSIONS,
+  MAX_IMAGE_BYTES_LABEL,
+} from '../../lib/ads/pricing';
+import { buildPriceTable, durationOptionLabel, money, placementOptionLabel } from '../../lib/ads/order-labels';
+
+const priceTable = buildPriceTable();
+const DEFAULT_PLACEMENT = PLACEMENTS[0];
+
+const acceptAttr = ALLOWED_IMAGE_EXTENSIONS.map((e) => `.${e}`).join(',');
+const placementOptions = PLACEMENTS.map((p) => ({
+  value: p,
+  label: placementOptionLabel(p),
+}));
+// Duration labels are re-written live when the placement changes; the initial
+// server-rendered labels match the default placement.
+const durationOptions = DURATIONS.map((months) => ({
+  value: months,
+  label: durationOptionLabel(DEFAULT_PLACEMENT, months),
+}));
+---
+
+<section class="container-max py-12 md:py-16" id="order">
+  <div class="text-center mb-10">
+    <h2 class="text-2xl md:text-3xl font-bold mb-3">Place Your Order</h2>
+    <p class="section-sub max-w-2xl mx-auto">
+      One step: choose your placement, duration and creative — then pay securely
+      with Stripe. You will see the final price before payment.
+    </p>
+  </div>
+
+  <div class="max-w-3xl mx-auto">
+    {/* Payment-confirmation panel shown when returning from Stripe Checkout. */}
+    <div id="ads-order-status" class="card p-6 mb-8" hidden>
+      <h3 class="text-lg font-bold mb-2" data-status-title>Confirming your order…</h3>
+      <p class="text-sm" style="color: var(--color-muted);" data-status-note>
+        We are confirming your payment with Stripe. This usually takes a few seconds.
+      </p>
+      <dl class="grid grid-cols-2 gap-2 mt-4 text-sm" data-status-details></dl>
+    </div>
+
+    <form id="ads-order-form" class="card p-6 md:p-8 space-y-6" novalidate>
+      {/* Honeypot: real visitors never see this; bots fill it in. */}
+      <input
+        type="text"
+        name="company_full_name"
+        tabindex="-1"
+        autocomplete="off"
+        aria-hidden="true"
+        class="hidden"
+        style="position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden;"
+      />
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <label class="block">
+          <span class="block text-sm font-semibold mb-1.5">Name <span style="color:#F87171;">*</span></span>
+          <input type="text" name="name" required minlength="2" maxlength="100" autocomplete="name"
+            class="form-input" placeholder="Your name" />
+          <p class="field-error" data-error-for="name" hidden></p>
+        </label>
+
+        <label class="block">
+          <span class="block text-sm font-semibold mb-1.5">Email address <span style="color:#F87171;">*</span></span>
+          <input type="email" name="email" required maxlength="254" autocomplete="email"
+            class="form-input" placeholder="you@example.com" />
+          <p class="field-error" data-error-for="email" hidden></p>
+        </label>
+
+        <label class="block md:col-span-2">
+          <span class="block text-sm font-semibold mb-1.5">Website <span style="color:#F87171;">*</span></span>
+          <input type="text" name="website" required maxlength="2048" autocomplete="url"
+            class="form-input" placeholder="https://example.com" />
+          <p class="field-error" data-error-for="website" hidden></p>
+        </label>
+
+        <label class="block">
+          <span class="block text-sm font-semibold mb-1.5">Placement <span style="color:#F87171;">*</span></span>
+          <select name="placement" class="form-input" aria-describedby="ads-placement-hint">
+            {placementOptions.map((o) => <option value={o.value}>{o.label}</option>)}
+          </select>
+          <p class="text-xs mt-1" id="ads-placement-hint" style="color: var(--color-muted-dark);">
+            Prices shown are the starting monthly rate; contract totals update with your duration choice.
+          </p>
+          <p class="field-error" data-error-for="placement" hidden></p>
+        </label>
+
+        <label class="block">
+          <span class="block text-sm font-semibold mb-1.5">Contract duration <span style="color:#F87171;">*</span></span>
+          <select name="duration" class="form-input" aria-describedby="ads-duration-hint">
+            {durationOptions.map((o) => <option value={o.value}>{o.label}</option>)}
+          </select>
+          <p class="text-xs mt-1" id="ads-duration-hint" style="color: var(--color-muted-dark);">
+            Each option shows the one-time total for the selected placement.
+          </p>
+          <p class="field-error" data-error-for="duration" hidden></p>
+        </label>
+      </div>
+
+      <fieldset class="border rounded-lg p-4" style="border-color: var(--color-border);">
+        <legend class="text-sm font-semibold px-1">Creative format <span style="color:#F87171;">*</span></legend>
+        <div class="flex flex-col sm:flex-row gap-4 mt-2">
+          <label class="flex items-center gap-2 text-sm cursor-pointer">
+            <input type="radio" name="format" value="text" checked class="accent-amber-500" />
+            <span><strong>Text</strong> — your copy and a destination link</span>
+          </label>
+          <label class="flex items-center gap-2 text-sm cursor-pointer">
+            <input type="radio" name="format" value="image" class="accent-amber-500" />
+            <span><strong>Image</strong> — upload your banner ({ALLOWED_IMAGE_EXTENSIONS.join(', ').toUpperCase()}, up to {MAX_IMAGE_BYTES_LABEL})</span>
+          </label>
+        </div>
+        <p class="field-error" data-error-for="format" hidden></p>
+      </fieldset>
+
+      <div id="ads-text-fields" class="space-y-4">
+        <label class="block">
+          <span class="block text-sm font-semibold mb-1.5">Advertising copy <span style="color:#F87171;">*</span></span>
+          <textarea name="copy" required minlength="10" maxlength="500" rows="3"
+            class="form-input" placeholder="Your headline and a short pitch (10–500 characters)."></textarea>
+          <p class="text-xs mt-1 flex justify-between" style="color: var(--color-muted-dark);">
+            <span>Plain text, no HTML. Subject to review.</span>
+            <span><span data-copy-count>0</span>/500</span>
+          </p>
+          <p class="field-error" data-error-for="copy" hidden></p>
+        </label>
+
+        <label class="block">
+          <span class="block text-sm font-semibold mb-1.5">Destination URL <span style="color:#F87171;">*</span></span>
+          <input type="url" name="destination_url" required maxlength="2048"
+            class="form-input" placeholder="https://example.com/landing-page" />
+          <p class="field-error" data-error-for="destination_url" hidden></p>
+        </label>
+      </div>
+
+      <div id="ads-image-fields" class="space-y-2" hidden>
+        <label class="block">
+          <span class="block text-sm font-semibold mb-1.5">Advertising image <span style="color:#F87171;">*</span></span>
+          <input type="file" name="creative" accept={acceptAttr}
+            class="form-input file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-semibold" style="color: var(--color-muted);" />
+          <p class="text-xs mt-1" style="color: var(--color-muted-dark);">
+            PNG, JPEG or WebP, up to {MAX_IMAGE_BYTES_LABEL}. Files are checked for
+            format and content on the server.
+          </p>
+          <p class="field-error" data-error-for="creative" hidden></p>
+        </label>
+      </div>
+
+      <label class="flex items-start gap-3 text-sm cursor-pointer">
+        <input type="checkbox" name="terms" value="on" required class="mt-1 accent-amber-500" />
+        <span>
+          I agree to the <a href="#ad-terms" class="underline font-semibold" style="color: var(--color-gold-light);">advertising terms and refund policy</a>
+          below, and I confirm that my creative complies with TopVPN's advertising policies. <span style="color:#F87171;">*</span>
+        </span>
+      </label>
+      <p class="field-error" data-error-for="terms" hidden></p>
+
+      <div
+        id="ads-summary"
+        class="rounded-lg p-5 border"
+        style="background: rgba(212, 175, 55, 0.06); border-color: rgba(212, 175, 55, 0.35);"
+        aria-live="polite"
+      >
+        <h3 class="text-sm font-bold tracking-wider uppercase mb-3" style="color: #EAB308;">Your order</h3>
+        <dl class="grid grid-cols-2 gap-y-2 text-sm">
+          <dt style="color: var(--color-muted);">Placement</dt>
+          <dd class="text-right font-semibold" data-summary-plan>Header Banner</dd>
+          <dt style="color: var(--color-muted);">Duration</dt>
+          <dd class="text-right font-semibold" data-summary-duration>1 month</dd>
+          <dt style="color: var(--color-muted);">Monthly equivalent</dt>
+          <dd class="text-right font-semibold" data-summary-monthly>{money(priceTable[DEFAULT_PLACEMENT]['1'].unit)}/mo</dd>
+          <dt style="color: var(--color-muted);">Creative</dt>
+          <dd class="text-right font-semibold" data-summary-format>Text</dd>
+          <dt style="color: var(--color-muted);">Long-term discount</dt>
+          <dd class="text-right font-semibold" data-summary-discount>—</dd>
+          <dt class="text-base font-bold pt-2 border-t" style="border-color: rgba(212, 175, 55, 0.3);">Total due today</dt>
+          <dd class="text-right text-base font-bold pt-2 border-t" style="border-color: rgba(212, 175, 55, 0.3);" data-summary-total>{money(priceTable[DEFAULT_PLACEMENT]['1'].total)} USD</dd>
+        </dl>
+        <p class="text-xs mt-2" style="color: var(--color-muted);" data-summary-bundle hidden>
+          Full-Site Sponsorship bundles the Header, In-Content and Footer placements
+          at a discount versus booking them separately.
+        </p>
+      </div>
+
+      <p class="field-error text-center" data-error-for="form" role="alert" hidden></p>
+
+      <button type="submit" id="ads-submit" class="btn-gold w-full justify-center text-base">
+        Proceed to secure Stripe payment — <span data-submit-amount>{money(priceTable[DEFAULT_PLACEMENT]['1'].total)}</span>
+      </button>
+      <p class="text-xs text-center" style="color: var(--color-muted-dark);">
+        Payment is processed by Stripe. Your card details never touch TopVPN's
+        servers. Payment does not automatically approve your creative — see the terms below.
+      </p>
+    </form>
+  </div>
+</section>
+
+<script type="application/json" id="ads-price-table" set:html={JSON.stringify(priceTable)} />
+<script type="application/json" id="ads-price-labels" set:html={JSON.stringify(PLACEMENT_LABELS)} />
+<script>
+  import '../../scripts/order-form.ts';
+</script>

@@ -1,0 +1,156 @@
+---
+/**
+ * Pricing comparison for advertising placements, shown immediately before the
+ * order form. All prices are rendered from the shared, trusted pricing module
+ * (src/lib/ads/pricing.ts) — the same module the Worker uses to calculate the
+ * server-side price. Nothing is hard-coded here.
+ *
+ * Desktop: compact comparison table. Mobile: stacked cards (no horizontal
+ * scrolling).
+ */
+import {
+  DURATIONS,
+  PLACEMENTS,
+  PLACEMENT_DESCRIPTIONS,
+  PLACEMENT_LABELS,
+  discountPercent,
+  priceFor,
+  unitPrice,
+} from '../../lib/ads/pricing';
+import { money } from '../../lib/ads/order-labels';
+
+const fromPrice = (placement: typeof PLACEMENTS[number]) =>
+  Math.min(...DURATIONS.map((d) => unitPrice(placement, d)));
+
+// Small muted-dark text drops to 4.49:1 on the gold-tinted bundle row (needs
+// 4.5:1); the tinted surfaces use the lighter --color-muted instead.
+const subColor = (isBundle: boolean) =>
+  isBundle ? 'color: var(--color-muted);' : 'color: var(--color-muted-dark);';
+---
+
+<section class="container-max py-12 md:py-16" id="pricing">
+  <div class="text-center mb-10">
+    <h2 class="text-2xl md:text-3xl font-bold mb-3">Transparent Advertising Pricing</h2>
+    <p class="section-sub max-w-2xl mx-auto">
+      Every placement, every duration — in USD. No need to contact us for a quote.
+      Text and image creatives cost exactly the same.
+    </p>
+  </div>
+
+  {/* Desktop / tablet: compact comparison table */}
+  <div class="hidden md:block max-w-5xl mx-auto card p-4 md:p-6">
+    <table class="w-full text-sm md:text-base border-collapse">
+      <caption class="sr-only">
+        Total contract prices in USD for 1, 3, 6 and 12 month terms, per advertising
+        placement. Full-Site Sponsorship includes the Header, In-Content and Footer
+        placements. Each term is a single one-time payment.
+      </caption>
+      <thead>
+        <tr class="border-b" style="border-color: var(--color-border);">
+          <th scope="col" class="text-left py-3 pr-4 font-semibold">Placement</th>
+          {DURATIONS.map((months) => (
+            <th scope="col" class="text-right py-3 px-2 md:px-3 font-semibold whitespace-nowrap">
+              {months} {months === 1 ? 'month' : 'months'}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {PLACEMENTS.map((placement) => {
+          const isBundle = placement === 'fullsite';
+          return (
+            <tr
+              class="border-b last:border-b-0"
+              style={isBundle ? 'border-color: rgba(212, 175, 55, 0.35); background: rgba(212, 175, 55, 0.06);' : 'border-color: var(--color-border);'}
+            >
+              <th scope="row" class="text-left py-4 pr-4 align-top font-semibold">
+                <div class="flex items-center gap-2 flex-wrap">
+                  {PLACEMENT_LABELS[placement]}
+                  {isBundle && (
+                    <span class="text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full" style="background: rgba(212, 175, 55, 0.18); color: #EAB308;">All placements</span>
+                  )}
+                </div>
+                <p class="font-normal text-xs mt-1 max-w-[15rem]" style="color: var(--color-muted);">
+                  {PLACEMENT_DESCRIPTIONS[placement]}
+                </p>
+                <p class="font-normal text-xs mt-1" style={subColor(isBundle)}>
+                  from ${fromPrice(placement).toFixed(2)}/mo
+                </p>
+              </th>
+              {DURATIONS.map((months) => {
+                const discount = discountPercent(placement, months);
+                return (
+                  <td class="text-right py-4 px-2 md:px-3 align-top whitespace-nowrap font-bold">
+                    {money(priceFor(placement, months))}
+                    <span class="block font-normal text-[11px]" style={subColor(isBundle)}>
+                      {money(unitPrice(placement, months))}/mo
+                      {discount > 0 && <span style="color: #34D399;"> · save {discount}%</span>}
+                    </span>
+                  </td>
+                );
+              })}
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  </div>
+
+  {/* Mobile: stacked cards, one per placement — no horizontal overflow */}
+  <div class="md:hidden max-w-md mx-auto space-y-4">
+    {PLACEMENTS.map((placement) => {
+      const isBundle = placement === 'fullsite';
+      return (
+        <div
+          class="card p-4"
+          style={isBundle ? 'border-color: rgba(212, 175, 55, 0.35); background: rgba(212, 175, 55, 0.06);' : undefined}
+        >
+          <div class="flex items-center gap-2 flex-wrap mb-1">
+            <h3 class="text-base font-bold">{PLACEMENT_LABELS[placement]}</h3>
+            {isBundle && (
+              <span class="text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full" style="background: rgba(212, 175, 55, 0.18); color: #EAB308;">All placements</span>
+            )}
+          </div>
+          <p class="text-xs mb-3" style="color: var(--color-muted);">
+            {PLACEMENT_DESCRIPTIONS[placement]}
+          </p>
+          <dl class="grid grid-cols-2 gap-x-3 gap-y-1.5 text-sm">
+            {DURATIONS.map((months) => {
+              const discount = discountPercent(placement, months);
+              return (
+                <>
+                  <dt style="color: var(--color-muted);">
+                    {months} {months === 1 ? 'month' : 'months'}
+                    {discount > 0 && (
+                      <span class="text-[11px] font-semibold" style="color: #34D399;"> · save {discount}%</span>
+                    )}
+                  </dt>
+                  <dd class="text-right font-bold whitespace-nowrap">
+                    {money(priceFor(placement, months))}
+                    <span class="block font-normal text-[11px]" style={subColor(isBundle)}>
+                      {money(unitPrice(placement, months))}/mo
+                    </span>
+                  </dd>
+                </>
+              );
+            })}
+          </dl>
+        </div>
+      );
+    })}
+  </div>
+
+  <p class="text-xs text-center mt-4 max-w-2xl mx-auto" style="color: var(--color-muted-dark);">
+    Prices shown are the full contract amount — a single one-time payment at
+    checkout; the monthly equivalent is shown beneath each price. Full-Site
+    Sponsorship includes the Header, In-Content and Footer placements for the
+    selected duration, at a discount versus booking them separately.
+  </p>
+
+  <div class="text-center mt-6">
+    <a href="#order" class="btn-gold">
+      Order This Placement
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+</section>

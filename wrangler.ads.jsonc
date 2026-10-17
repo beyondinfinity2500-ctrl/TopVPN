@@ -1,0 +1,51 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "topvpn",
+  "compatibility_date": "2025-01-01",
+  "main": "worker/index.ts",
+  // Static assets (the Astro build) are served first; this Worker only handles
+  // /api/ads/* and /admin/* requests that do not match a static file.
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page",
+    // Fetcher binding so the Worker can hand unmatched requests back to the
+    // asset layer, which serves the branded 404 page (see worker/index.ts).
+    "binding": "ASSETS"
+  },
+  // D1 database for orders, sessions, rate limits and webhook idempotency.
+  // Create with: npx wrangler d1 create topvpn-ads
+  // Then paste the returned database_id below and run:
+  //   npx wrangler d1 migrations apply topvpn-ads --remote
+  //   npx wrangler d1 migrations apply topvpn-ads --local
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "topvpn-ads",
+      "database_id": "fd3dd7e6-6268-409a-a968-738ef0bfe923"
+    }
+  ],
+  // R2 bucket for uploaded image creatives (never served from public URLs).
+  // Create with: npx wrangler r2 bucket create topvpn-ad-creatives
+  "r2_buckets": [
+    {
+      "binding": "CREATIVES",
+      "bucket_name": "topvpn-ad-creatives"
+    }
+  ],
+  // Cloudflare Images binding: transcodes advertiser uploads to optimized WebP
+  // at ingest time (see worker/images.ts). Billed as unique transformations;
+  // the Free plan includes 5,000/month and returns 9422 beyond that — failures
+  // keep the creative pending instead of storing an unoptimized original.
+  "images": {
+    "binding": "IMAGES"
+  },
+  // Non-secret variables. Secrets are set with `npx wrangler secret put`
+  // (STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, RESEND_API_KEY,
+  //  ADMIN_PASSWORD_HASH, SESSION_SECRET). See docs/ADVERTISING_SETUP.md.
+  "vars": {
+    "SITE_URL": "https://www.topvpn.top",
+    "ADMIN_EMAIL": "beyondinfinity2500@gmail.com",
+    "EMAIL_FROM": "TopVPN Advertising <ads@topvpn.top>"
+    // "STRIPE_CRYPTO_ENABLED": "true"  // only after verifying Stripe crypto eligibility
+  }
+}

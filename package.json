@@ -8,7 +8,14 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "deploy": "astro build && wrangler deploy"
+    "typecheck": "astro check && tsc -p worker/tsconfig.json",
+    "deploy": "astro build && wrangler deploy",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:migrate:local": "wrangler d1 migrations apply topvpn-ads --local --config wrangler.ads.jsonc",
+    "db:migrate:remote": "wrangler d1 migrations apply topvpn-ads --remote --config wrangler.ads.jsonc",
+    "admin:hash": "node worker/dev-tools/hash-password.mjs",
+    "deploy:ads": "astro build && wrangler deploy --config wrangler.ads.jsonc"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",
@@ -17,9 +24,18 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
-    "typescript": "^5.9.3"
+    "@cloudflare/vitest-plugin": "^1.4.0",
+    "@cloudflare/workers-types": "^5.20261012.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.11"
   },
   "engines": {
     "node": ">=18.20.8"
+  },
+  "allowScripts": {
+    "workerd@1.20260815.1": true,
+    "esbuild@0.28.1": true,
+    "esbuild@0.27.7": true,
+    "esbuild@0.25.12": true
   }
 }

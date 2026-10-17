@@ -1,0 +1,18 @@
+# Local secrets for `npx wrangler dev --config wrangler.ads.jsonc --local`.
+# Copy to .dev.vars and fill in. NEVER commit .dev.vars (it is gitignored).
+
+# Stripe: sk_test_... from https://dashboard.stripe.com/apikeys
+STRIPE_SECRET_KEY=""
+# Stripe: whsec_... from the webhook endpoint settings in your Stripe dashboard
+STRIPE_WEBHOOK_SECRET=""
+
+# Resend: re_... from https://resend.com/api-keys (requires a verified sending
+# domain for EMAIL_FROM). Leave empty to record "not_configured" on orders
+# instead of pretending mail was sent.
+RESEND_API_KEY=""
+
+# Admin login hash. Generate with: node worker/dev-tools/hash-password.mjs
+ADMIN_PASSWORD_HASH=""
+
+# Random string used to sign public order-form CSRF tokens (any long random value)
+SESSION_SECRET=""

@@ -4,6 +4,9 @@ import Breadcrumbs from '../components/Breadcrumbs.astro';
 import Icons from '../components/Icons.astro';
 import NewsiqAd from '../components/newsiq/NewsiqAd.astro';
 import NewsiqCardsGrid from '../components/newsiq/NewsiqCardsGrid.astro';
+import PricingTable from '../components/ads/PricingTable.astro';
+import OrderForm from '../components/ads/OrderForm.astro';
+import AdTerms from '../components/ads/AdTerms.astro';
 import { newsiqHero, newsiqHouse } from '../data/newsiq-ads';
 import { breadcrumbSchema, contextWrapper } from '../lib/schema';
 
@@ -161,8 +164,38 @@ const principles = [
     </div>
   </section>
 
+  <!-- ============ ADVERTISING OPPORTUNITIES ============ -->
+  <section class="container-max py-12 md:py-16">
+    <div class="text-center mb-10">
+      <h2 class="text-2xl md:text-3xl font-bold mb-3">Ways to Promote Your Brand</h2>
+      <p class="section-sub">Flexible formats built around how people research and compare.</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {promoCards.map((c) => (
+        <div class="card card-hover p-6">
+          <div class="inline-flex items-center justify-center w-10 h-10 rounded-lg mb-3" style="background: rgba(212, 175, 55, 0.1);">
+            <Icons name={c.icon} size={20} class="text-amber-400" />
+          </div>
+          <h3 class="text-base font-bold mb-2">{c.title}</h3>
+          <p class="text-sm" style="color: var(--color-muted);">{c.text}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- ============ PRICING (immediately before the order form) ============ -->
+  <PricingTable />
+
+  <!-- ============ ORDER + TERMS ============ -->
+  <OrderForm />
+
+  <AdTerms />
+
+  <!-- ============ SUPPORTING INFORMATION (below the conversion area) ============ -->
+
   <!-- ============ KEY PERSUASION ============ -->
-  <section class="py-12 md:py-16" style="background: var(--color-bg-alt);">
+  <section class="py-12 md:py-16" style="background: var(--color-bg);">
     <div class="container-max">
       <div class="max-w-3xl mx-auto text-center">
         <h2 class="text-2xl md:text-3xl font-bold mb-5">Your Brand Is More Valuable When People See It in Context.</h2>
@@ -183,26 +216,6 @@ const principles = [
           TopVPN can place your brand where visitors are already evaluating VPN providers, features, pricing, privacy, and use cases.
         </p>
       </div>
-    </div>
-  </section>
-
-  <!-- ============ ADVERTISING OPPORTUNITIES ============ -->
-  <section class="container-max py-12 md:py-16">
-    <div class="text-center mb-10">
-      <h2 class="text-2xl md:text-3xl font-bold mb-3">Ways to Promote Your Brand</h2>
-      <p class="section-sub">Flexible formats built around how people research and compare.</p>
-    </div>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-      {promoCards.map((c) => (
-        <div class="card card-hover p-6">
-          <div class="inline-flex items-center justify-center w-10 h-10 rounded-lg mb-3" style="background: rgba(212, 175, 55, 0.1);">
-            <Icons name={c.icon} size={20} class="text-amber-400" />
-          </div>
-          <h3 class="text-base font-bold mb-2">{c.title}</h3>
-          <p class="text-sm" style="color: var(--color-muted);">{c.text}</p>
-        </div>
-      ))}
     </div>
   </section>
 
@@ -284,10 +297,11 @@ const principles = [
         Tell us about your product and your goals — we will help you find the right format and placement for your brand.
       </p>
       <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
-        <a href="/contact" class="btn-gold w-full sm:w-auto">
-          Advertise With Us
+        <a href="#order" class="btn-gold w-full sm:w-auto">
+          Order Advertising
           <Icons name="arrow-right" size={18} />
         </a>
+        <a href="/contact" class="btn-outline w-full sm:w-auto">Ask a Question</a>
         <a href="/order-vpn" class="btn-outline w-full sm:w-auto">View the Comparison</a>
       </div>
     </div>

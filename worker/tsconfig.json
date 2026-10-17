@@ -1,0 +1,14 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    // Cloudflare's runtime types declare D1Database/R2Bucket/ExecutionContext and
+    // their own Fetch/Streams/FormData globals, which conflict with the DOM lib
+    // used by the Astro side, so the Worker is type-checked on its own.
+    "types": ["@cloudflare/workers-types"],
+    "lib": ["ESNext"],
+    "noEmit": true,
+    "skipLibCheck": true
+  },
+  "include": ["**/*.ts"],
+  "exclude": []
+}
