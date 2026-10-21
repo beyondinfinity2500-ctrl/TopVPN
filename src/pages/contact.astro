@@ -9,7 +9,7 @@ const updatedStr = 'October 2026';
 
 const faqs = [
   { question: 'How long until I get a response?', answer: 'We aim to reply within 2 business days. Advertising and partnership inquiries may take slightly longer during busy periods.' },
-  { question: 'Can you help me choose the right VPN?', answer: 'Yes. Select "Order help" as the topic and tell us what you need — privacy, streaming, budget, or devices. We will point you to the right guide or comparison.' },
+  { question: 'Can you help me choose the right VPN?', answer: 'Yes. Our comparisons and guides cover privacy, streaming, budget, and device needs — start with the VPN plans comparison to find the right fit. Note that online messaging is unavailable right now.' },
   { question: 'Do you offer technical support for my VPN app?', answer: 'We can help with general guidance, but for account-specific or technical issues we recommend contacting your VPN provider support directly. They have access to your account details.' },
   { question: 'Will you respond to partnership inquiries?', answer: 'Yes, we review all advertising and partnership inquiries. Make sure to include details about your service, pricing, and refund policy so we can evaluate fit.' },
 ];
@@ -36,11 +36,11 @@ const tags = ['contact', 'support', 'help'];
       </h1>
 
       <p class="text-base md:text-lg mb-4" style="color: var(--color-muted);">
-        Need help choosing a VPN, interested in advertising, or have a general question? Send us an email using the form below. Pick the topic that fits so we can route your message to the right person.
+        Need help choosing a VPN, interested in advertising, or have a general question? Online message sending is not available on this page right now — see the notice below.
       </p>
 
       <div class="card p-4 mb-6 text-sm" style="background: var(--color-bg-alt);">
-        <p style="color: var(--color-muted);"><strong style="color: var(--color-text);">Quick answer:</strong> Email us at the address below with your topic. We aim to respond within 2 business days.</p>
+        <p style="color: var(--color-muted);"><strong style="color: var(--color-text);">Quick answer:</strong> Online message sending is not available right now, so we cannot receive messages through this page.</p>
       </div>
 
       <TagChips chips={tags} class="mb-6" />
@@ -48,72 +48,18 @@ const tags = ['contact', 'support', 'help'];
 
     <div class="grid md:grid-cols-2 gap-8 max-w-4xl">
       <div>
-        <h2 class="text-xl font-bold mb-4" style="font-family: var(--font-heading);">Send a Message</h2>
-        <form
-          action="mailto:hello@topvpn.example"
-          method="post"
-          enctype="text/plain"
-          class="space-y-4"
-        >
-          <div>
-            <label for="name" class="block text-xs font-semibold mb-1.5" style="color: var(--color-text);">Your name</label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              required
-              class="w-full px-4 py-3 rounded text-sm"
-              style="background: var(--color-bg); border: 1px solid var(--color-border); color: var(--color-text);"
-              placeholder="Jane Doe"
-            />
+        <h2 class="text-xl font-bold mb-4" style="font-family: var(--font-heading);">Contact</h2>
+        <div class="card p-6" style="background: var(--color-bg-alt);">
+          <div class="flex items-start gap-3">
+            <Icons name="mail" size={20} class="text-amber-400 mt-0.5" />
+            <div>
+              <p class="text-sm font-semibold mb-1" style="color: var(--color-text);">Online message sending is not available right now.</p>
+              <p class="text-sm" style="color: var(--color-muted);">
+                This page is not connected to a live inbox, so we cannot receive messages sent from here. We are not accepting online messages at the moment; a working contact option will be shown here once one is available.
+              </p>
+            </div>
           </div>
-          <div>
-            <label for="email" class="block text-xs font-semibold mb-1.5" style="color: var(--color-text);">Your email</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              required
-              class="w-full px-4 py-3 rounded text-sm"
-              style="background: var(--color-bg); border: 1px solid var(--color-border); color: var(--color-text);"
-              placeholder="jane@example.com"
-            />
-          </div>
-          <div>
-            <label for="topic" class="block text-xs font-semibold mb-1.5" style="color: var(--color-text);">Topic</label>
-            <select
-              id="topic"
-              name="topic"
-              required
-              class="w-full px-4 py-3 rounded text-sm"
-              style="background: var(--color-bg); border: 1px solid var(--color-border); color: var(--color-text);"
-            >
-              <option value="">Select a topic</option>
-              <option value="order-help">Order help</option>
-              <option value="advertising">Advertising</option>
-              <option value="general">General</option>
-            </select>
-          </div>
-          <div>
-            <label for="message" class="block text-xs font-semibold mb-1.5" style="color: var(--color-text);">Message</label>
-            <textarea
-              id="message"
-              name="message"
-              rows="5"
-              required
-              class="w-full px-4 py-3 rounded text-sm resize-y"
-              style="background: var(--color-bg); border: 1px solid var(--color-border); color: var(--color-text);"
-              placeholder="Tell us how we can help..."
-            ></textarea>
-          </div>
-          <button type="submit" class="btn-gold w-full" style="min-height: 48px;">
-            <Icons name="mail" size={16} />
-            Send Message
-          </button>
-        </form>
-        <p class="text-xs mt-3" style="color: var(--color-muted-dark);">
-          This form opens your email app. If it does not work, email us directly at hello@topvpn.example
-        </p>
+        </div>
       </div>
 
       <div>
@@ -126,14 +72,6 @@ const tags = ['contact', 'support', 'help'];
           <p class="text-sm" style="color: var(--color-muted);">
             Order help questions usually get a faster response. Advertising inquiries may take slightly longer during busy periods.
           </p>
-        </div>
-
-        <h2 class="text-xl font-bold mb-4" style="font-family: var(--font-heading);">Direct Email</h2>
-        <div class="card p-5 mb-4">
-          <div class="flex items-center gap-3">
-            <Icons name="mail" size={20} class="text-amber-400" />
-            <a href="mailto:hello@topvpn.example" class="text-sm font-semibold gold-text">hello@topvpn.example</a>
-          </div>
         </div>
 
         <h2 class="text-xl font-bold mb-4" style="font-family: var(--font-heading);">FAQ</h2>
