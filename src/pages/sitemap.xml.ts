@@ -5,6 +5,7 @@ import { SITE } from '../lib/site';
 /** Public, indexable pages. Edit SITE.updated in src/lib/site.ts when page content changes. */
 const staticPaths = [
   '/',
+  '/ar',
   '/order-vpn',
   '/articles',
   '/vpn-types-guide',

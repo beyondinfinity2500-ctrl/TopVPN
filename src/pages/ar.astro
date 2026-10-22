@@ -1,0 +1,213 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FAQ from '../components/FAQ.astro';
+import Icons from '../components/Icons.astro';
+import { providers, formatPrice } from '../data/providers';
+import { orgSchema, faqSchema, contextWrapper } from '../lib/schema';
+
+const purevpn = providers.find((p) => p.slug === 'purevpn');
+const topProviders = [...providers.slice(0, 3), ...(purevpn ? [purevpn] : [])];
+
+// hreflang: this Arabic page pairs with the English homepage. x-default points
+// to the English page (the site's default/global version).
+const hreflang = [
+  { lang: 'en', url: 'https://www.topvpn.top/' },
+  { lang: 'ar', url: 'https://www.topvpn.top/ar' },
+  { lang: 'x-default', url: 'https://www.topvpn.top/' },
+];
+
+// Arabic one-liners for the shortlisted providers (proper nouns / protocols stay
+// as brand names; only the human-facing prose is localized).
+const arBestFor: Record<string, string> = {
+  nordvpn: 'الأفضل في الموازنة بين الأمان والسرعة',
+  expressvpn: 'اتصالات سريعة ومستقرة حول العالم',
+  surfshark: 'الأرخص مع أجهزة غير محدودة',
+  'proton-vpn': 'هندمة الخصوصية مع خطة مجانية',
+  cyberghost: 'مثالي للمبتدئين ومشاهدة المحتوى',
+  purevpn: 'قيمة ممتازة على المدى الطويل',
+};
+
+const criteria = [
+  { icon: 'gauge', title: 'السرعة وتغطية الخوادم', text: 'نبحث عن شبكة خوادم واسعة واتصالات ثابتة السرعة في منطقتك، لأن السرعة هي أهم ما يهم عند استخدام في بي ان للكمبيوتر أو الموبايل.' },
+  { icon: 'shield', title: 'سياسة عدم الاحتفاظ بالسجلات', text: 'نتحقق من سياسة عدم تسجيل البيانات، وقوة التشفير، والجهة القضائية التي تخضع لها الشركة، لحماية خصوصيتك بشكل حقيقي.' },
+  { icon: 'devices', title: 'دعم الأجهزة والتطبيقات', text: 'نتأكد من وجود تطبيقات لجميع أجهزةك — أندرويد، آيفون، ويندوز وماك — مع عدد كافٍ من الاتصالات المتزامنة للعائلة.' },
+];
+
+const faqs = [
+  { question: 'ما هو في بي ان ولماذا أحتاج إليه؟', answer: 'في بي ان (VPN) يشفّر اتصالك بالإنترنت ويمرّره عبر خادم بعيد، فيخفي عنوان IP الخاص بك ويحمي بياناتك من التجسس. تحتاج إليه لحماية خصوصيتك على شبكات الواي فاي العامة، وفتح المواقع المحجوبة، وتجنب التتبع من مزودي الخدمة والإعلانات.' },
+  { question: 'هل استخدام في بي ان قانوني؟', answer: 'نعم، استخدام في بي ان قانوني في معظم دول العالم. لكن بعض الدول تفرض قيودًا على استخدامه. تحقق دائمًا من القوانين المحلية في بلدك قبل الاستخدام، خاصة عند السفر.' },
+  { question: 'هل يبطّئ في بي ان سرعة الإنترنت؟', answer: 'يؤدي التشفير وإعادة توجيه الاتصال إلى انخفاض بسيط في السرعة عادةً، لكن أفضل خدمات في بي ان توفر خوادم عالية السرعة وبروتوكولات حديثة مثل WireGuard تجعل الفرق غير ملحوظ للاستخدام اليومي والتصفح والبث.' },
+  { question: 'هل هناك في بي ان مجاني؟ ما الذي يجب أن أعرفه؟', answer: 'توجد خطة مجانية لدى بعض المزودين مثل Proton VPN، لكنها غالبًا ما تكون محدودة بالسرعة أو عدد الخوادم. أما الخدمات المجانية غير المعروفة فقد تبيع بياناتك أو تعرضك لإعلانات. للخصوصية والسرعة الحقيقية ننصح بخدمة مدفوعة موثوقة بسياسة عدم الاحتفاظ بالسجلات.' },
+  { question: 'كيف أغيّر موقعي الجغرافي بفي بي ان؟', answer: 'بعد تحميل في بي ان وتشغيله، اختر الدولة التي تريد الظهور منها من قائمة الخوادم، وسيحصل جهازك على عنوان IP جديد من تلك الدولة. بذلك يمكنك تصفح المواقع والمحتوى المتاح في مناطق أخرى وكأنك موجود فيها.' },
+  { question: 'على أي الأجهزة أستطيع استخدام في بي ان؟', answer: 'يمكنك استخدام في بي ان على أندرويد وآيفون وويندوز وماك ولينكس وأجهزة التلفزيون الذكية. معظم الخدمات تسمح بعدة اتصالات متزامنة، فتغطي حواسيبك وهواتفك بحساب واحد.' },
+];
+---
+
+<BaseLayout
+  title="افضل في بي ان 2026: مقارنة أفضل خدمات VPN للخصوصية والسرعة"
+  description="دليلك لاختيار افضل في بي ان. مقارنة أقوى خدمات VPN لحماية الخصوصية، وفتح المواقع المحجوبة، وتغيير الموقع الجغرافي على الكمبيوتر والموبايل — بترجمة عربية واضحة وبأسعار محدّثة."
+  lang="ar"
+  dir="rtl"
+  hreflang={hreflang}
+  autolink={false}
+  jsonLd={contextWrapper([orgSchema, faqSchema(faqs)])}
+>
+
+  <!-- Hero -->
+  <section class="relative overflow-hidden" style="background: var(--color-bg);">
+    <div class="hero-grid absolute inset-0" aria-hidden="true"></div>
+    <div class="absolute inset-0 pointer-events-none" aria-hidden="true" style="background: radial-gradient(ellipse 70% 55% at 50% 0%, rgba(212, 175, 55, 0.14), transparent);"></div>
+
+    <div class="container-max relative pt-14 pb-16 md:pt-24 md:pb-24">
+      <div class="max-w-3xl mx-auto text-center">
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 mb-6 rounded-full" style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.28);">
+          <Icons name="check" size={14} />
+          <span class="text-xs font-semibold" style="color: var(--color-emerald);">مقارنة مستقلة. لغة واضحة. بدون مبالغة.</span>
+        </div>
+
+        <h1 class="text-4xl md:text-6xl font-bold leading-tight mb-5">
+          افضل <span class="gold-text">في بي ان</span> لحماية خصوصيتك وفتح المواقع المحجوبة
+        </h1>
+
+        <p class="text-base md:text-lg mb-8 max-w-2xl mx-auto" style="color: var(--color-muted);">
+          نقارن أفضل خدمات الـ VPN من حيث الخصوصية والسرعة والسعر، لتساعدك على اختيار الأنسب لك — سواء للكمبيوتر أو الموبايل — خلال دقائق لا ساعات.
+        </p>
+
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mb-3">
+          <a href="/order-vpn" class="btn-gold w-full sm:w-auto">
+            قارن أفضل الخدمات
+            <Icons name="arrow-left" size={18} />
+          </a>
+          <a href="/vpn-types-guide" class="btn-outline w-full sm:w-auto">دليل استخدام VPN</a>
+        </div>
+        <p class="text-xs" style="color: var(--color-muted-dark);">
+          قد نحصل على عمولة إذا اشتريت عبر روابطنا، دون أي تكلفة إضافية عليك.
+          <a href="/affiliate-disclosure" style="text-decoration: underline;">كيف تعمل هذه العمولة</a>
+        </p>
+      </div>
+
+      <dl class="grid grid-cols-3 gap-3 max-w-2xl mx-auto mt-10 md:mt-14">
+        <div class="card px-3 py-4 text-center">
+          <dt class="sr-only">عدد الخدمات المقارنة</dt>
+          <dd class="m-0">
+            <span class="block text-lg md:text-2xl font-bold gold-text" style="font-family: var(--font-heading);">{String(providers.length)}</span>
+            <span class="block text-[11px] md:text-xs mt-1" style="color: var(--color-muted);">خدمة قيد المقارنة</span>
+          </dd>
+        </div>
+        <div class="card px-3 py-4 text-center">
+          <dt class="sr-only">معايير التقييم</dt>
+          <dd class="m-0">
+            <span class="block text-lg md:text-2xl font-bold gold-text" style="font-family: var(--font-heading);">4</span>
+            <span class="block text-[11px] md:text-xs mt-1" style="color: var(--color-muted);">معايير موحدة للجميع</span>
+          </dd>
+        </div>
+        <div class="card px-3 py-4 text-center">
+          <dt class="sr-only">آخر مراجعة</dt>
+          <dd class="m-0">
+            <span class="block text-lg md:text-2xl font-bold gold-text" style="font-family: var(--font-heading);">2026</span>
+            <span class="block text-[11px] md:text-xs mt-1" style="color: var(--color-muted);">آخر مراجعة وتحديث</span>
+          </dd>
+        </div>
+      </dl>
+    </div>
+    <div class="divider-gold"></div>
+  </section>
+
+  <!-- Criteria -->
+  <section class="container-max py-12 md:py-16">
+    <div class="text-center mb-8">
+      <h2 class="text-2xl md:text-3xl font-bold mb-3">كيف نختار افضل في بي ان</h2>
+      <p class="text-base max-w-2xl mx-auto" style="color: var(--color-muted);">
+        نفس المعايير الأربعة نطبقها على كل خدمة، لتحصل على مقارنة عادلة وواضحة.
+      </p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      {criteria.map((c) => (
+        <div class="card card-hover p-6">
+          <div class="flex items-center gap-3 mb-3">
+            <Icons name={c.icon} size={22} />
+            <h3 class="text-lg font-bold" style="font-family: var(--font-heading);">{c.title}</h3>
+          </div>
+          <p class="text-sm" style="color: var(--color-muted);">{c.text}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Top providers -->
+  <section class="container-max py-12 md:py-16" id="providers">
+    <div class="text-center mb-8">
+      <h2 class="text-2xl md:text-3xl font-bold mb-3">افضل خدمات في بي ان لهذا العام</h2>
+      <p class="text-base max-w-2xl mx-auto" style="color: var(--color-muted);">
+        قائمة قصيرة بأقوى الخيارات المتاحة الآن، مع روابط رسمية للاطلاع على أحدث الأسعار والعروض.
+      </p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+      {topProviders.map((p, i) => {
+        const hasAffiliate = p.affiliateUrl.startsWith('http');
+        const href = hasAffiliate ? p.affiliateUrl : `/order-vpn#${p.slug}`;
+        return (
+          <article class="card card-hover p-6 flex flex-col h-full" style={hasAffiliate ? 'border-color: var(--color-gold);' : ''}>
+            <div class="flex items-center gap-2 mb-4">
+              <span class="inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold" style="background: linear-gradient(135deg, #D4AF37, #F5D77A); color: #0B1020;">
+                {i + 1}
+              </span>
+              <span class="text-xs font-semibold" style="color: var(--color-muted);">مختارة بعناية</span>
+            </div>
+
+            <h3 class="text-xl font-bold mb-2" style="font-family: var(--font-heading);">{p.name}</h3>
+            <p class="text-sm mb-4" style="color: var(--color-muted);">{arBestFor[p.slug] ?? p.bestFor}</p>
+
+            <div class="flex flex-wrap gap-1.5 mb-4">
+              {p.protocols.map((proto) => (
+                <span class="text-xs px-2 py-1 rounded" style="background: var(--color-bg-alt); color: var(--color-muted);">{proto}</span>
+              ))}
+            </div>
+
+            {p.longTermPrice !== null && (
+              <p class="text-sm mb-4">
+                <span style="color: var(--color-muted-dark);">يبدأ من </span>
+                <span class="font-bold gold-text" style="font-family: var(--font-heading);">{formatPrice(p.longTermPrice)}</span>
+                <span style="color: var(--color-muted-dark);"> / شهريًا (الباقة الطويلة)</span>
+              </p>
+            )}
+
+            <a
+              href={href}
+              class="btn-gold w-full mt-auto"
+              target={hasAffiliate ? '_blank' : undefined}
+              rel={hasAffiliate ? 'noopener nofollow sponsored' : undefined}
+            >
+              {hasAffiliate ? `اطّلع على سعر ${p.name}` : `قارن باقات ${p.name}`}
+            </a>
+          </article>
+        );
+      })}
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="container-max py-12 md:py-16">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="text-2xl md:text-3xl font-bold mb-6 text-center">الأسئلة الشائعة عن في بي ان</h2>
+      <FAQ items={faqs} />
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-16 md:py-20" style="background: var(--color-bg-alt);">
+    <div class="container-max text-center">
+      <h2 class="text-2xl md:text-4xl font-bold mb-4">
+        جاهز لحماية <span class="gold-text">خصوصيتك</span>؟
+      </h2>
+      <p class="text-base mb-8 max-w-xl mx-auto" style="color: var(--color-muted);">
+        قارن أفضل خدمات في بي ان واختر ما يناسب احتياجاتك خلال دقائق.
+      </p>
+      <a href="/order-vpn" class="btn-gold">
+        قارن أفضل الخدمات
+        <Icons name="arrow-left" size={18} />
+      </a>
+    </div>
+  </section>
+
+</BaseLayout>

@@ -51,11 +51,18 @@ const faqs = [
   { question: 'Will a VPN slow down my internet?', answer: 'A VPN adds a small amount of overhead because your traffic is encrypted and routed through an additional server. Quality VPNs minimize this impact, and sometimes a VPN can even improve speeds if your ISP is throttling certain traffic.' },
   { question: 'Can I use one VPN on multiple devices?', answer: 'Most VPN providers allow multiple simultaneous connections on a single subscription. The exact number varies by provider, so check our comparison table for details.' },
 ];
+
+const hreflang = [
+  { lang: 'en', url: 'https://www.topvpn.top/' },
+  { lang: 'ar', url: 'https://www.topvpn.top/ar' },
+  { lang: 'x-default', url: 'https://www.topvpn.top/' },
+];
 ---
 
 <BaseLayout
   title="The Best VPN Services, Compared Honestly"
   description="TopVPN compares the top VPNs for privacy, speed and price, so you can choose the right one in minutes, not hours."
+  hreflang={hreflang}
   jsonLd={contextWrapper([orgSchema, websiteSchema, faqSchema(faqs)])}
 >
   <Hero />

@@ -7,6 +7,11 @@ import { newsiqHeaderStrip, newsiqFooter } from '../data/newsiq-ads';
 import { SITE } from '../lib/site';
 import { injectArticleLinks } from '../lib/autolinks';
 
+interface Hreflang {
+  lang: string;
+  url: string;
+}
+
 interface Props {
   title: string;
   description?: string;
@@ -14,6 +19,14 @@ interface Props {
   noindex?: boolean;
   jsonLd?: object | object[];
   ogType?: 'website' | 'article';
+  /** <html lang>; defaults to English. */
+  lang?: string;
+  /** <html dir>; defaults to ltr. */
+  dir?: 'ltr' | 'rtl';
+  /** hreflang alternates — only add on pages that have a language variant. */
+  hreflang?: Hreflang[];
+  /** Set false to skip English link-injection (non-English pages). */
+  autolink?: boolean;
 }
 
 const {
@@ -23,12 +36,18 @@ const {
   noindex = false,
   jsonLd,
   ogType = 'website',
+  lang = 'en',
+  dir = 'ltr',
+  hreflang,
+  autolink = true,
 } = Astro.props;
 
 // Inject internal + affiliate links into the rendered page body (see
 // src/lib/autolinks). Runs on rendered HTML so Astro's pipeline is untouched.
+// Disabled on non-English pages so the English-keyword matcher never rewrites
+// their copy.
 const rawSlot = await Astro.slots.render('default');
-const processedSlot = rawSlot ? await injectArticleLinks(rawSlot) : rawSlot;
+const processedSlot = rawSlot && autolink ? await injectArticleLinks(rawSlot) : rawSlot;
 
 // Canonical: always the clean, extension-free, trailing-slash-free production URL.
 // build.format is 'file', so Astro.url.pathname carries a '.html' suffix that must be
@@ -43,7 +62,7 @@ const jsonLdArray = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang={lang} dir={dir}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -52,6 +71,9 @@ const jsonLdArray = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
+    {hreflang?.map((h) => (
+      <link rel="alternate" hreflang={h.lang} href={h.url} />
+    ))}
     <meta name="robots" content={noindex ? 'noindex,nofollow' : 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1'} />
 
     <link rel="icon" href="/favicon.ico" sizes="48x48" />
