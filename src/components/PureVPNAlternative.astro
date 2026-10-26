@@ -1,0 +1,84 @@
+---
+/**
+ * PureVPN — a separate affiliate alternative shown below the primary TopVPN
+ * Premium plans. PureVPN holds the only live affiliate link on the site. The
+ * promotional image is stored locally (public/assets/purevpn-offer.png) rather
+ * than hotlinked. Opens in a new tab with sponsored/noopener/noreferrer.
+ *
+ * `locale` switches only this section's own copy.
+ */
+import Icons from './Icons.astro';
+
+interface Props {
+  locale?: 'en' | 'pcm';
+}
+const { locale = 'en' } = Astro.props;
+
+const PUREVPN_URL = 'https://billing.purevpn.com/aff.php?aff=49385888';
+
+const copy = {
+  en: {
+    eyebrow: 'Prefer an established brand?',
+    heading: 'An alternative worth exploring',
+    body: 'Still believe that premium quality must always come at a higher price? We respect your choice. If you prefer an established VPN brand, PureVPN is an alternative worth exploring.',
+    button: 'Visit PureVPN',
+    disclosure:
+      'Affiliate disclosure: the link above is an affiliate link. TopVPN may earn a commission if you purchase, at no extra cost to you. This does not change your price or affect our honest comparisons.',
+  },
+  pcm: {
+    eyebrow: 'You prefer one big name wey don dey long?',
+    heading: 'Another option wey you fit check',
+    body: 'You still believe say better quality must cost plenty money? We respect your choice. If you prefer one big VPN name wey don dey long, PureVPN na another option wey you fit check.',
+    button: 'Check PureVPN',
+    disclosure:
+      'Affiliate notice: the link above na affiliate link. TopVPN fit earn commission if you buy, but e no go add any cost for you. E no change your price or our honest comparison.',
+  },
+};
+
+const c = copy[locale];
+---
+
+<section class="container-max pb-16 md:pb-20" id="purevpn-alternative">
+  <div class="max-w-4xl mx-auto">
+    <div class="card p-6 md:p-8 flex flex-col md:flex-row items-center gap-8">
+      <div class="shrink-0">
+        <img
+          src="/assets/purevpn-offer.png"
+          alt="PureVPN promotional offer"
+          width="300"
+          height="250"
+          loading="lazy"
+          decoding="async"
+          class="rounded-lg"
+          style="border: 1px solid var(--color-border);"
+        />
+      </div>
+
+      <div class="flex-grow">
+        <p class="text-xs font-bold uppercase tracking-widest mb-2" style="color: var(--color-muted-dark);">
+          {c.eyebrow}
+        </p>
+        <h2 class="text-xl md:text-2xl font-bold mb-3" style="font-family: var(--font-heading);">
+          {c.heading}
+        </h2>
+        <p class="text-sm mb-4" style="color: var(--color-muted);">
+          {c.body}
+        </p>
+
+        <a
+          href={PUREVPN_URL}
+          target="_blank"
+          rel="sponsored noopener noreferrer"
+          class="btn-outline inline-flex items-center gap-2"
+        >
+          {c.button}
+          <Icons name="arrow-right" size={16} />
+        </a>
+
+        <p class="text-[11px] mt-4" style="color: var(--color-muted-dark);">
+          {c.disclosure}
+        </p>
+      </div>
+    </div>
+  </div>
+</section>

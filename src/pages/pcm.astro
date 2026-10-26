@@ -1,0 +1,248 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PremiumPlans from '../components/PremiumPlans.astro';
+import PureVPNAlternative from '../components/PureVPNAlternative.astro';
+import FAQ from '../components/FAQ.astro';
+import Icons from '../components/Icons.astro';
+import AdSlot from '../components/AdSlot.astro';
+import NewsiqCardsGrid from '../components/newsiq/NewsiqCardsGrid.astro';
+import { getCollection } from 'astro:content';
+import { orgSchema, websiteSchema, faqSchema, contextWrapper } from '../lib/schema';
+
+const hreflang = [
+  { lang: 'en', url: 'https://www.topvpn.top/' },
+  { lang: 'ar', url: 'https://www.topvpn.top/ar' },
+  { lang: 'pcm', url: 'https://www.topvpn.top/pcm' },
+  { lang: 'x-default', url: 'https://www.topvpn.top/' },
+];
+
+const guides = (await getCollection('articles', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.updatedDate.getTime() - a.data.updatedDate.getTime())
+  .slice(0, 3);
+
+const valueProps = [
+  { icon: 'dollar', title: 'Price wey make sense', text: 'Better VPN features for price wey no go pain your pocket — start from only $3 for your first month.' },
+  { icon: 'globe', title: 'Ten years for VPN', text: 'We don dey VPN business for more than ten years, we start as GoldenVPN. That experience dey shape everything we build.' },
+  { icon: 'list', title: 'Clear price', text: 'Simple plan and honest number. The price you see na the price you pay — no fake urgency, no fake discount.' },
+  { icon: 'shield', title: 'We dey talk true', text: 'No VPN perfect for every situation, and we no go pretend. We dey talk am straight.' },
+];
+
+const criteria = [
+  { icon: 'shield', title: 'Privacy & security', text: 'Logging policy, encryption, audit, and the country wey the company dey operate.' },
+  { icon: 'gauge', title: 'Speed & reliability', text: 'How the service dey connect and perform steady, from near and far server.' },
+  { icon: 'globe', title: 'Server & access', text: 'Country coverage, protocol option, and how e dey work where dem block plenty things.' },
+  { icon: 'devices', title: 'Value & easy use', text: 'Real price for 1 month, 6 months and 1 year, app for your device, and support.' },
+];
+
+const explore = [
+  { href: '/vpn-types-guide', title: 'Dedicated vs Shared IP', text: 'Which one good for streaming, banking or work.' },
+  { href: '/connection-guide', title: 'Protocols explained', text: 'WireGuard, OpenVPN, V2Ray and Shadowsocks for simple words.' },
+  { href: '/apps', title: 'Apps for every device', text: 'Windows, macOS, Linux, Android, iOS and router.' },
+  { href: '/articles', title: 'Country guides', text: 'Why people for each country dey use VPN, and wetin to look for.' },
+];
+
+const whyUseVpn = [
+  { icon: 'wifi', title: 'Privacy for Public Wi-Fi', text: 'Lock your connection for coffee shop, airport, and hotel network so nobody go fit intercept your data.' },
+  { icon: 'globe', title: 'Access when you travel', text: 'Reach your favorite service and content safe, even when country restriction block am for abroad.' },
+  { icon: 'eye', title: 'Stop tracking', text: 'Stop ISP, advertiser, and other people from monitoring wetin you dey browse.' },
+];
+
+const faqs = [
+  { question: 'Wetin be TopVPN Premium?', answer: 'TopVPN Premium na our own VPN service: better VPN experience for price wey make sense. Na result of more than ten years for VPN market — first as GoldenVPN, and today as TopVPN.' },
+  { question: 'How much TopVPN Premium cost?', answer: 'We keep am simple with three plan. Monthly plan na $3 for your first month (one-time promo), after that na $9 every month. Annual plan na $72 you go pay once for 12 months, wey mean $6 every month. Two-Year plan na $120 you go pay once for 24 months, wey mean $5 every month.' },
+  { question: 'Checkout dey available now?', answer: 'Online checkout for TopVPN Premium dey come soon. To order now or make we tell you when e open, abeg contact us and we go set you up.' },
+  { question: 'Wetin be VPN and why I need am?', answer: 'VPN (Virtual Private Network) dey encrypt your internet connection and dey pass am through remote server, so e go hide your IP address and protect your data from people wey wan spy. You need am for privacy for public Wi-Fi, to open content wey dem restrict for your area, and to stop ISP and advertiser from tracking you.' },
+  { question: 'VPN go make my internet slow?', answer: 'VPN dey add small overhead because your traffic dey encrypted and e dey pass through another server. Better VPN dey reduce the impact, and sometimes VPN fit even make speed better if your ISP dey throttle some traffic.' },
+  { question: 'I fit use one VPN for plenty device?', answer: 'Plenty VPN service dey allow multiple connection at once for one subscription. The exact number dey different, so check the plan details before you buy.' },
+];
+---
+
+<BaseLayout
+  title="TopVPN Premium — Better VPN Service for Price Wey Make Sense"
+  description="TopVPN Premium na better VPN service for price wey make sense. Simple plan from $3 for first month, clear billing, safe checkout — 10+ years VPN experience."
+  lang="pcm"
+  hreflang={hreflang}
+  autolink={false}
+  ogLocale="pcm_NG"
+  jsonLd={contextWrapper([orgSchema, websiteSchema, faqSchema(faqs)])}
+>
+
+  <!-- Hero -->
+  <section class="relative overflow-hidden" style="background: var(--color-bg);">
+    <div class="hero-grid absolute inset-0" aria-hidden="true"></div>
+    <div class="absolute inset-0 pointer-events-none" aria-hidden="true" style="background: radial-gradient(ellipse 70% 55% at 50% 0%, rgba(212, 175, 55, 0.14), transparent);"></div>
+
+    <div class="container-max relative pt-14 pb-16 md:pt-24 md:pb-24">
+      <div class="max-w-3xl mx-auto text-center">
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 mb-6 rounded-full" style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.28);">
+          <Icons name="check" size={14} />
+          <span class="text-xs font-semibold" style="color: var(--color-emerald);">Clear price. No lie. No hidden fee.</span>
+        </div>
+
+        <h1 class="text-4xl md:text-6xl font-bold leading-tight mb-5">
+          <span class="gold-text">Better VPN Service</span> for Price Wey Make Sense
+        </h1>
+
+        <p class="text-base md:text-lg mb-8 max-w-2xl mx-auto" style="color: var(--color-muted);">
+          Get privacy, security and freedom of better VPN without the high price tag.
+          One simple service, three plan, and team wey don dey VPN business for more than ten years.
+        </p>
+
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mb-3">
+          <a href="#plans" class="btn-gold w-full sm:w-auto">
+            See our plans
+            <Icons name="arrow-right" size={18} />
+          </a>
+          <a href="/pcm/about" class="btn-outline w-full sm:w-auto">Read our story</a>
+        </div>
+        <p class="text-xs" style="color: var(--color-muted-dark);">
+          Start from only <strong style="color: var(--color-text);">$3</strong> for your first month. Safe checkout dey come soon.
+        </p>
+      </div>
+    </div>
+    <div class="divider-gold"></div>
+  </section>
+
+  <!-- Value proposition -->
+  <section class="container-max py-12 md:py-16">
+    <div class="text-center mb-10">
+      <h2 class="text-2xl md:text-3xl font-bold mb-3">Why TopVPN Premium</h2>
+      <p class="text-base max-w-2xl mx-auto" style="color: var(--color-muted);">
+        Better VPN no suppose cost like gold. See wetin we promise, and wetin we no go do.
+      </p>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      {valueProps.map((item) => (
+        <div class="card card-hover p-6">
+          <div class="inline-flex items-center justify-center w-10 h-10 rounded-lg mb-3" style="background: rgba(212, 175, 55, 0.1);">
+            <Icons name={item.icon} size={22} class="text-amber-400" />
+          </div>
+          <h3 class="text-base font-bold mb-1">{item.title}</h3>
+          <p class="text-sm" style="color: var(--color-muted);">{item.text}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Primary product: TopVPN Premium plans -->
+  <PremiumPlans locale="pcm" />
+
+  <!-- Separate affiliate alternative (PureVPN) — kept below our own plans -->
+  <PureVPNAlternative locale="pcm" />
+
+  <AdSlot />
+
+  <!-- Educational content (evergreen SEO) -->
+  <section class="py-12 md:py-16" style="background: var(--color-bg-alt);">
+    <div class="container-max">
+      <div class="text-center mb-10">
+        <h2 class="text-2xl md:text-3xl font-bold mb-2">Why You Need VPN?</h2>
+        <p class="text-sm" style="color: var(--color-muted);">Three reason plenty people dey use VPN every day.</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {whyUseVpn.map((item) => (
+          <div class="card p-6 text-center">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl mb-4" style="background: rgba(212, 175, 55, 0.1);">
+              <Icons name={item.icon} size={24} class="text-amber-400" />
+            </div>
+            <h3 class="text-lg font-bold mb-2">{item.title}</h3>
+            <p class="text-sm" style="color: var(--color-muted);">{item.text}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- What to look for (educational, provider-agnostic) -->
+  <section class="py-12 md:py-16" style="background: var(--color-bg-alt);">
+    <div class="container-max">
+      <div class="text-center mb-10">
+        <span class="eyebrow">What matters</span>
+        <h2 class="section-title">Wetin to look for for better VPN</h2>
+        <p class="section-sub">Whether you pick us or another provider, na these things matter.</p>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {criteria.map((c) => (
+          <div class="card card-hover p-5">
+            <div class="inline-flex items-center justify-center w-10 h-10 rounded-lg mb-3" style="background: rgba(212, 175, 55, 0.1);">
+              <Icons name={c.icon} size={22} class="text-amber-400" />
+            </div>
+            <h3 class="text-base font-bold mb-1">{c.title}</h3>
+            <p class="text-sm" style="color: var(--color-muted);">{c.text}</p>
+          </div>
+        ))}
+      </div>
+      <div class="text-center mt-8">
+        <a href="/pcm/about" class="btn-outline">See how we dey do am</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sponsored placements (NEWSIQ), kept distinct from editorial -->
+  <section class="container-max py-12 md:py-16">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-bold" style="font-family: var(--font-heading);">Featured Partner</h2>
+      <span class="text-xs uppercase tracking-wide" style="color: var(--color-muted-dark);">Sponsored</span>
+    </div>
+    <NewsiqCardsGrid id="newsiq-pcm-cards" />
+  </section>
+
+  <!-- Guides / internal links (SEO) -->
+  <section class="container-max py-12 md:py-16">
+    <div class="text-center mb-10">
+      <span class="eyebrow">Guides</span>
+      <h2 class="section-title">Learn before you buy</h2>
+      <p class="section-sub">Short, practical guide for questions wey people dey search.</p>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {explore.map((g) => (
+        <a href={g.href} class="card card-hover p-5 block">
+          <h3 class="text-base font-bold mb-1" style="color: var(--color-text);">{g.title}</h3>
+          <p class="text-sm mb-3" style="color: var(--color-muted);">{g.text}</p>
+          <span class="text-xs font-semibold gold-text">Read guide</span>
+        </a>
+      ))}
+    </div>
+
+    <p class="text-center text-sm mt-6" style="color: var(--color-muted);">
+      You wan compare big providers?
+      <a href="/order-vpn" class="underline gold-text">See our full VPN comparison</a>.
+    </p>
+
+    {guides.length > 0 && (
+      <div class="mt-10">
+        <h3 class="text-lg font-bold mb-4">Popular country guides</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {guides.map((a) => (
+            <a href={`/articles/${a.id}`} class="card card-hover p-5 block">
+              <h4 class="text-base font-bold mb-1" style="color: var(--color-text);">{a.data.title}</h4>
+              <p class="text-sm" style="color: var(--color-muted);">{a.data.description}</p>
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+  </section>
+
+  <section class="container-max py-12 md:py-16" id="faq">
+    <div class="max-w-3xl mx-auto">
+      <h2 class="text-2xl md:text-3xl font-bold mb-6 text-center">Questions people dey ask</h2>
+      <FAQ items={faqs} />
+    </div>
+  </section>
+
+  <section class="py-16 md:py-20" style="background: var(--color-bg-alt);">
+    <div class="container-max text-center">
+      <h2 class="text-2xl md:text-4xl font-bold mb-4">
+        You ready for <span class="gold-text">better VPN</span> wey cost less?
+      </h2>
+      <p class="text-base mb-8 max-w-xl mx-auto" style="color: var(--color-muted);">
+        Three simple plan. Clear billing. Start from only $3 for your first month.
+      </p>
+      <a href="#plans" class="btn-gold">
+        See our plans
+        <Icons name="arrow-right" size={18} />
+      </a>
+    </div>
+  </section>
+</BaseLayout>

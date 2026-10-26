@@ -13,6 +13,7 @@ const topProviders = [...providers.slice(0, 3), ...(purevpn ? [purevpn] : [])];
 const hreflang = [
   { lang: 'en', url: 'https://www.topvpn.top/' },
   { lang: 'ar', url: 'https://www.topvpn.top/ar' },
+  { lang: 'pcm', url: 'https://www.topvpn.top/pcm' },
   { lang: 'x-default', url: 'https://www.topvpn.top/' },
 ];
 
@@ -50,6 +51,7 @@ const faqs = [
   dir="rtl"
   hreflang={hreflang}
   autolink={false}
+  ogLocale="ar_AR"
   jsonLd={contextWrapper([orgSchema, faqSchema(faqs)])}
 >
 
@@ -187,7 +189,7 @@ const faqs = [
   </section>
 
   <!-- FAQ -->
-  <section class="container-max py-12 md:py-16">
+  <section class="container-max py-12 md:py-16" id="faq">
     <div class="max-w-3xl mx-auto">
       <h2 class="text-2xl md:text-3xl font-bold mb-6 text-center">الأسئلة الشائعة عن في بي ان</h2>
       <FAQ items={faqs} />

@@ -10,16 +10,40 @@ const navLinks = [
   { label: 'About', href: '/about' },
 ];
 
-const currentPath = Astro.url.pathname;
+const currentPath = Astro.url.pathname
+  .replace(/\.html$/, '')
+  .replace(/\/index$/, '') || '/';
 const isActive = (href: string) =>
   href === '/' ? currentPath === '/' : currentPath.startsWith(href);
 
-// Language switcher: on /ar show a link back to the English home, elsewhere
-// offer the Arabic home. Header is shared, so detect from the path.
-const isArabic = currentPath.startsWith('/ar');
-const langSwitch = isArabic
-  ? { label: 'English', href: '/' }
-  : { label: 'العربية', href: '/ar' };
+// Language switcher. Only the homepage and About page exist in every language;
+// on other pages each option points at that language's homepage.
+const path = (currentPath.replace(/\/+$/, '') || '/');
+let currentLang = 'en';
+let page = path;
+if (path === '/ar' || path.startsWith('/ar/')) {
+  currentLang = 'ar';
+  page = path.slice(3) || '/';
+} else if (path === '/pcm' || path.startsWith('/pcm/')) {
+  currentLang = 'pcm';
+  page = path.slice(4) || '/';
+}
+
+const hasTranslation = page === '/' || page === '/about';
+const langHref = (lang: string) => {
+  const target = hasTranslation ? page : '/';
+  if (lang === 'en') return target;
+  return `/${lang}${target === '/' ? '' : target}`;
+};
+
+const languages = [
+  { code: 'en', label: 'English', href: langHref('en') },
+  { code: 'ar', label: 'العربية', href: langHref('ar') },
+  { code: 'pcm', label: 'Pidgin', href: langHref('pcm') },
+];
+
+const selectStyle =
+  'background: var(--color-bg-alt); border: 1px solid var(--color-border); color: var(--color-text); border-radius: 0.5rem; padding: 0.35rem 0.5rem; font-size: 0.8rem; min-height: 40px;';
 ---
 
 <header class="sticky top-0 z-50" style="background: var(--color-bg); border-bottom: 1px solid var(--color-border); backdrop-filter: blur(12px);">
@@ -28,7 +52,7 @@ const langSwitch = isArabic
       <Logo width={32} height={32} />
     </a>
 
-    <nav class="hidden md:flex items-center gap-6" aria-label="Primary navigation">
+    <nav class="hidden md:flex items-center gap-4" aria-label="Primary navigation">
       {navLinks.map((link) => (
         <a
           href={link.href}
@@ -42,16 +66,15 @@ const langSwitch = isArabic
           {link.label}
         </a>
       ))}
-      <a
-        href={langSwitch.href}
-        class="text-sm font-medium transition-colors"
-        style="color: var(--color-muted);"
-        lang={isArabic ? 'en' : 'ar'}
-        hreflang={langSwitch.href === '/ar' ? 'ar' : 'en'}
-      >
-        {langSwitch.label}
-      </a>
-      <a href="/order-vpn" class="btn-gold text-sm" style="min-height: 40px; padding: 0.5rem 1.25rem;">Compare Now</a>
+
+      <label class="sr-only" for="lang-desktop">Language</label>
+      <select id="lang-desktop" class="lang-select" aria-label="Language" style={selectStyle}>
+        {languages.map((l) => (
+          <option value={l.href} selected={l.code === currentLang}>{l.label}</option>
+        ))}
+      </select>
+
+      <a href="/#plans" class="btn-gold text-sm" style="min-height: 40px; padding: 0.5rem 1.25rem;">View Plans</a>
     </nav>
 
     <button
@@ -83,16 +106,15 @@ const langSwitch = isArabic
           {link.label}
         </a>
       ))}
-      <a
-        href={langSwitch.href}
-        class="block px-3 py-3 text-sm font-medium rounded-lg transition-colors"
-        style="color: var(--color-muted);"
-        lang={isArabic ? 'en' : 'ar'}
-        hreflang={langSwitch.href === '/ar' ? 'ar' : 'en'}
-      >
-        {langSwitch.label}
-      </a>
-      <a href="/order-vpn" class="btn-gold text-sm mt-2 mx-3">Compare Best VPNs</a>
+
+      <label class="sr-only" for="lang-mobile">Language</label>
+      <select id="lang-mobile" class="lang-select mx-3 my-2" aria-label="Language" style={selectStyle}>
+        {languages.map((l) => (
+          <option value={l.href} selected={l.code === currentLang}>{l.label}</option>
+        ))}
+      </select>
+
+      <a href="/#plans" class="btn-gold text-sm mt-2 mx-3">View Our Plans</a>
     </nav>
   </div>
 </header>
@@ -109,5 +131,11 @@ const langSwitch = isArabic
     menu?.classList.toggle('hidden');
     menuIcon?.classList.toggle('hidden');
     closeIcon?.classList.toggle('hidden');
+  });
+
+  document.querySelectorAll('select.lang-select').forEach((select) => {
+    select.addEventListener('change', () => {
+      window.location.href = (select as HTMLSelectElement).value;
+    });
   });
 </script>

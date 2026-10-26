@@ -1,0 +1,165 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Icons from '../../components/Icons.astro';
+import { breadcrumbSchema, contextWrapper, orgSchema } from '../../lib/schema';
+
+const hreflang = [
+  { lang: 'en', url: 'https://www.topvpn.top/about' },
+  { lang: 'ar', url: 'https://www.topvpn.top/ar/about' },
+  { lang: 'pcm', url: 'https://www.topvpn.top/pcm/about' },
+  { lang: 'x-default', url: 'https://www.topvpn.top/about' },
+];
+
+const breadcrumbs = [
+  { label: 'الرئيسية', href: '/' },
+  { label: 'من نحن' },
+];
+
+const quickLinks = [
+  { label: 'الرئيسية', href: '/' },
+  { label: 'مقارنة خدمات VPN', href: '/order-vpn' },
+  { label: 'أدلة VPN', href: '/vpn-types-guide' },
+  { label: 'المقالات', href: '/articles' },
+  { label: 'تواصل معنا', href: '/contact' },
+  { label: 'إفصاح الأفلييت', href: '/affiliate-disclosure' },
+];
+---
+
+<BaseLayout
+  title="عن توب في بي ان — خدمة VPN متميزة بسعر مناسب"
+  description="قصة توب في بي ان: أكثر من عشر سنوات خبرة في سوق VPN، من GoldenVPN إلى TopVPN. خدمة VPN متميزة بسعر مناسب، معلومات شفافة ودفع آمن."
+  lang="ar"
+  dir="rtl"
+  hreflang={hreflang}
+  autolink={false}
+  ogLocale="ar_AR"
+  jsonLd={contextWrapper([orgSchema, breadcrumbSchema(breadcrumbs)])}
+>
+  <Breadcrumbs items={breadcrumbs} />
+
+  <section class="container-max py-8 md:py-12">
+    <h1 class="text-3xl md:text-4xl font-bold mb-6" style="font-family: var(--font-heading);">
+      عن <span class="gold-text">توب في بي ان</span>
+    </h1>
+
+    <div class="grid md:grid-cols-3 gap-8">
+      <div class="md:col-span-2 space-y-6">
+        <div class="card p-6">
+          <h2 class="text-xl font-bold mb-3" style="font-family: var(--font-heading);">من GoldenVPN إلى TopVPN</h2>
+          <p class="text-sm mb-3" style="color: var(--color-muted);">
+            بدأت رحلتنا في سوق الـ VPN قبل أكثر من عشر سنوات، عبر شراكات أفلييت مع أكبر مزوّدي خدمات VPN.
+          </p>
+          <p class="text-sm mb-3" style="color: var(--color-muted);">
+            ومع الوقت اكتسبنا خبرة عملية، وتعرّفنا عن قرب على التحديات الحقيقية التي يواجهها العملاء عند
+            شراء الخدمة أو إعدادها أو استخدامها.
+          </p>
+          <p class="text-sm mb-3" style="color: var(--color-muted);">
+            ثم أدرنا عددًا من المواقع المتخصصة في مجال VPN. وكثير من العملاء في دول مختلفة قد يتذكّرون
+            <strong style="color: var(--color-text);">GoldenVPN.com</strong>، وهو مشروع يمثّل فصلًا مهمًا
+            في تاريخنا.
+          </p>
+          <p class="text-sm mb-3" style="color: var(--color-muted);">
+            في تلك الفترة كانت بروتوكولات VPN ودعم الأجهزة أكثر محدودية مما هي عليه اليوم. عملنا على
+            تسهيل الشراء والإعداد على مختلف الأجهزة، من حواسيب Windows 7 إلى هواتف تلك المرحلة، بهدف
+            الجمع بين سعر مناسب وتجربة استخدام سهلة.
+          </p>
+          <p class="text-sm" style="color: var(--color-muted);">
+            واليوم، وبعد سنوات إضافية من الخبرة والتزام متجدّد بالسوق، نواصل الرحلة تحت اسم جديد:
+            <strong style="color: var(--color-gold-light);">TOPVPN.TOP</strong>. يعبّر الاسم عن طموحنا
+            في تقديم خدمة VPN عالية الجودة بأسعار مناسبة، بمعلومات شفافة وتجربة عميل واضحة ومباشرة.
+          </p>
+        </div>
+
+        <div class="card p-6">
+          <h2 class="text-xl font-bold mb-3" style="font-family: var(--font-heading);">ماذا علّمتنا التجربة</h2>
+          <p class="text-sm mb-3" style="color: var(--color-muted);">
+            علّمتنا تجربتنا مع كبرى شركات VPN أن أرقام وقت التشغيل المعلنة لا تعكس دائمًا تجربة كل عميل
+            على أرض الواقع. فقد أبلغ بعض المستخدمين عن مشكلات متكررة في خوادم معيّنة أو ظروف اتصال بعينها.
+          </p>
+          <p class="text-sm mb-3" style="color: var(--color-muted);">
+            نؤمن أن الشفافية أهم من الوعود غير الواقعية. لا توجد خدمة VPN تضمن اتصالًا مثاليًا في كل الحالات.
+          </p>
+          <p class="text-sm" style="color: var(--color-muted);">
+            نتعامل مع التحديات كفرص للتعلّم والتحسين وتقديم تجربة أفضل. والتزامنا هو التحسين المستمر،
+            والتواصل المسؤول، والإنصات لملاحظات العملاء.
+          </p>
+        </div>
+
+        <div class="card p-6">
+          <h2 class="text-xl font-bold mb-3" style="font-family: var(--font-heading);">الثقة ودعم العملاء</h2>
+          <p class="mb-3" style="font-size: 1.05rem; font-weight: 600; color: var(--color-gold-light);">
+            «أغلى ما نملك هو ثقتكم، وبناؤها التزام مستمر.»
+          </p>
+          <p class="text-sm mb-3" style="color: var(--color-muted);">
+            إذا احتجت إلى مساعدة، يمكنك الاستعانة بـ
+            <a href="/ar#faq" class="underline" style="color: var(--color-muted);">صفحة الأسئلة الشائعة</a>
+            و
+            <a href="/contact" class="underline" style="color: var(--color-muted);">صفحة تواصل معنا</a>.
+            نعمل أيضًا على إضافة مساعد دعم داخل الموقع ليكون الوصول إلى الإجابات أسرع.
+          </p>
+          <p class="text-sm" style="color: var(--color-muted);">
+            تهدف توب في بي ان إلى تقديم خدمة VPN متميزة بأسعار مناسبة، مع تجربة شراء مريحة وخيارات دفع
+            آمنة والتزام دائم بتحسين تجربة العميل.
+          </p>
+        </div>
+
+        <div class="card p-6">
+          <h2 class="text-xl font-bold mb-3" style="font-family: var(--font-heading);">كيف نكسب</h2>
+          <p class="text-sm mb-3" style="color: var(--color-muted);">
+            قد نحصل على عمولة عبر بعض الروابط في هذا الموقع، دون أي تكلفة إضافية عليك. تساعدنا هذه
+            العمولة على إبقاء توب في بي ان يعمل وعلى إنتاج محتوى مجاني.
+          </p>
+          <p class="text-sm" style="color: var(--color-muted);">
+            وهذا لا يغيّر تقييماتنا الصادقة. إذا كانت لدى خدمة ما نقطة ضعف، فسنخبرك بها بصراحة.
+          </p>
+        </div>
+
+        <div class="card p-6">
+          <h2 class="text-xl font-bold mb-3" style="font-family: var(--font-heading);">خيارات الدفع</h2>
+          <p class="text-sm mb-3" style="color: var(--color-muted);">
+            نعمل على إطلاق الدفع الآمن لخدمة TopVPN Premium. تتم معالجة مدفوعات البطاقات بأمان عبر
+            <strong style="color: var(--color-text);">Stripe</strong>، ويجري تفعيل
+            <strong style="color: var(--color-text);">PayPal</strong> و
+            <strong style="color: var(--color-text);">العملات الرقمية</strong> كخيارات إضافية.
+          </p>
+          <div class="flex flex-wrap gap-3 mb-3">
+            <Icons name="visa" size={28} />
+            <Icons name="mastercard" size={28} />
+            <Icons name="amex" size={28} />
+            <Icons name="paypal" size={28} />
+            <Icons name="crypto" size={28} />
+          </div>
+          <p class="text-xs" style="color: var(--color-muted-dark);">
+            الدفع بالبطاقة عبر Stripe هو الطريقة الأساسية. PayPal والعملات الرقمية مخطط لهما وليسا
+            مفعّلين بعد لطلبات TopVPN Premium. لن نطلب منك إدخال بيانات دفع في نموذج غير آمن، ولن تمرّ
+            بيانات بطاقتك عبر خوادمنا.
+          </p>
+        </div>
+      </div>
+
+      <div class="md:col-span-1">
+        <div class="card p-6 sticky top-20">
+          <h2 class="text-lg font-bold mb-4" style="font-family: var(--font-heading);">روابط سريعة</h2>
+          <ul class="space-y-2 text-sm">
+            {quickLinks.map((link) => (
+              <li><a href={link.href} style="color: var(--color-muted);">{link.label}</a></li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-12 md:py-16" style="background: var(--color-bg-alt);">
+    <div class="container-max text-center max-w-2xl mx-auto">
+      <h2 class="text-2xl md:text-3xl font-bold mb-4" style="font-family: var(--font-heading);">
+        TOPVPN.TOP — <span class="gold-text">خدمة VPN متميزة بسعر مناسب.</span>
+      </h2>
+      <p class="text-base mb-6" style="color: var(--color-muted);">
+        وترقّبوا العروض الخاصة التي تجدونها فقط في توب في بي ان.
+      </p>
+      <a href="/#plans" class="btn-gold inline-flex">شاهد خططنا</a>
+    </div>
+  </section>
+</BaseLayout>

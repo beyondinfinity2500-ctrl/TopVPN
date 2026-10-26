@@ -1,0 +1,162 @@
+---
+/**
+ * TopVPN Premium — the site's primary product offering.
+ *
+ * Prices render from src/lib/premium.ts (single source of truth) at build time.
+ * There is no live VPN checkout yet (no reseller/provisioning backend exists),
+ * so the plan CTA links to /contact with an honest "opening soon" note rather
+ * than a payment form. See src/lib/premium.ts for the checkout-blocker note.
+ *
+ * `locale` switches only this section's own copy; plan names and prices are
+ * shared. Add a locale here when a new translated homepage is added.
+ */
+import { PREMIUM_PLANS, formatUsd } from '../lib/premium';
+import Icons from './Icons.astro';
+
+interface Props {
+  locale?: 'en' | 'pcm';
+}
+const { locale = 'en' } = Astro.props;
+
+const copy = {
+  en: {
+    eyebrow: 'Pricing',
+    h2Before: 'One plan.',
+    h2Highlight: 'Three ways',
+    h2After: 'to pay.',
+    sub: 'Every plan includes the full TopVPN Premium experience. Choose the billing cycle that fits you — the longer you commit, the lower the monthly price.',
+    best: 'Best value',
+    firstMonth: '/first month',
+    then: (pm: number) => `Then ${formatUsd(pm)} per month. The $3 price is a one-time first-month promotion.`,
+    perMonth: '/month',
+    billedToday: (period: string, total: number) => `${period}. That is ${formatUsd(total)} billed today.`,
+    choose: (name: string) => `Choose ${name}`,
+    noteBefore: 'Online checkout for TopVPN Premium is opening soon. To order now or be notified at launch, ',
+    contact: 'contact us',
+    noteAfter: '. Prices shown in USD.',
+    periods: {
+      monthly: '$3 first month, then $9/month',
+      annual: 'Billed $72 once for 12 months',
+      'two-year': 'Billed $120 once for 24 months',
+    },
+    savings: { monthly: '', annual: 'Save 33% vs paying monthly', 'two-year': 'Save 44% vs paying monthly' },
+    features: {
+      monthly: ['Premium VPN experience', 'Billed month to month', 'First month just $3', 'Secure payment'],
+      annual: ['Premium VPN experience', 'Save 33% vs paying monthly', 'One payment for 12 months', 'Secure payment'],
+      'two-year': ['Premium VPN experience', 'Save 44% vs paying monthly', 'One payment for 24 months', 'Secure payment'],
+    },
+  },
+  pcm: {
+    eyebrow: 'Price',
+    h2Before: 'One plan.',
+    h2Highlight: 'Three ways',
+    h2After: 'you go fit pay.',
+    sub: 'Every plan get the full TopVPN Premium experience. Pick the billing wey suit you — the longer you commit, the less you go pay every month.',
+    best: 'Best value',
+    firstMonth: '/first month',
+    then: (pm: number) => `After that na ${formatUsd(pm)} every month. The $3 price na one-time promo for your first month only.`,
+    perMonth: '/month',
+    billedToday: (period: string, total: number) => `${period}. That one mean ${formatUsd(total)} you go pay today.`,
+    choose: (name: string) => `Pick ${name}`,
+    noteBefore: 'Online checkout for TopVPN Premium dey come soon. To order now or make we tell you when e open, ',
+    contact: 'contact us',
+    noteAfter: '. All price na USD.',
+    periods: {
+      monthly: '$3 first month, then $9/month',
+      annual: 'You go pay $72 once for 12 months',
+      'two-year': 'You go pay $120 once for 24 months',
+    },
+    savings: { monthly: '', annual: 'Save 33% pass monthly price', 'two-year': 'Save 44% pass monthly price' },
+    features: {
+      monthly: ['Full premium VPN experience', 'You dey pay month by month', 'First month na only $3', 'Safe payment'],
+      annual: ['Full premium VPN experience', 'Save 33% pass monthly price', 'One payment for 12 months', 'Safe payment'],
+      'two-year': ['Full premium VPN experience', 'Save 44% pass monthly price', 'One payment for 24 months', 'Safe payment'],
+    },
+  },
+};
+
+const c = copy[locale];
+---
+
+<section class="container-max py-14 md:py-20" id="plans">
+  <div class="text-center mb-12">
+    <p class="text-xs font-bold uppercase tracking-widest mb-3" style="color: var(--color-gold-light);">{c.eyebrow}</p>
+    <h2 class="text-3xl md:text-4xl font-bold mb-4" style="font-family: var(--font-heading);">
+      {c.h2Before} <span class="gold-text">{c.h2Highlight}</span> {c.h2After}
+    </h2>
+    <p class="text-base max-w-2xl mx-auto" style="color: var(--color-muted);">
+      {c.sub}
+    </p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto items-start">
+    {PREMIUM_PLANS.map((plan) => (
+      <div
+        class:list={['card p-7 flex flex-col h-full relative', plan.highlighted ? 'border-2' : '']}
+        style={plan.highlighted ? 'border-color: var(--color-gold);' : ''}
+      >
+        {plan.highlighted && (
+          <span
+            class="absolute -top-3 left-1/2 -translate-x-1/2 text-[11px] font-bold uppercase tracking-wide px-3 py-1 rounded-full"
+            style="background: linear-gradient(135deg, #D4AF37, #F5D77A); color: #0B1020;"
+          >
+            {c.best}
+          </span>
+        )}
+
+        <h3 class="text-lg font-bold mb-4" style="font-family: var(--font-heading);">{plan.name}</h3>
+
+        {plan.id === 'monthly' ? (
+          <div class="mb-4">
+            <div class="flex items-baseline gap-2">
+              <span class="text-4xl font-bold gold-text" style="font-family: var(--font-heading);">{formatUsd(plan.firstMonthPromo!)}</span>
+              <span class="text-sm line-through" style="color: var(--color-muted-dark);">{formatUsd(plan.regularMonthly!)}</span>
+              <span class="text-sm" style="color: var(--color-muted);">{c.firstMonth}</span>
+            </div>
+            <p class="text-xs mt-2" style="color: var(--color-muted);">
+              {c.then(plan.regularMonthly!)}
+            </p>
+          </div>
+        ) : (
+          <div class="mb-4">
+            <div class="flex items-baseline gap-1">
+              <span class="text-4xl font-bold gold-text" style="font-family: var(--font-heading);">{formatUsd(plan.perMonth)}</span>
+              <span class="text-sm" style="color: var(--color-muted);">{c.perMonth}</span>
+            </div>
+            <p class="text-xs mt-2" style="color: var(--color-muted);">
+              {c.billedToday(c.periods[plan.id], plan.totalBilled)}
+            </p>
+          </div>
+        )}
+
+        {c.savings[plan.id] && (
+          <p
+            class="inline-flex items-center gap-1 text-xs font-semibold mb-4 px-2 py-1 rounded self-start"
+            style="background: rgba(34, 197, 94, 0.1); color: var(--color-emerald);"
+          >
+            <Icons name="check" size={13} />
+            {c.savings[plan.id]}
+          </p>
+        )}
+
+        <ul class="space-y-2.5 mb-6 flex-grow">
+          {c.features[plan.id].map((f) => (
+            <li class="flex items-start gap-2 text-sm">
+              <Icons name="check" size={16} class="mt-0.5 shrink-0" style="color: var(--color-emerald);" />
+              <span style="color: var(--color-text);">{f}</span>
+            </li>
+          ))}
+        </ul>
+
+        <a href="/contact" class="btn-gold w-full justify-center mt-auto">
+          {c.choose(plan.name)}
+        </a>
+      </div>
+    ))}
+  </div>
+
+  <p class="text-xs text-center mt-8 max-w-2xl mx-auto" style="color: var(--color-muted-dark);">
+    <Icons name="padlock" size={13} class="inline -mt-0.5" />
+    {c.noteBefore}<a href="/contact" style="color: var(--color-gold-light); text-decoration: underline;">{c.contact}</a>{c.noteAfter}
+  </p>
+</section>

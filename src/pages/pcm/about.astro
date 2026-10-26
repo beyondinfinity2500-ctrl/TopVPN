@@ -1,0 +1,167 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Icons from '../../components/Icons.astro';
+import { breadcrumbSchema, contextWrapper, orgSchema } from '../../lib/schema';
+
+const hreflang = [
+  { lang: 'en', url: 'https://www.topvpn.top/about' },
+  { lang: 'ar', url: 'https://www.topvpn.top/ar/about' },
+  { lang: 'pcm', url: 'https://www.topvpn.top/pcm/about' },
+  { lang: 'x-default', url: 'https://www.topvpn.top/about' },
+];
+
+const breadcrumbs = [
+  { label: 'Home', href: '/' },
+  { label: 'About' },
+];
+
+const quickLinks = [
+  { label: 'Home', href: '/' },
+  { label: 'Compare VPNs', href: '/order-vpn' },
+  { label: 'VPN Guides', href: '/vpn-types-guide' },
+  { label: 'Articles', href: '/articles' },
+  { label: 'Contact Us', href: '/contact' },
+  { label: 'Affiliate Disclosure', href: '/affiliate-disclosure' },
+];
+---
+
+<BaseLayout
+  title="About TopVPN — Our Story, from GoldenVPN to TopVPN"
+  description="Story of TopVPN: more than ten years in VPN market, from GoldenVPN to TopVPN. Better VPN service for price wey make sense, with clear talk and trust."
+  lang="pcm"
+  hreflang={hreflang}
+  autolink={false}
+  ogLocale="pcm_NG"
+  jsonLd={contextWrapper([orgSchema, breadcrumbSchema(breadcrumbs)])}
+>
+  <Breadcrumbs items={breadcrumbs} />
+
+  <section class="container-max py-8 md:py-12">
+    <h1 class="text-3xl md:text-4xl font-bold mb-6" style="font-family: var(--font-heading);">
+      About <span class="gold-text">TopVPN</span>
+    </h1>
+
+    <div class="grid md:grid-cols-3 gap-8">
+      <div class="md:col-span-2 space-y-6">
+        <div class="card p-6">
+          <h2 class="text-xl font-bold mb-3" style="font-family: var(--font-heading);">From GoldenVPN to TopVPN</h2>
+          <p class="text-sm mb-3" style="color: var(--color-muted);">
+            Plenty years pass, we start our journey for VPN market through affiliate partnership with big
+            VPN providers.
+          </p>
+          <p class="text-sm mb-3" style="color: var(--color-muted);">
+            As time waka, we learn plenty things and see the real wahala wey customers dey face when dem wan
+            buy, set up, or use VPN service.
+          </p>
+          <p class="text-sm mb-3" style="color: var(--color-muted);">
+            Later, we run some VPN websites. Plenty customers for different countries still remember
+            <strong style="color: var(--color-text);">GoldenVPN.com</strong> — na important chapter for our story.
+          </p>
+          <p class="text-sm mb-3" style="color: var(--color-muted);">
+            That time, VPN protocol and device support no too plenty like now. We work hard to make buying
+            and setting up VPN easy for different devices, from Windows 7 computer to the phones wey dey
+            that time. Our goal na to join better price with easy experience.
+          </p>
+          <p class="text-sm" style="color: var(--color-muted);">
+            Today, with more years of experience and new commitment, we continue the journey under new name:
+            <strong style="color: var(--color-gold-light);">TOPVPN.TOP</strong>. The name show our plan to
+            give top-quality VPN service for price wey make sense, with clear information and simple
+            customer experience.
+          </p>
+        </div>
+
+        <div class="card p-6">
+          <h2 class="text-xl font-bold mb-3" style="font-family: var(--font-heading);">Wetin Experience Teach Us</h2>
+          <p class="text-sm mb-3" style="color: var(--color-muted);">
+            Our work with big VPN companies show us say the uptime number wey dem dey advertise no always
+            match wetin every customer see for real life. Some users talk about problem wey dey repeat for
+            some servers or connection condition.
+          </p>
+          <p class="text-sm mb-3" style="color: var(--color-muted);">
+            We believe say clear talk better pass promise wey no go work. No VPN service fit guarantee
+            perfect connection every time.
+          </p>
+          <p class="text-sm" style="color: var(--color-muted);">
+            We see challenge as chance to learn, improve, and give better customer experience. Our promise
+            na to dey improve, talk true, and listen to customer feedback.
+          </p>
+        </div>
+
+        <div class="card p-6">
+          <h2 class="text-xl font-bold mb-3" style="font-family: var(--font-heading);">Trust and Customer Support</h2>
+          <p class="mb-3" style="font-size: 1.05rem; font-weight: 600; color: var(--color-gold-light);">
+            “Our greatest asset na your trust, and to earn am na work wey no dey stop.”
+          </p>
+          <p class="text-sm mb-3" style="color: var(--color-muted);">
+            If you need help, you go find am for our
+            <a href="/pcm#faq" class="underline" style="color: var(--color-muted);">FAQ section</a>
+            and our
+            <a href="/contact" class="underline" style="color: var(--color-muted);">Contact Us page</a>.
+            We dey also add support assistant for the site so you go get answer quick.
+          </p>
+          <p class="text-sm" style="color: var(--color-muted);">
+            TopVPN want give better VPN service for price wey make sense, with easy buying, safe payment,
+            and promise to dey improve customer experience.
+          </p>
+        </div>
+
+        <div class="card p-6">
+          <h2 class="text-xl font-bold mb-3" style="font-family: var(--font-heading);">How We Earn</h2>
+          <p class="text-sm mb-3" style="color: var(--color-muted);">
+            We fit earn commission from some links for this site, and e no go add any cost for you. This one
+            help us keep TopVPN dey run and still dey write free content.
+          </p>
+          <p class="text-sm" style="color: var(--color-muted);">
+            E no dey change our honest pros and cons. If one VPN get weakness, we go tell you.
+          </p>
+        </div>
+
+        <div class="card p-6">
+          <h2 class="text-xl font-bold mb-3" style="font-family: var(--font-heading);">Payment Options</h2>
+          <p class="text-sm mb-3" style="color: var(--color-muted);">
+            We dey roll out safe checkout for TopVPN Premium. Card payment dey go through
+            <strong style="color: var(--color-text);">Stripe</strong>, and we dey enable
+            <strong style="color: var(--color-text);">PayPal</strong> and
+            <strong style="color: var(--color-text);">cryptocurrency</strong> as other options.
+          </p>
+          <div class="flex flex-wrap gap-3 mb-3">
+            <Icons name="visa" size={28} />
+            <Icons name="mastercard" size={28} />
+            <Icons name="amex" size={28} />
+            <Icons name="paypal" size={28} />
+            <Icons name="crypto" size={28} />
+          </div>
+          <p class="text-xs" style="color: var(--color-muted-dark);">
+            Card payment through Stripe na the main method. PayPal and cryptocurrency dey plan and e never
+            ready for TopVPN Premium order. We no go ever ask you to put payment details for unsafe form,
+            and your card details no dey pass our server.
+          </p>
+        </div>
+      </div>
+
+      <div class="md:col-span-1">
+        <div class="card p-6 sticky top-20">
+          <h2 class="text-lg font-bold mb-4" style="font-family: var(--font-heading);">Quick Links</h2>
+          <ul class="space-y-2 text-sm">
+            {quickLinks.map((link) => (
+              <li><a href={link.href} style="color: var(--color-muted);">{link.label}</a></li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-12 md:py-16" style="background: var(--color-bg-alt);">
+    <div class="container-max text-center max-w-2xl mx-auto">
+      <h2 class="text-2xl md:text-3xl font-bold mb-4" style="font-family: var(--font-heading);">
+        TOPVPN.TOP — <span class="gold-text">Better VPN Service for Price Wey Make Sense.</span>
+      </h2>
+      <p class="text-base mb-6" style="color: var(--color-muted);">
+        And wait for special offers wey you go only see for TopVPN.
+      </p>
+      <a href="/pcm#plans" class="btn-gold inline-flex">See our plans</a>
+    </div>
+  </section>
+</BaseLayout>

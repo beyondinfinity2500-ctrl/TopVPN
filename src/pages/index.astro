@@ -1,23 +1,33 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Hero from '../components/Hero.astro';
-import ProviderCard from '../components/ProviderCard.astro';
-import NewsiqCardsGrid from '../components/newsiq/NewsiqCardsGrid.astro';
+import PremiumPlans from '../components/PremiumPlans.astro';
+import PureVPNAlternative from '../components/PureVPNAlternative.astro';
 import FAQ from '../components/FAQ.astro';
-import AdSlot from '../components/AdSlot.astro';
 import Icons from '../components/Icons.astro';
+import AdSlot from '../components/AdSlot.astro';
+import NewsiqCardsGrid from '../components/newsiq/NewsiqCardsGrid.astro';
 import { getCollection } from 'astro:content';
-import { providers } from '../data/providers';
 import { orgSchema, websiteSchema, faqSchema, contextWrapper } from '../lib/schema';
 
-// PureVPN holds the only live affiliate link, so it is shown alongside the
-// top three instead of being buried at position six.
-const purevpn = providers.find((p) => p.slug === 'purevpn');
-const topProviders = [...providers.slice(0, 3), ...(purevpn ? [purevpn] : [])];
+// hreflang: the English homepage pairs with the Arabic homepage. x-default
+// points to the English page (the site's default/global version).
+const hreflang = [
+  { lang: 'en', url: 'https://www.topvpn.top/' },
+  { lang: 'ar', url: 'https://www.topvpn.top/ar' },
+  { lang: 'pcm', url: 'https://www.topvpn.top/pcm' },
+  { lang: 'x-default', url: 'https://www.topvpn.top/' },
+];
 
 const guides = (await getCollection('articles', ({ data }) => !data.draft))
   .sort((a, b) => b.data.updatedDate.getTime() - a.data.updatedDate.getTime())
   .slice(0, 3);
+
+const valueProps = [
+  { icon: 'dollar', title: 'Affordable by design', text: 'Premium VPN features at a price that respects your budget — from just $3 for your first month.' },
+  { icon: 'globe', title: 'A decade in VPN', text: 'We have been in the VPN business for more than ten years, starting as GoldenVPN. That experience shapes everything we build.' },
+  { icon: 'list', title: 'Transparent pricing', text: 'Clear plans and honest numbers. The price you see is the price you pay — no manufactured urgency, no fake discounts.' },
+  { icon: 'shield', title: 'Honest by default', text: 'No VPN is perfect in every situation, and we will not pretend otherwise. We tell it straight.' },
+];
 
 const criteria = [
   { icon: 'shield', title: 'Privacy & security', text: 'Logging policy, encryption, independent audits, and the jurisdiction the company operates in.' },
@@ -39,70 +49,90 @@ const whyUseVpn = [
   { icon: 'eye', title: 'Avoid Tracking', text: 'Prevent ISPs, advertisers, and third parties from monitoring your browsing activity.' },
 ];
 
-const howToChoose = [
-  { icon: 'gauge', title: 'Check Speed & Servers', text: 'Look for a VPN with a large server network and consistently fast connections in your region.' },
-  { icon: 'shield', title: 'Review Privacy Policy', text: 'Choose a no-logs VPN in a privacy-friendly jurisdiction with independently audited practices.' },
-  { icon: 'devices', title: 'Confirm Device Support', text: 'Make sure the VPN has apps for every device you use, with enough simultaneous connections.' },
-];
-
 const faqs = [
+  { question: 'What is TopVPN Premium?', answer: 'TopVPN Premium is our own VPN service: a premium VPN experience at an affordable price. It is the result of more than ten years working in the VPN market — first as GoldenVPN, and today as TopVPN.' },
+  { question: 'How much does TopVPN Premium cost?', answer: 'We keep it simple with three plans. The Monthly plan is $3 for your first month (a one-time promotional price), then $9 per month. The Annual plan is $72 billed once for 12 months, which works out to $6 per month. The Two-Year plan is $120 billed once for 24 months, which is $5 per month.' },
+  { question: 'Is checkout available yet?', answer: 'Online checkout for TopVPN Premium is opening soon. To order now or be notified at launch, please contact us and we will set you up.' },
   { question: 'What is a VPN and why do I need one?', answer: 'A VPN (Virtual Private Network) encrypts your internet connection and routes it through a remote server, hiding your IP address and protecting your data from interception. You need one for privacy on public Wi-Fi, accessing geo-restricted content, and preventing tracking by ISPs and advertisers.' },
-  { question: 'Are VPNs legal to use?', answer: 'Yes, VPNs are legal in most countries. However, a few countries restrict or ban VPN usage. Always check your local laws before using a VPN, especially when traveling.' },
   { question: 'Will a VPN slow down my internet?', answer: 'A VPN adds a small amount of overhead because your traffic is encrypted and routed through an additional server. Quality VPNs minimize this impact, and sometimes a VPN can even improve speeds if your ISP is throttling certain traffic.' },
-  { question: 'Can I use one VPN on multiple devices?', answer: 'Most VPN providers allow multiple simultaneous connections on a single subscription. The exact number varies by provider, so check our comparison table for details.' },
-];
-
-const hreflang = [
-  { lang: 'en', url: 'https://www.topvpn.top/' },
-  { lang: 'ar', url: 'https://www.topvpn.top/ar' },
-  { lang: 'x-default', url: 'https://www.topvpn.top/' },
+  { question: 'Can I use one VPN on multiple devices?', answer: 'Most VPN services allow multiple simultaneous connections on a single subscription. The exact number varies, so check the plan details before you buy.' },
 ];
 ---
 
 <BaseLayout
-  title="The Best VPN Services, Compared Honestly"
-  description="TopVPN compares the top VPNs for privacy, speed and price, so you can choose the right one in minutes, not hours."
+  title="TopVPN Premium — Premium VPN Service at an Affordable Price"
+  description="TopVPN Premium brings you a premium VPN service at an affordable price. Simple plans from $3 your first month, transparent billing, and secure checkout — backed by a decade of VPN experience."
   hreflang={hreflang}
   jsonLd={contextWrapper([orgSchema, websiteSchema, faqSchema(faqs)])}
 >
-  <Hero />
 
-  <section class="container-max py-12 md:py-16">
-    <div class="text-center mb-8">
-      <h2 class="text-2xl md:text-3xl font-bold mb-2">Our Shortlist: 3 Well-Known VPNs to Start With</h2>
-      <p class="text-sm" style="color: var(--color-muted);">Popular services with different strengths. Compare them side by side below.</p>
+  <!-- Hero -->
+  <section class="relative overflow-hidden" style="background: var(--color-bg);">
+    <div class="hero-grid absolute inset-0" aria-hidden="true"></div>
+    <div class="absolute inset-0 pointer-events-none" aria-hidden="true" style="background: radial-gradient(ellipse 70% 55% at 50% 0%, rgba(212, 175, 55, 0.14), transparent);"></div>
+
+    <div class="container-max relative pt-14 pb-16 md:pt-24 md:pb-24">
+      <div class="max-w-3xl mx-auto text-center">
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 mb-6 rounded-full" style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.28);">
+          <Icons name="check" size={14} />
+          <span class="text-xs font-semibold" style="color: var(--color-emerald);">Transparent pricing. No hype. No hidden fees.</span>
+        </div>
+
+        <h1 class="text-4xl md:text-6xl font-bold leading-tight mb-5">
+          <span class="gold-text">Premium VPN Service</span> at an Affordable Price
+        </h1>
+
+        <p class="text-base md:text-lg mb-8 max-w-2xl mx-auto" style="color: var(--color-muted);">
+          Get the privacy, security and freedom of a premium VPN without the premium price tag.
+          One straightforward service, three simple plans, and a team that has been in the VPN
+          business for over a decade.
+        </p>
+
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mb-3">
+          <a href="#plans" class="btn-gold w-full sm:w-auto">
+            View our plans
+            <Icons name="arrow-right" size={18} />
+          </a>
+          <a href="/about" class="btn-outline w-full sm:w-auto">Read our story</a>
+        </div>
+        <p class="text-xs" style="color: var(--color-muted-dark);">
+          From just <strong style="color: var(--color-text);">$3</strong> for your first month. Secure checkout opening soon.
+        </p>
+      </div>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      {topProviders.map((provider, i) => (
-        <ProviderCard provider={provider} rank={i + 1} featured={i === 0} />
+    <div class="divider-gold"></div>
+  </section>
+
+  <!-- Value proposition -->
+  <section class="container-max py-12 md:py-16">
+    <div class="text-center mb-10">
+      <h2 class="text-2xl md:text-3xl font-bold mb-3">Why TopVPN Premium</h2>
+      <p class="text-base max-w-2xl mx-auto" style="color: var(--color-muted);">
+        A premium VPN should not cost a premium. Here is what we promise, and what we refuse to do.
+      </p>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      {valueProps.map((item) => (
+        <div class="card card-hover p-6">
+          <div class="inline-flex items-center justify-center w-10 h-10 rounded-lg mb-3" style="background: rgba(212, 175, 55, 0.1);">
+            <Icons name={item.icon} size={22} class="text-amber-400" />
+          </div>
+          <h3 class="text-base font-bold mb-1">{item.title}</h3>
+          <p class="text-sm" style="color: var(--color-muted);">{item.text}</p>
+        </div>
       ))}
     </div>
   </section>
 
+  <!-- Primary product: TopVPN Premium plans -->
+  <PremiumPlans />
+
+  <!-- Separate affiliate alternative (PureVPN) — kept below our own plans -->
+  <PureVPNAlternative />
+
   <AdSlot />
 
-  <section class="container-max py-12 md:py-16">
-    <div class="card p-8 md:p-12 text-center" style="border-color: rgba(212, 175, 55, 0.35);">
-      <h2 class="text-2xl md:text-3xl font-bold mb-3">The Full Side-by-Side Comparison</h2>
-      <p class="text-sm md:text-base mb-6 max-w-xl mx-auto" style="color: var(--color-muted);">
-        Prices, features, protocols and device limits for all providers in one
-        table — with an honest pros-and-cons breakdown for each one.
-      </p>
-      <a href="/order-vpn" class="btn-gold inline-flex" style="min-height: 48px; padding: 0.75rem 2rem;">
-        Open the Full Comparison
-      </a>
-    </div>
-  </section>
-
-  <!-- Sponsored in-content placements (NEWSIQ), kept distinct from editorial -->
-  <section class="container-max pb-12 md:pb-16">
-    <div class="flex items-center justify-between mb-4">
-      <h2 class="text-lg font-bold" style="font-family: var(--font-heading);">Featured Partner</h2>
-      <span class="text-xs uppercase tracking-wide" style="color: var(--color-muted-dark);">Sponsored</span>
-    </div>
-    <NewsiqCardsGrid id="newsiq-home-cards" />
-  </section>
-
+  <!-- Educational content (evergreen SEO) -->
   <section class="py-12 md:py-16" style="background: var(--color-bg-alt);">
     <div class="container-max">
       <div class="text-center mb-10">
@@ -123,31 +153,13 @@ const hreflang = [
     </div>
   </section>
 
-  <section class="container-max py-12 md:py-16">
-    <div class="text-center mb-10">
-      <h2 class="text-2xl md:text-3xl font-bold mb-2">How to Choose a VPN</h2>
-      <p class="text-sm" style="color: var(--color-muted);">Three simple steps to find the right VPN for you.</p>
-    </div>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      {howToChoose.map((item, i) => (
-        <div class="card p-6">
-          <div class="flex items-center gap-3 mb-3">
-            <span class="inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold shrink-0" style="background: linear-gradient(135deg, #D4AF37, #F5D77A); color: #0B1020;">{i + 1}</span>
-            <Icons name={item.icon} size={24} class="text-amber-400" />
-          </div>
-          <h3 class="text-lg font-bold mb-2">{item.title}</h3>
-          <p class="text-sm" style="color: var(--color-muted);">{item.text}</p>
-        </div>
-      ))}
-    </div>
-  </section>
-
+  <!-- What to look for (educational, provider-agnostic) -->
   <section class="py-12 md:py-16" style="background: var(--color-bg-alt);">
     <div class="container-max">
       <div class="text-center mb-10">
-        <span class="eyebrow">How we compare</span>
-        <h2 class="section-title">Four criteria, applied the same way to every VPN</h2>
-        <p class="section-sub">Rankings are never sold. Where we have not tested something ourselves, we say so and point to the provider's own information.</p>
+        <span class="eyebrow">What matters</span>
+        <h2 class="section-title">What to look for in a good VPN</h2>
+        <p class="section-sub">Whether you choose us or another provider, these are the factors that actually matter.</p>
       </div>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {criteria.map((c) => (
@@ -166,6 +178,16 @@ const hreflang = [
     </div>
   </section>
 
+  <!-- Sponsored placements (NEWSIQ), kept distinct from editorial -->
+  <section class="container-max py-12 md:py-16">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="text-lg font-bold" style="font-family: var(--font-heading);">Featured Partner</h2>
+      <span class="text-xs uppercase tracking-wide" style="color: var(--color-muted-dark);">Sponsored</span>
+    </div>
+    <NewsiqCardsGrid id="newsiq-home-cards" />
+  </section>
+
+  <!-- Guides / internal links (SEO) -->
   <section class="container-max py-12 md:py-16">
     <div class="text-center mb-10">
       <span class="eyebrow">Guides</span>
@@ -182,6 +204,11 @@ const hreflang = [
       ))}
     </div>
 
+    <p class="text-center text-sm mt-6" style="color: var(--color-muted);">
+      Prefer to compare established providers?
+      <a href="/order-vpn" class="underline gold-text">See our full VPN comparison</a>.
+    </p>
+
     {guides.length > 0 && (
       <div class="mt-10">
         <h3 class="text-lg font-bold mb-4">Popular country guides</h3>
@@ -197,7 +224,7 @@ const hreflang = [
     )}
   </section>
 
-  <section class="container-max py-12 md:py-16">
+  <section class="container-max py-12 md:py-16" id="faq">
     <div class="max-w-3xl mx-auto">
       <h2 class="text-2xl md:text-3xl font-bold mb-6 text-center">Frequently Asked Questions</h2>
       <FAQ items={faqs} />
@@ -207,13 +234,13 @@ const hreflang = [
   <section class="py-16 md:py-20" style="background: var(--color-bg-alt);">
     <div class="container-max text-center">
       <h2 class="text-2xl md:text-4xl font-bold mb-4">
-        Ready to Protect Your <span class="gold-text">Privacy?</span>
+        Ready for a <span class="gold-text">premium VPN</span> that costs less?
       </h2>
       <p class="text-base mb-8 max-w-xl mx-auto" style="color: var(--color-muted);">
-        Compare the best VPNs and choose the one that fits your needs in minutes.
+        Three simple plans. Transparent billing. Start from just $3 for your first month.
       </p>
-      <a href="/order-vpn" class="btn-gold">
-        Compare Best VPNs
+      <a href="#plans" class="btn-gold">
+        View our plans
         <Icons name="arrow-right" size={18} />
       </a>
     </div>

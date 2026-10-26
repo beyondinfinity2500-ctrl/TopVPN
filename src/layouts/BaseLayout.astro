@@ -27,11 +27,13 @@ interface Props {
   hreflang?: Hreflang[];
   /** Set false to skip English link-injection (non-English pages). */
   autolink?: boolean;
+  /** Open Graph locale, e.g. en_US, ar_AR, pcm_NG. */
+  ogLocale?: string;
 }
 
 const {
   title,
-  description = 'TopVPN compares the top VPN services for privacy, speed and price, so you can choose the right one in minutes.',
+  description = 'TopVPN Premium: a premium VPN service at an affordable price. Transparent plans from $3, secure checkout, plus honest VPN comparisons and guides.',
   canonical,
   noindex = false,
   jsonLd,
@@ -40,6 +42,7 @@ const {
   dir = 'ltr',
   hreflang,
   autolink = true,
+  ogLocale = 'en_US',
 } = Astro.props;
 
 // Inject internal + affiliate links into the rendered page body (see
@@ -59,6 +62,15 @@ const fullTitle = title === SITE.name ? title : `${title} | ${SITE.name}`;
 const ogImage = `${SITE.url}/og-default.png`;
 
 const jsonLdArray = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
+
+// Mobile sticky CTA follows the page language. TopVPN Premium plans live on the
+// homepage, so non-English pages point at their own homepage anchor.
+const planCta =
+  lang === 'ar'
+    ? { href: '/#plans', label: 'شاهد الخطط' }
+    : lang === 'pcm'
+      ? { href: '/pcm#plans', label: 'See Plans' }
+      : { href: '/#plans', label: 'View Plans' };
 ---
 
 <!doctype html>
@@ -91,7 +103,7 @@ const jsonLdArray = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="TopVPN logo: a gold shield with the letter T" />
     <meta property="og:site_name" content={SITE.name} />
-    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale" content={ogLocale} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={fullTitle} />
     <meta name="twitter:description" content={description} />
@@ -136,7 +148,7 @@ const jsonLdArray = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
     </div>
 
     <div class="mobile-cta-bar">
-      <a href="/order-vpn" class="btn-gold w-full text-sm">Compare Best VPNs</a>
+      <a href={planCta.href} class="btn-gold w-full text-sm">{planCta.label}</a>
     </div>
     <div class="h-16 md:hidden"></div>
 

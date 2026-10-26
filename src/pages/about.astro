@@ -5,19 +5,18 @@ import Icons from '../components/Icons.astro';
 import AuthorBio from '../components/AuthorBio.astro';
 import { breadcrumbSchema, contextWrapper, personSchema, orgSchema } from '../lib/schema';
 
-const howWeCompare = [
-  { icon: 'dollar', title: 'Price', text: 'We compare monthly and long-term pricing, including value relative to features offered.' },
-  { icon: 'globe', title: 'Locations', text: 'We assess server network size and geographic spread for better connectivity options.' },
-  { icon: 'gauge', title: 'Speed', text: 'We evaluate whether the VPN delivers consistently fast connections across regions.' },
-  { icon: 'shield', title: 'Privacy Policy', text: 'We review logging policies, jurisdiction, and whether claims are independently audited.' },
-  { icon: 'devices', title: 'Device Support', text: 'We check which platforms are supported and how many simultaneous connections are allowed.' },
-  { icon: 'headset', title: 'Support Quality', text: 'We assess availability and responsiveness of customer support channels.' },
+const hreflang = [
+  { lang: 'en', url: 'https://www.topvpn.top/about' },
+  { lang: 'ar', url: 'https://www.topvpn.top/ar/about' },
+  { lang: 'pcm', url: 'https://www.topvpn.top/pcm/about' },
+  { lang: 'x-default', url: 'https://www.topvpn.top/about' },
 ];
 ---
 
 <BaseLayout
-  title="About TopVPN"
-  description="Learn about TopVPN — an independent team that compares and explains VPN services in plain language."
+  title="About TopVPN — Our Story, from GoldenVPN to TopVPN"
+  description="The story behind TopVPN: more than a decade in the VPN market, from GoldenVPN to TopVPN Premium — a premium VPN service at an affordable price, built on transparency and customer trust."
+  hreflang={hreflang}
   jsonLd={contextWrapper([orgSchema, personSchema, breadcrumbSchema([{ label: 'Home', href: '/' }, { label: 'About' }])])}
 >
   <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'About' }]} />
@@ -30,12 +29,68 @@ const howWeCompare = [
     <div class="grid md:grid-cols-3 gap-8">
       <div class="md:col-span-2 space-y-6">
         <div class="card p-6">
-          <h2 class="text-xl font-bold mb-3" style="font-family: var(--font-heading);">Who We Are</h2>
+          <h2 class="text-xl font-bold mb-3" style="font-family: var(--font-heading);">From GoldenVPN to TopVPN</h2>
           <p class="text-sm mb-3" style="color: var(--color-muted);">
-            We are an independent team that compares and explains VPN services. Our goal is simple: help you choose the right VPN quickly, with honest information and plain language — no technical jargon, no hype.
+            More than ten years ago, our journey in the VPN market began through affiliate
+            partnerships with major VPN providers.
+          </p>
+          <p class="text-sm mb-3" style="color: var(--color-muted);">
+            Over time, we gained valuable experience and learned about the real-world challenges
+            customers faced when purchasing, configuring, and using VPN services.
+          </p>
+          <p class="text-sm mb-3" style="color: var(--color-muted);">
+            We subsequently operated several VPN-related websites. Many customers in different
+            countries may still remember <strong style="color: var(--color-text);">GoldenVPN.com</strong>,
+            a project that represents an important chapter in our history.
+          </p>
+          <p class="text-sm mb-3" style="color: var(--color-muted);">
+            Back then, VPN protocols and device compatibility were more limited than they are
+            today. We worked to make VPN purchasing and setup easier across different devices,
+            from Windows 7 computers to the mobile devices of that era. Our goal was to combine
+            an affordable price with a convenient user experience.
           </p>
           <p class="text-sm" style="color: var(--color-muted);">
-            We research, test, and organize the key facts about each VPN so you do not have to spend hours comparing them yourself.
+            Today, with years of additional experience and a renewed commitment to the market, we
+            continue that journey under a new name:
+            <strong style="color: var(--color-gold-light);">TOPVPN.TOP</strong>. The name represents
+            our ambition to offer top-quality VPN services at affordable prices, with transparent
+            information and a straightforward customer experience.
+          </p>
+        </div>
+
+        <div class="card p-6">
+          <h2 class="text-xl font-bold mb-3" style="font-family: var(--font-heading);">What Experience Has Taught Us</h2>
+          <p class="text-sm mb-3" style="color: var(--color-muted);">
+            Our experience working with major VPN companies showed us that advertised uptime
+            figures do not always reflect every customer's real-world experience. Some users
+            reported recurring problems with particular servers or connection conditions.
+          </p>
+          <p class="text-sm mb-3" style="color: var(--color-muted);">
+            We believe that transparency matters more than unrealistic promises. No VPN service
+            can guarantee a perfect connection in every situation.
+          </p>
+          <p class="text-sm" style="color: var(--color-muted);">
+            We treat challenges as opportunities to learn, improve, and provide a better customer
+            experience. Our commitment is to continuous improvement, responsible communication,
+            and listening to customer feedback.
+          </p>
+        </div>
+
+        <div class="card p-6">
+          <h2 class="text-xl font-bold mb-3" style="font-family: var(--font-heading);">Trust and Customer Support</h2>
+          <p class="text-sm mb-3" style="font-size: 1.05rem; font-weight: 600; color: var(--color-gold-light);">
+            “Our greatest asset is your trust, and earning it is an ongoing commitment.”
+          </p>
+          <p class="text-sm mb-3" style="color: var(--color-muted);">
+            If you need help, you can find assistance through our
+            <a href="/#faq" class="underline" style="color: var(--color-muted);">FAQ page</a> and our
+            <a href="/contact" class="underline" style="color: var(--color-muted);">Contact Us page</a>.
+            We are also adding an on-site support assistant to make getting answers even quicker.
+          </p>
+          <p class="text-sm" style="color: var(--color-muted);">
+            TopVPN aims to offer premium VPN services at affordable prices, with convenient
+            purchasing, secure payment options, and a commitment to improving the customer
+            experience.
           </p>
         </div>
 
@@ -44,20 +99,35 @@ const howWeCompare = [
         <div class="card p-6">
           <h2 class="text-xl font-bold mb-3" style="font-family: var(--font-heading);">How We Earn</h2>
           <p class="text-sm mb-3" style="color: var(--color-muted);">
-            We may earn a commission through some links on this site, at no extra cost to you. This helps us keep TopVPN running and producing free content.
+            We may earn a commission through some links on this site, at no extra cost to you. This
+            helps us keep TopVPN running and producing free content.
           </p>
           <p class="text-sm" style="color: var(--color-muted);">
-            It never changes our honest pros and cons. If a VPN has a weakness, we tell you about it — regardless of any commercial relationship.
+            It never changes our honest pros and cons. If a VPN has a weakness, we tell you about it
+            — regardless of any commercial relationship.
           </p>
         </div>
 
         <div class="card p-6">
-          <h2 class="text-xl font-bold mb-3" style="font-family: var(--font-heading);">Our Roadmap</h2>
+          <h2 class="text-xl font-bold mb-3" style="font-family: var(--font-heading);">Payment Options</h2>
           <p class="text-sm mb-3" style="color: var(--color-muted);">
-            We are gathering experience every day. In the future we will launch our own high-quality VPN service at a competitive price.
+            We are rolling out secure checkout for TopVPN Premium. Card payments are processed
+            securely through <strong style="color: var(--color-text);">Stripe</strong>, and
+            <strong style="color: var(--color-text);">PayPal</strong> and
+            <strong style="color: var(--color-text);">cryptocurrency</strong> payments are being
+            enabled as additional options.
           </p>
-          <p class="text-sm font-semibold" style="color: var(--color-gold-light);">
-            Stay with TopVPN for that.
+          <div class="flex flex-wrap gap-3 mb-3">
+            <Icons name="visa" size={28} />
+            <Icons name="mastercard" size={28} />
+            <Icons name="amex" size={28} />
+            <Icons name="paypal" size={28} />
+            <Icons name="crypto" size={28} />
+          </div>
+          <p class="text-xs" style="color: var(--color-muted-dark);">
+            Card payment via Stripe is the primary method. PayPal and cryptocurrency are planned and
+            not yet enabled for TopVPN Premium orders. You will never be asked to enter payment
+            details on an insecure form, and your card details never touch our servers.
           </p>
         </div>
       </div>
@@ -79,24 +149,14 @@ const howWeCompare = [
   </section>
 
   <section class="py-12 md:py-16" style="background: var(--color-bg-alt);">
-    <div class="container-max">
-      <div class="text-center mb-10">
-        <h2 class="text-2xl md:text-3xl font-bold mb-2" style="font-family: var(--font-heading);">How We Compare</h2>
-        <p class="text-sm" style="color: var(--color-muted);">Six factors we evaluate for every VPN.</p>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {howWeCompare.map((item) => (
-          <div class="card p-6">
-            <div class="flex items-center gap-3 mb-3">
-              <div class="inline-flex items-center justify-center w-10 h-10 rounded-lg shrink-0" style="background: rgba(212, 175, 55, 0.1);">
-                <Icons name={item.icon} size={20} class="text-amber-400" />
-              </div>
-              <h3 class="text-base font-bold" style="font-family: var(--font-heading);">{item.title}</h3>
-            </div>
-            <p class="text-sm" style="color: var(--color-muted);">{item.text}</p>
-          </div>
-        ))}
-      </div>
+    <div class="container-max text-center max-w-2xl mx-auto">
+      <h2 class="text-2xl md:text-3xl font-bold mb-4" style="font-family: var(--font-heading);">
+        TOPVPN.TOP — <span class="gold-text">Premium VPN Service at an Affordable Price.</span>
+      </h2>
+      <p class="text-base mb-6" style="color: var(--color-muted);">
+        And stay tuned for special offers available only at TopVPN.
+      </p>
+      <a href="/#plans" class="btn-gold inline-flex">View our plans</a>
     </div>
   </section>
 </BaseLayout>
