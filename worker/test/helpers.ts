@@ -8,6 +8,9 @@ import { env, exports } from 'cloudflare:workers';
 import type { Env } from '../env';
 import migrationSql from '../../migrations/0001_ads_init.sql?raw';
 import migrationSql2 from '../../migrations/0002_ads_creative_status.sql?raw';
+import migrationSql3 from '../../migrations/0003_vpn_orders.sql?raw';
+import migrationSql4 from '../../migrations/0004_vpn_customer_auth.sql?raw';
+import migrationSql5 from '../../migrations/0005_vpn_provisioning_attempts.sql?raw';
 import { FIXTURES } from './fixtures';
 
 const BASE = 'https://topvpn.test';
@@ -70,6 +73,19 @@ export async function applyMigrations(): Promise<void> {
   const hasStatus = (cols.results ?? []).some((c) => c.name === 'creative_status');
   if (!hasStatus) {
     await testEnv.DB.batch(splitStatements(migrationSql2).map((s) => testEnv.DB.prepare(s)));
+  }
+
+  // VPN tables (CREATE ... IF NOT EXISTS, safe to re-run).
+  await testEnv.DB.batch(splitStatements(migrationSql3).map((s) => testEnv.DB.prepare(s)));
+
+  // Customer identity tables (CREATE ... IF NOT EXISTS).
+  await testEnv.DB.batch(splitStatements(migrationSql4).map((s) => testEnv.DB.prepare(s)));
+
+  // 0005 adds a column; ALTER TABLE cannot be re-run.
+  const orderCols = await testEnv.DB.prepare("PRAGMA table_info('vpn_orders')").all<{ name: string }>();
+  const hasAttempts = (orderCols.results ?? []).some((c) => c.name === 'provisioning_attempts');
+  if (!hasAttempts) {
+    await testEnv.DB.batch(splitStatements(migrationSql5).map((s) => testEnv.DB.prepare(s)));
   }
 }
 

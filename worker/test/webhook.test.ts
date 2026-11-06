@@ -10,12 +10,23 @@ import {
   TEST_WEBHOOK_SECRET,
   webhookEvent,
 } from './helpers';
+import { isWebhookEventProcessed } from '../db';
 
 beforeAll(async () => {
   await applyMigrations();
 });
 
 describe('stripe webhooks', () => {
+  it('ignores VPN-domain events instead of recording them as ads events', async () => {
+    const event = webhookEvent('checkout.session.completed', 'ORD-VPN-phase10b');
+    const res = await postWebhook(TEST_WEBHOOK_SECRET, event);
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { status?: string; domain?: string };
+    expect(body.status).toBe('ignored');
+    expect(body.domain).toBe('vpn');
+    expect(await isWebhookEventProcessed(testEnv.DB, event.id)).toBe(false);
+  });
+
   it('marks an order paid only after a signature-verified completed checkout', async () => {
     const { orderId } = await createOrder({}, '10.30.0.1');
     expect((await publicStatus(orderId)).paymentStatus).toBe('pending');

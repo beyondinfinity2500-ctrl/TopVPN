@@ -12,6 +12,7 @@ const staticPaths = [
   '/vpn-types-guide',
   '/connection-guide',
   '/apps',
+  '/vpn-servers',
   '/about',
   '/ar/about',
   '/pcm/about',

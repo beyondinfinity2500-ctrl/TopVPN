@@ -25,6 +25,29 @@ import {
   adminSetApproval,
   adminSetCampaign,
 } from './routes/admin';
+import {
+  createVpnOrderRoute,
+  renewOrderRoute,
+  vpnAdminOrder,
+  vpnAdminProvision,
+  vpnAdminRecover,
+  vpnAdminRecoveryList,
+  vpnAdminReconcile,
+  vpnCheckout,
+  vpnPlans,
+  vpnStripeWebhook,
+} from './routes/vpn';
+import {
+  accountOrderPage,
+  accountPage,
+  checkoutCancelPage,
+  checkoutSuccessPage,
+  credentialsPage,
+  logoutRoute,
+  requestLinkRoute,
+  verifyRoute,
+  verifySubmitRoute,
+} from './routes/account';
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
@@ -37,6 +60,44 @@ export default {
       if (path === '/api/ads/csrf' && method === 'GET') return await issuePublicCsrf(env);
       if (path === '/api/ads/orders' && method === 'POST') return await createOrder(request, env, ctx);
       if (path === '/api/ads/webhook' && method === 'POST') return await stripeWebhook(request, env, ctx);
+
+      /* ---- VPN sales API (sandbox; flag-gated) ---- */
+      if (path === '/api/vpn/plans' && method === 'GET') return await vpnPlans(env);
+      if (path === '/api/vpn/orders' && method === 'POST') return await createVpnOrderRoute(request, env);
+      const renewMatch = path.match(/^\/api\/vpn\/orders\/([^/]+)\/renew$/);
+      if (renewMatch && method === 'POST') return await renewOrderRoute(request, env, renewMatch[1]);
+      if (path === '/api/vpn/checkout' && method === 'POST') return await vpnCheckout(request, env);
+      if (path === '/api/vpn/webhook' && method === 'POST') return await vpnStripeWebhook(request, env);
+
+      const vpnAdminOrderMatch = path.match(/^\/admin\/api\/vpn\/orders\/([^/]+)$/);
+      if (vpnAdminOrderMatch && method === 'GET') return await vpnAdminOrder(request, env, vpnAdminOrderMatch[1]);
+
+      const vpnReconcileMatch = path.match(/^\/admin\/api\/vpn\/orders\/([^/]+)\/reconcile$/);
+      if (vpnReconcileMatch && method === 'POST') return await vpnAdminReconcile(request, env, vpnReconcileMatch[1]);
+
+      const vpnProvisionMatch = path.match(/^\/admin\/api\/vpn\/orders\/([^/]+)\/provision$/);
+      if (vpnProvisionMatch && method === 'POST') return await vpnAdminProvision(request, env, vpnProvisionMatch[1]);
+
+      if (path === '/admin/api/vpn/recovery' && method === 'GET') return await vpnAdminRecoveryList(request, env);
+
+      const vpnRecoverMatch = path.match(/^\/admin\/api\/vpn\/orders\/([^/]+)\/recover$/);
+      if (vpnRecoverMatch && method === 'POST') return await vpnAdminRecover(request, env, vpnRecoverMatch[1]);
+
+      /* ---- customer account portal (magic-link; separate from admin) ---- */
+      if (path === '/account' && method === 'GET') return await accountPage(request, env);
+      if (path === '/account/api/request-link' && method === 'POST') return await requestLinkRoute(request, env);
+      if (path === '/account/verify' && method === 'GET') return await verifyRoute(request, env);
+      if (path === '/account/verify' && method === 'POST') return await verifySubmitRoute(request, env);
+      if (path === '/account/api/logout' && method === 'POST') return await logoutRoute(request, env);
+
+      const credentialsMatch = path.match(/^\/account\/orders\/([^/]+)\/credentials$/);
+      if (credentialsMatch && method === 'GET') return await credentialsPage(request, env, credentialsMatch[1]);
+
+      const accountOrderMatch = path.match(/^\/account\/orders\/([^/]+)$/);
+      if (accountOrderMatch && method === 'GET') return await accountOrderPage(request, env, accountOrderMatch[1]);
+
+      if (path === '/checkout/success' && method === 'GET') return await checkoutSuccessPage(request, env);
+      if (path === '/checkout/cancel' && method === 'GET') return await checkoutCancelPage();
 
       const statusMatch = path.match(/^\/api\/ads\/orders\/([^/]+)$/);
       if (statusMatch && method === 'GET') return await publicOrderStatus(env, statusMatch[1]);
@@ -80,7 +141,7 @@ export default {
       }
       return new Response('Not Found', { status: 404 });
     } catch (err) {
-      console.error('topvpn-ads: unhandled error', err);
+      console.error('topvpn: unhandled error');
       return json({ error: 'Internal server error.' }, 500);
     }
   },

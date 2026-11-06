@@ -16,3 +16,43 @@ ADMIN_PASSWORD_HASH=""
 
 # Random string used to sign public order-form CSRF tokens (any long random value)
 SESSION_SECRET=""
+
+# ---- VPN provisioning (Phase 4; not activated yet) ----
+# VPNResellers API v4.1 bearer token from https://app.vpnresellers.com/api-access
+# Server-only. Never expose to the browser or commit a real value.
+VPNRESELLERS_API_TOKEN=""
+# Optional overrides (empty = documented defaults):
+VPNRESELLERS_API_URL=""
+VPNRESELLERS_PROJECT_ID=""
+
+# ---- Customer identity (magic link; disabled by default) ----
+# "true" enables sending sign-in links (also requires RESEND_API_KEY).
+VPN_CUSTOMER_AUTH_ENABLED=""
+# Sender for customer emails (must be a verified Resend domain).
+CUSTOMER_EMAIL_FROM=""
+
+# ---- Credential delivery (server-only; disabled by default) ----
+# "true" enables /account/orders/:id/credentials. Requires the provider token,
+# VPN_PROVISIONING_SECRET, and at least one server/port id below.
+VPN_CREDENTIAL_DELIVERY_ENABLED=""
+VPN_WIREGUARD_SERVER_ID=""
+VPN_OPENVPN_SERVER_ID=""
+VPN_OPENVPN_PORT_ID=""
+
+# ---- VPN sales foundation (sandbox; keep all disabled by default) ----
+# "true" only when a sandbox checkout may create pending orders.
+VPN_SALES_ENABLED=""
+# "true" enables the sandbox-only Stripe Checkout flow (must be an sk_test_ key).
+VPN_SANDBOX_CHECKOUT_ENABLED=""
+# "true" enables the one-time first-month price.
+VPN_INTRO_ENABLED=""
+# Separate Stripe signing secret for the /api/vpn/webhook endpoint.
+STRIPE_VPN_WEBHOOK_SECRET=""
+# Server secret used to derive deterministic provider account passwords.
+VPN_PROVISIONING_SECRET=""
+
+# ---- Non-secret vars (defaults shown; override in .dev.vars if needed) ----
+# SITE_URL="https://www.topvpn.top"
+# ADMIN_EMAIL="beyondinfinity2500@gmail.com"
+# EMAIL_FROM="TopVPN Advertising <ads@topvpn.top>"
+# STRIPE_CRYPTO_ENABLED=""

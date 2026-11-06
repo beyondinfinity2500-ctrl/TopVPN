@@ -2,15 +2,18 @@
 /**
  * TopVPN Premium — the site's primary product offering.
  *
- * Prices render from src/lib/premium.ts (single source of truth) at build time.
- * There is no live VPN checkout yet (no reseller/provisioning backend exists),
- * so the plan CTA links to /contact with an honest "opening soon" note rather
- * than a payment form. See src/lib/premium.ts for the checkout-blocker note.
+ * Prices render from src/lib/premium.ts (which derives every amount from the
+ * authoritative catalogue in src/lib/plans.ts). This component contains NO
+ * hardcoded prices: change a price in plans.ts and this section follows.
  *
- * `locale` switches only this section's own copy; plan names and prices are
- * shared. Add a locale here when a new translated homepage is added.
+ * There is no live VPN checkout yet (no provisioning backend is wired), so the
+ * plan CTA links to /contact with an honest "opening soon" note rather than a
+ * payment form. See docs/PLATFORM_IMPLEMENTATION.md.
+ *
+ * `locale` switches only this section's own copy. Add a locale here when a new
+ * translated homepage is added.
  */
-import { PREMIUM_PLANS, formatUsd } from '../lib/premium';
+import { PREMIUM_PLANS, formatUsd, type PremiumPlan } from '../lib/premium';
 import Icons from './Icons.astro';
 
 interface Props {
@@ -27,24 +30,32 @@ const copy = {
     sub: 'Every plan includes the full TopVPN Premium experience. Choose the billing cycle that fits you — the longer you commit, the lower the monthly price.',
     best: 'Best value',
     firstMonth: '/first month',
-    then: (pm: number) => `Then ${formatUsd(pm)} per month. The $3 price is a one-time first-month promotion.`,
     perMonth: '/month',
-    billedToday: (period: string, total: number) => `${period}. That is ${formatUsd(total)} billed today.`,
+    then: (plan: PremiumPlan) =>
+      `Regular price is ${formatUsd(plan.regularMonthly!)} for one month. The ${formatUsd(plan.firstMonthPromo!)} first-month price requires a verified account and is not available yet. No automatic renewal.`,
+    period: (plan: PremiumPlan) =>
+      `Billed ${formatUsd(plan.totalBilled)} once for ${plan.intervalMonths} months (no automatic renewal)`,
+    billedToday: (period: string, total: number) =>
+      `${period}. That is ${formatUsd(total)} billed today.`,
+    savings: (plan: PremiumPlan) => `Save ${plan.savingsPercent}% vs paying monthly`,
+    features: (plan: PremiumPlan): string[] =>
+      plan.id === 'monthly'
+        ? [
+            'Premium VPN experience',
+            'Billed month to month',
+            'Intro price after account verification',
+            'Secure payment',
+          ]
+        : [
+            'Premium VPN experience',
+            `Save ${plan.savingsPercent}% vs paying monthly`,
+            `One payment for ${plan.intervalMonths} months`,
+            'Secure payment',
+          ],
     choose: (name: string) => `Choose ${name}`,
     noteBefore: 'Online checkout for TopVPN Premium is opening soon. To order now or be notified at launch, ',
     contact: 'contact us',
     noteAfter: '. Prices shown in USD.',
-    periods: {
-      monthly: '$3 first month, then $9/month',
-      annual: 'Billed $72 once for 12 months',
-      'two-year': 'Billed $120 once for 24 months',
-    },
-    savings: { monthly: '', annual: 'Save 33% vs paying monthly', 'two-year': 'Save 44% vs paying monthly' },
-    features: {
-      monthly: ['Premium VPN experience', 'Billed month to month', 'First month just $3', 'Secure payment'],
-      annual: ['Premium VPN experience', 'Save 33% vs paying monthly', 'One payment for 12 months', 'Secure payment'],
-      'two-year': ['Premium VPN experience', 'Save 44% vs paying monthly', 'One payment for 24 months', 'Secure payment'],
-    },
   },
   pcm: {
     eyebrow: 'Price',
@@ -54,24 +65,32 @@ const copy = {
     sub: 'Every plan get the full TopVPN Premium experience. Pick the billing wey suit you — the longer you commit, the less you go pay every month.',
     best: 'Best value',
     firstMonth: '/first month',
-    then: (pm: number) => `After that na ${formatUsd(pm)} every month. The $3 price na one-time promo for your first month only.`,
     perMonth: '/month',
-    billedToday: (period: string, total: number) => `${period}. That one mean ${formatUsd(total)} you go pay today.`,
+    then: (plan: PremiumPlan) =>
+      `Normal price na ${formatUsd(plan.regularMonthly!)} for one month. The ${formatUsd(plan.firstMonthPromo!)} first-month price need verified account and e never ready yet. No automatic renewal.`,
+    period: (plan: PremiumPlan) =>
+      `You go pay ${formatUsd(plan.totalBilled)} once for ${plan.intervalMonths} months (no automatic renewal)`,
+    billedToday: (period: string, total: number) =>
+      `${period}. That one mean ${formatUsd(total)} you go pay today.`,
+    savings: (plan: PremiumPlan) => `Save ${plan.savingsPercent}% pass monthly price`,
+    features: (plan: PremiumPlan): string[] =>
+      plan.id === 'monthly'
+        ? [
+            'Full premium VPN experience',
+            'You dey pay month by month',
+            'Intro price after account verification',
+            'Safe payment',
+          ]
+        : [
+            'Full premium VPN experience',
+            `Save ${plan.savingsPercent}% pass monthly price`,
+            `One payment for ${plan.intervalMonths} months`,
+            'Safe payment',
+          ],
     choose: (name: string) => `Pick ${name}`,
     noteBefore: 'Online checkout for TopVPN Premium dey come soon. To order now or make we tell you when e open, ',
     contact: 'contact us',
     noteAfter: '. All price na USD.',
-    periods: {
-      monthly: '$3 first month, then $9/month',
-      annual: 'You go pay $72 once for 12 months',
-      'two-year': 'You go pay $120 once for 24 months',
-    },
-    savings: { monthly: '', annual: 'Save 33% pass monthly price', 'two-year': 'Save 44% pass monthly price' },
-    features: {
-      monthly: ['Full premium VPN experience', 'You dey pay month by month', 'First month na only $3', 'Safe payment'],
-      annual: ['Full premium VPN experience', 'Save 33% pass monthly price', 'One payment for 12 months', 'Safe payment'],
-      'two-year': ['Full premium VPN experience', 'Save 44% pass monthly price', 'One payment for 24 months', 'Safe payment'],
-    },
   },
 };
 
@@ -108,13 +127,12 @@ const c = copy[locale];
 
         {plan.id === 'monthly' ? (
           <div class="mb-4">
-            <div class="flex items-baseline gap-2">
-              <span class="text-4xl font-bold gold-text" style="font-family: var(--font-heading);">{formatUsd(plan.firstMonthPromo!)}</span>
-              <span class="text-sm line-through" style="color: var(--color-muted-dark);">{formatUsd(plan.regularMonthly!)}</span>
-              <span class="text-sm" style="color: var(--color-muted);">{c.firstMonth}</span>
+            <div class="flex items-baseline gap-1">
+              <span class="text-4xl font-bold gold-text" style="font-family: var(--font-heading);">{formatUsd(plan.perMonth)}</span>
+              <span class="text-sm" style="color: var(--color-muted);">{c.perMonth}</span>
             </div>
             <p class="text-xs mt-2" style="color: var(--color-muted);">
-              {c.then(plan.regularMonthly!)}
+              {c.then(plan)}
             </p>
           </div>
         ) : (
@@ -124,23 +142,23 @@ const c = copy[locale];
               <span class="text-sm" style="color: var(--color-muted);">{c.perMonth}</span>
             </div>
             <p class="text-xs mt-2" style="color: var(--color-muted);">
-              {c.billedToday(c.periods[plan.id], plan.totalBilled)}
+              {c.billedToday(c.period(plan), plan.totalBilled)}
             </p>
           </div>
         )}
 
-        {c.savings[plan.id] && (
+        {plan.savingsPercent > 0 && (
           <p
             class="inline-flex items-center gap-1 text-xs font-semibold mb-4 px-2 py-1 rounded self-start"
             style="background: rgba(34, 197, 94, 0.1); color: var(--color-emerald);"
           >
             <Icons name="check" size={13} />
-            {c.savings[plan.id]}
+            {c.savings(plan)}
           </p>
         )}
 
         <ul class="space-y-2.5 mb-6 flex-grow">
-          {c.features[plan.id].map((f) => (
+          {c.features(plan).map((f) => (
             <li class="flex items-start gap-2 text-sm">
               <Icons name="check" size={16} class="mt-0.5 shrink-0" style="color: var(--color-emerald);" />
               <span style="color: var(--color-text);">{f}</span>

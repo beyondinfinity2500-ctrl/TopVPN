@@ -144,6 +144,9 @@ export function parseWebhookEvent(rawBody: string): StripeEvent | null {
   try {
     const event = JSON.parse(rawBody) as StripeEvent;
     if (typeof event.id !== 'string' || typeof event.type !== 'string') return null;
+    const data = event.data as { object?: unknown } | undefined;
+    if (!data || typeof data !== 'object') return null;
+    if (!data.object || typeof data.object !== 'object' || Array.isArray(data.object)) return null;
     return event;
   } catch {
     return null;

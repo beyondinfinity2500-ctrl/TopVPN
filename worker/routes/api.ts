@@ -306,6 +306,16 @@ export async function stripeWebhook(request: Request, env: Env, ctx: ExecutionCo
   const event = parseWebhookEvent(rawBody);
   if (!event) return json({ error: 'Malformed event.' }, 400);
 
+  // Domain isolation: a VPN event (or a VPN reference) is not an ads event; do
+  // not record it in the ads idempotency table. This prevents cross-domain
+  // coupling when both endpoints receive events from the same Stripe account.
+  const object = event.data.object as Record<string, unknown>;
+  const metadata = (object.metadata ?? {}) as Record<string, string>;
+  const reference = typeof object.client_reference_id === 'string' ? object.client_reference_id : '';
+  if (metadata.domain === 'vpn' || metadata.vpn_order_id || reference.startsWith('ORD-VPN-')) {
+    return json({ status: 'ignored', domain: 'vpn' });
+  }
+
   // Idempotency: a replayed event must never re-process an order.
   if (await isWebhookEventProcessed(env.DB, event.id)) {
     return json({ status: 'duplicate' });

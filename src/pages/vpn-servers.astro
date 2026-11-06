@@ -1,0 +1,164 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { breadcrumbSchema, contextWrapper } from '../lib/schema';
+
+const servers = [
+  { country: 'United States', city: 'Los Angeles', address: 'us1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'United States', city: 'Miami', address: 'us2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'United States', city: 'Chicago', address: 'us3.ipcover.net', protocol: 'WireGuard' },
+  { country: 'United States', city: 'Atlanta', address: 'us4.ipcover.net', protocol: 'WireGuard' },
+  { country: 'United States', city: 'Kansas City', address: 'us6.ipcover.net', protocol: 'WireGuard' },
+  { country: 'United States', city: 'New York', address: 'us7.ipcover.net', protocol: 'WireGuard' },
+  { country: 'United States', city: 'Chicago', address: 'us8.ipcover.net', protocol: 'WireGuard' },
+  { country: 'United States', city: 'Miami', address: 'us9.ipcover.net', protocol: 'WireGuard' },
+  { country: 'United States', city: 'New York', address: 'us10.ipcover.net', protocol: 'WireGuard' },
+  { country: 'United States', city: 'Los Angeles', address: 'lax.ipcover.net', protocol: 'WireGuard' },
+  { country: 'United Kingdom', city: 'London', address: 'uk1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'United Kingdom', city: 'London', address: 'uk2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'United Kingdom', city: 'London', address: 'uk3.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Germany', city: 'Frankfurt', address: 'de2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Germany', city: 'Dusseldorf', address: 'de1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Germany', city: 'Berlin', address: 'de4.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Netherlands', city: 'Amsterdam', address: 'nl1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Netherlands', city: 'Amsterdam', address: 'nl2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Netherlands', city: 'Amsterdam', address: 'nl3.ipcover.net', protocol: 'WireGuard' },
+  { country: 'France', city: 'Paris', address: 'fr1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'France', city: 'Paris', address: 'fr2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Canada', city: 'Toronto', address: 'ca1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Canada', city: 'Montreal', address: 'ca2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Canada', city: 'Vancouver', address: 'ca3.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Canada', city: 'Toronto', address: 'ca4.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Australia', city: 'Sydney', address: 'au1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Australia', city: 'Sydney', address: 'au2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Japan', city: 'Tokyo', address: 'jp1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Japan', city: 'Tokyo', address: 'jp2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Japan', city: 'Tokyo', address: 'jp3.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Singapore', city: 'Singapore', address: 'sg1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Singapore', city: 'Singapore', address: 'sg2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Singapore', city: 'Singapore', address: 'sg3.ipcover.net', protocol: 'WireGuard' },
+  { country: 'India', city: 'Mumbai', address: 'in1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Brazil', city: 'Sao Paulo', address: 'br1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Brazil', city: 'Sao Paulo', address: 'br2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Spain', city: 'Barcelona', address: 'es1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Spain', city: 'Seville', address: 'es2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Italy', city: 'Florence', address: 'it1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Italy', city: 'Palermo', address: 'pmo.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Turkey', city: 'Bursa', address: 'tr1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Turkey', city: 'Istanbul', address: 'tr2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Sweden', city: 'Stockholm', address: 'se1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Sweden', city: 'Stockholm', address: 'se2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Switzerland', city: 'Zurich', address: 'zrh.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Poland', city: 'Warsaw', address: 'pl1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Denmark', city: 'Copenhagen', address: 'dk1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Denmark', city: 'Copenhagen', address: 'dk2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Finland', city: 'Helsinki', address: 'fi1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Finland', city: 'Helsinki', address: 'fi2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Norway', city: 'Oslo', address: 'no1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Russia', city: 'Moscow', address: 'ru1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Russia', city: 'St Petersburg', address: 'ru2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Ukraine', city: 'Kiev', address: 'ua1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Romania', city: 'Bucharest', address: 'ro1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Greece', city: 'Thessaloniki', address: 'gr1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Greece', city: 'Athens', address: 'gr2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Portugal', city: 'Lisbon', address: 'pt1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Ireland', city: 'Dublin', address: 'ie1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Belgium', city: 'Brussels', address: 'be1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Austria', city: 'Vienna', address: 'vie.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Austria', city: 'Graz', address: 'grz.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Israel', city: 'Tel Aviv', address: 'il1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'United Arab Emirates', city: 'Dubai', address: 'ae1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Thailand', city: 'Bangkok', address: 'th1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Indonesia', city: 'Jakarta', address: 'id1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Indonesia', city: 'Jakarta', address: 'id2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Philippines', city: 'Manila', address: 'ph1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Hong Kong', city: 'Hong Kong', address: 'hk1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Hong Kong', city: 'Hong Kong', address: 'hk2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'South Africa', city: 'Johannesburg', address: 'jnb.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Morocco', city: 'Fez', address: 'ma1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Kenya', city: 'Nairobi', address: 'ke1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Pakistan', city: 'Islamabad', address: 'pk1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Nigeria', city: 'Lagos', address: 'los.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Mexico', city: 'Mexico City', address: 'mx1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Argentina', city: 'Buenos Aires', address: 'ar1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Argentina', city: 'Buenos Aires', address: 'ar2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Colombia', city: 'Bogota', address: 'co1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Chile', city: 'Santiago', address: 'cl1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Brazil', city: 'Sao Paulo', address: 'br2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Ecuador', city: 'Quito', address: 'uio.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Bolivia', city: 'La Paz', address: 'lpb.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Costa Rica', city: 'San Jose', address: 'sjo.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Serbia', city: 'Belgrade', address: 'beg.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Slovenia', city: 'Ljubljana', address: 'si1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Lithuania', city: 'Vilnius', address: 'vno.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Latvia', city: 'Riga', address: 'rix.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Estonia', city: 'Tallinn', address: 'tll.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Albania', city: 'Tirana', address: 'tia.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Moldova', city: 'Chisinau', address: 'md1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Czech Republic', city: 'Prague', address: 'cz1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Czech Republic', city: 'Prague', address: 'cz2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Bulgaria', city: 'Sofia', address: 'bg1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Bulgaria', city: 'Sofia', address: 'bg2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Bulgaria', city: 'Sofia', address: 'bg3.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Israel', city: 'Tel Aviv', address: 'il1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'Thailand', city: 'Bangkok', address: 'th1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'VLESS', city: 'Berlin', address: 'de1-cdn.web-api.net', protocol: 'VLESS' },
+  { country: 'VLESS', city: 'Los Angeles', address: 'us1-cdn.web-api.net', protocol: 'VLESS' },
+  { country: 'VLESS', city: 'Singapore', address: 'sg1-cdn.web-api.net', protocol: 'VLESS' },
+  { country: 'VLESS', city: 'Singapore TEST', address: 'sg3-cdn.web-api.net', protocol: 'VLESS' },
+  { country: 'VLESS', city: 'Tokyo', address: 'jp1-cdn.web-api.net', protocol: 'VLESS' },
+];
+
+const countries = [...new Set(servers.map(s => s.country))].sort();
+
+const breadcrumbItems = [{ label: 'Home', href: '/' }, { label: 'VPN Servers' }];
+---
+
+<BaseLayout
+  title="VPN Server Locations | TopVPN"
+  description="Browse TopVPN's available VPN server locations worldwide. WireGuard and VLESS servers across 50+ countries."
+  hreflang={[{ lang: 'en', url: 'https://www.topvpn.top/vpn-servers' }]}
+  jsonLd={contextWrapper([breadcrumbSchema(breadcrumbItems)])}
+>
+  <Breadcrumbs items={breadcrumbItems} />
+
+  <section class="container-max py-10 md:py-14">
+    <h1 class="text-3xl md:text-4xl font-bold mb-4" style="font-family: var(--font-heading);">VPN Server Locations</h1>
+    <p class="text-base max-w-2xl mb-8" style="color: var(--color-muted);">
+      Available server locations for TopVPN Premium. All servers are provided by our VPN infrastructure partner.
+      Connection details are delivered securely through your customer account after purchase.
+    </p>
+
+    <div class="mb-6">
+      <p class="text-sm" style="color: var(--color-muted);">
+        <strong>{servers.length}</strong> servers across <strong>{countries.length}</strong> countries/regions.
+      </p>
+    </div>
+
+    {countries.map(country => (
+      <div class="mb-8">
+        <h2 class="text-xl font-bold mb-3" style="font-family: var(--font-heading);">{country}</h2>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm" style="border-collapse: collapse;">
+            <thead>
+              <tr style="border-bottom: 1px solid var(--color-border);">
+                <th class="text-left py-2 px-3" style="color: var(--color-muted);">City</th>
+                <th class="text-left py-2 px-3" style="color: var(--color-muted);">Protocol</th>
+                <th class="text-left py-2 px-3" style="color: var(--color-muted);">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {servers.filter(s => s.country === country).map(s => (
+                <tr style="border-bottom: 1px solid var(--color-border);">
+                  <td class="py-2 px-3">{s.city}</td>
+                  <td class="py-2 px-3">{s.protocol}</td>
+                  <td class="py-2 px-3" style="color: var(--color-emerald);">Available</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    ))}
+  </section>
+</BaseLayout>

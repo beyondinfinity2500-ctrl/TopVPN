@@ -25,6 +25,7 @@ export async function sendEmail(
   to: string[],
   subject: string,
   html: string,
+  from?: string,
 ): Promise<SendResult> {
   if (!env.RESEND_API_KEY) return { ok: false, status: 'not_configured' };
   try {
@@ -34,7 +35,7 @@ export async function sendEmail(
         Authorization: `Bearer ${env.RESEND_API_KEY}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ from: emailFrom(env), to, subject, html }),
+      body: JSON.stringify({ from: from ?? emailFrom(env), to, subject, html }),
     });
     if (res.ok) return { ok: true, status: 'sent' };
     const text = await res.text().catch(() => '');
