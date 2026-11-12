@@ -5,9 +5,9 @@ import TagChips from '../components/TagChips.astro';
 import Icons from '../components/Icons.astro';
 import NewsiqAd from '../components/newsiq/NewsiqAd.astro';
 import { newsiqInline } from '../data/newsiq-ads';
-import { breadcrumbSchema, contextWrapper } from '../lib/schema';
+import { breadcrumbSchema, faqSchema, contextWrapper } from '../lib/schema';
 
-const updatedStr = 'October 2026';
+const updatedStr = 'November 2026';
 
 const platforms = [
   { icon: 'windows', name: 'Windows', suits: 'Most desktop users — full-featured apps with settings for protocols, kill switch, and split tunneling' },
@@ -26,6 +26,64 @@ const openSourceClients = [
   { name: 'Hiddify', description: 'A cross-platform client that supports multiple protocols including Shadowsocks and V2Ray.' },
 ];
 
+/**
+ * Branded TopVPN installers (white-label). Files live on OUR host under
+ * /downloads/ with the exact names below. A button renders only when the file
+ * exists at build time — drop the installer into public/downloads/ with the
+ * listed name, rebuild, and it goes live. No dead links, ever.
+ */
+const brandedApps = [
+  {
+    platform: 'Windows', icon: 'windows', file: 'TOPVPN.TOP-Windows.exe',
+    label: 'TopVPN for Windows', how: 'Full-featured desktop client with system tray integration, kill switch and auto-connect.',
+    protocols: ['OpenVPN UDP/TCP', 'IKEv2', 'WireGuard', 'L2TP', 'PPTP', 'Stealth'],
+  },
+  {
+    platform: 'macOS', icon: 'macos', file: 'TOPVPN.TOPApple-Mac.dmg',
+    label: 'TopVPN for macOS', how: 'Native macOS app with clean interface, menu bar integration and one-click connect.',
+    protocols: ['OpenVPN UDP/TCP', 'IKEv2', 'WireGuard', 'L2TP', 'PPTP', 'Stealth'],
+  },
+  {
+    platform: 'Linux', icon: 'linux', file: 'TOPVPN.TOP-Linux.run',
+    label: 'TopVPN for Linux', how: 'Native GUI client for Ubuntu and other Linux distributions. Lightweight and fast.',
+    protocols: ['OpenVPN UDP/TCP', 'WireGuard'],
+  },
+  {
+    platform: 'Firestick & Android TV', icon: 'android', file: 'TOPVPN.TOPFirestick-Android_TV.apk',
+    label: 'TopVPN for Firestick & Android TV', how: 'White-label VPN app for Amazon Firestick and Android TVs, designed for big screens with a remote-friendly interface. Smart TV support.',
+    protocols: ['OpenVPN UDP/TCP'],
+  },
+];
+
+/** Store-distributed apps — links, not files on our host. */
+const storeApps = [
+  {
+    platform: 'Android', icon: 'android', label: 'TopVPN for Android',
+    how: 'Phone and tablet app with quick-toggle widget and auto-connect on untrusted Wi-Fi. Install straight from Google Play.',
+    storeName: 'Get it on Google Play', storeUrl: 'https://play.google.com/store/apps/details?id=com.vpn.client&pli=1',
+  },
+  {
+    platform: 'iOS', icon: 'ios', label: 'TopVPN for iPhone & iPad',
+    how: 'Seamless on/off toggle with Apple-native feel. Install straight from the App Store.',
+    storeName: 'Download on the App Store', storeUrl: 'https://apps.apple.com/us/app/vpnclient-secured-vpn/id1506797696',
+  },
+];
+
+const fs = await import('node:fs');
+const brandedAvailable = brandedApps.map((app) => {
+  let exists = false;
+  let sizeMb: string | null = null;
+  try {
+    const stat = fs.statSync(new URL(`../../public/downloads/${app.file}`, import.meta.url));
+    exists = stat.isFile();
+    sizeMb = (stat.size / (1024 * 1024)).toFixed(1);
+  } catch {
+    /* installer not uploaded yet */
+  }
+  return { ...app, exists, sizeMb };
+});
+const anyBranded = brandedAvailable.some((a) => a.exists);
+
 const leakTestSteps = [
   { step: 1, title: 'Note your real IP address', text: 'Before connecting the VPN, visit a site like whatismyipaddress.com and write down your IP.' },
   { step: 2, title: 'Connect your VPN', text: 'Open your VPN app and connect to a server in any country.' },
@@ -35,19 +93,21 @@ const leakTestSteps = [
 ];
 
 const faqs = [
+  { question: 'How do I download the TopVPN app?', answer: 'Scroll to the TopVPN Apps section above and pick your platform — Windows, macOS, Linux, Firestick/Android TV, Android (Google Play) or iOS (App Store). Install, sign in with your TopVPN account, and connect. One subscription covers every platform.' },
+  { question: 'Is the TopVPN download free?', answer: 'The app itself is free to download and install on every platform. You need an active TopVPN plan to connect to servers — plans start at $3 for your first month.' },
   { question: 'Do I need to install a VPN on every device separately?', answer: 'Yes, for full protection you need the VPN app on each device you use. Alternatively, you can install the VPN on your router to cover all devices on your home network, including smart TVs and game consoles.' },
-  { question: 'Are open-source VPN clients safe to use?', answer: 'Open-source clients like WireGuard and OpenVPN Connect are generally considered trustworthy because their code is publicly auditable. However, you still need a VPN subscription to connect to servers — the client is just the software.' },
+  { question: 'Can I use a VPN on my smart TV or Firestick?', answer: 'Yes — the TopVPN app for Firestick & Android TV is built for big screens with a remote-friendly interface. If your TV does not support the app, install the VPN on your router instead.' },
   { question: 'Does a browser extension protect my whole computer?', answer: 'No. A browser extension only encrypts traffic from your browser. Other apps on your device — email, games, system updates — still use your real connection. For full protection, use the VPN app.' },
-  { question: 'Can I use a VPN on my smart TV?', answer: 'Some smart TVs support VPN apps directly. If yours does not, you can install the VPN on your router or use the VPN on a streaming device like a Fire Stick that supports VPN apps.' },
 ];
 
-const tags = ['apps', 'devices', 'Windows', 'macOS', 'Android', 'iOS', 'guide'];
+const tags = ['vpn download', 'apps', 'devices', 'Windows', 'macOS', 'Android', 'iOS', 'Linux', 'Firestick', 'guide'];
 ---
 
 <BaseLayout
-  title="VPN Apps and Tools for Every Device"
-  description="A guide to VPN apps for Windows, macOS, Linux, Android, iOS, routers, and browsers — plus how to check your VPN is working."
-  jsonLd={contextWrapper(breadcrumbSchema([{ label: 'Home', href: '/' }, { label: 'Apps' }]))}
+  title="VPN Download — TopVPN Apps for Windows, Mac, Android, iOS, Linux & Firestick"
+  description="Free VPN download for every device: the official TopVPN app for Windows, macOS, Linux, Android, iPhone and Firestick. One-click install, kill switch, WireGuard and OpenVPN support. Plans from $3 first month."
+  keywords="vpn download, download vpn, free vpn download, vpn for windows, vpn for android, vpn for pc, vpn app download, topvpn download, vpn for mac, vpn for firestick, vpn for linux, wireguard download, openvpn download, iphone vpn, download vpn for windows 10"
+  jsonLd={contextWrapper([breadcrumbSchema([{ label: 'Home', href: '/' }, { label: 'Apps' }]), faqSchema(faqs)])}
 >
   <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Apps' }]} />
 
@@ -59,11 +119,11 @@ const tags = ['apps', 'devices', 'Windows', 'macOS', 'Android', 'iOS', 'guide'];
       </div>
 
       <h1 class="text-3xl md:text-4xl font-bold mb-4" style="font-family: var(--font-heading);">
-        VPN Apps and Tools <span class="gold-text">for Every Device</span>
+        VPN Download — Official TopVPN Apps <span class="gold-text">for Every Device</span>
       </h1>
 
       <p class="text-base md:text-lg mb-4" style="color: var(--color-muted);">
-        Most VPN providers offer apps for all major platforms — Windows, macOS, Linux, Android, iOS, routers, and browsers. The right setup depends on which devices you use and whether you want full or partial protection. For complete privacy, install the app on each device; for household-wide coverage, set up the VPN on your router.
+        Looking for a fast VPN download? Get the official TopVPN app below for Windows, macOS, Linux, Android, iPhone/iPad, or Firestick. Every installer is served straight from our own servers and signed by our VPN infrastructure partner — one subscription covers all your devices.
       </p>
 
       <div class="card p-4 mb-6 text-sm" style="background: var(--color-bg-alt);">
@@ -72,6 +132,49 @@ const tags = ['apps', 'devices', 'Windows', 'macOS', 'Android', 'iOS', 'guide'];
 
       <TagChips chips={tags} class="mb-6" />
     </div>
+
+    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">TopVPN Apps — Official Download</h2>
+    <p class="text-sm mb-4 max-w-3xl" style="color: var(--color-muted);">
+      Download the official TopVPN app for your device. Sign in with your TopVPN account, and connect — your server list and configuration are pulled automatically.
+    </p>
+
+    {anyBranded && (
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4 max-w-5xl">
+        {brandedAvailable.filter((a) => a.exists).map((a) => (
+          <div class="card p-5 flex flex-col">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl mb-3 shrink-0" style="background: linear-gradient(135deg, rgba(212,175,55,0.18), rgba(212,175,55,0.06));">
+              <Icons name={a.icon} size={26} class="text-amber-400" />
+            </div>
+            <h3 class="text-base font-bold mb-1" style="font-family: var(--font-heading);">{a.label}</h3>
+            <p class="text-xs mb-3 flex-grow" style="color: var(--color-muted);">{a.how}</p>
+            <div class="flex flex-wrap gap-1 mb-3">
+              {a.protocols.map((p) => (
+                <span class="text-[10px] px-2 py-0.5 rounded-full" style="background: var(--color-bg-alt); border: 1px solid var(--color-border); color: var(--color-muted);">{p}</span>
+              ))}
+            </div>
+            <a href={`/downloads/${a.file}`} download class="btn-gold w-full justify-center text-sm" rel="nofollow">Download for {a.platform}</a>
+            <p class="text-[10px] mt-2 text-center" style="color: var(--color-muted-dark);">{a.file} · {a.sizeMb} MB</p>
+          </div>
+        ))}
+      </div>
+    )}
+
+    <div class={`grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 max-w-3xl ${anyBranded ? '' : 'mt-6'}`}>
+      {storeApps.map((a) => (
+        <div class="card p-5 flex flex-col">
+          <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl mb-3 shrink-0" style="background: linear-gradient(135deg, rgba(212,175,55,0.18), rgba(212,175,55,0.06));">
+            <Icons name={a.icon} size={26} class="text-amber-400" />
+          </div>
+          <h3 class="text-base font-bold mb-1" style="font-family: var(--font-heading);">{a.label}</h3>
+          <p class="text-xs mb-4 flex-grow" style="color: var(--color-muted);">{a.how}</p>
+          <a href={a.storeUrl} target="_blank" rel="nofollow noopener" class="btn-gold w-full justify-center text-sm">{a.storeName}</a>
+        </div>
+      ))}
+    </div>
+
+    <p class="text-xs mb-8 max-w-3xl" style="color: var(--color-muted-dark);">
+      All downloads are served directly from TopVPN's own servers. One subscription covers every platform — <a href="/order-vpn" class="gold-text underline">see plans</a>.
+    </p>
 
     <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">Apps by Platform</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 max-w-4xl">

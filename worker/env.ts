@@ -12,6 +12,8 @@ export interface Env {
   IMAGES: ImagesBinding;
   /** Asset layer (the Astro build in dist/); serves the branded 404 page. */
   ASSETS: Fetcher;
+  /** R2 bucket with the white-label installers (files > 25 MiB asset limit). */
+  DOWNLOADS?: R2Bucket;
 
   // ---- Non-secret vars (wrangler.ads.jsonc `vars`) ----
   SITE_URL?: string;
@@ -64,6 +66,26 @@ export interface Env {
   ADMIN_PASSWORD_HASH?: string;
   /** Random string used to sign stateless CSRF tokens. */
   SESSION_SECRET?: string;
+
+  // ---- Customer Google sign-in (Gmail) ----
+  /** Public OAuth client id; safe as a non-secret var. */
+  GOOGLE_CLIENT_ID?: string;
+  /** OAuth client secret — set with `wrangler secret put`. */
+  GOOGLE_CLIENT_SECRET?: string;
+
+  // ---- PayPal (one-time payments; sandbox until explicitly approved) ----
+  PAYPAL_CLIENT_ID?: string;
+  PAYPAL_CLIENT_SECRET?: string;
+  PAYPAL_WEBHOOK_ID?: string;
+  /** Defaults to the sandbox API base; a live base additionally requires
+   *  PAYPAL_ALLOW_LIVE="true" (explicit owner approval). */
+  PAYPAL_API_BASE?: string;
+  /** Required second switch to allow the live PayPal API. Default refused. */
+  PAYPAL_ALLOW_LIVE?: string;
+  /** "true" enables PayPal checkout routes. Default off. */
+  PAYPAL_ENABLED?: string;
+  /** "false" disables the rule-based support chatbot; default on (local answers). */
+  SUPPORT_CHAT_ENABLED?: string;
 }
 
 export const DEFAULTS = {

@@ -31,6 +31,12 @@ export interface VpnOrderRow {
   updated_at: string;
   paid_at: string | null;
   provisioning_attempts: number;
+  payment_provider: string;
+  coupon_id: string | null;
+  original_amount_cents: number | null;
+  discount_cents: number;
+  paypal_order_id: string | null;
+  paypal_capture_id: string | null;
 }
 
 export interface NewVpnOrder {
@@ -103,6 +109,47 @@ export async function getVpnOrderByPaymentIntent(
     .prepare(`SELECT * FROM vpn_orders WHERE stripe_payment_intent = ?`)
     .bind(paymentIntent)
     .first<VpnOrderRow>();
+}
+
+/**
+ * Renewal is a new one-time payment at the regular plan price. Resets the
+ * order's payable amount (an intro/coupon discount applies to the FIRST period
+ * only) so the checkout session and the webhook amount check agree.
+ */
+export async function setVpnRenewalAmount(
+  db: D1Database,
+  orderId: string,
+  renewalCents: number,
+  nowIso: string,
+): Promise<void> {
+  await db
+    .prepare(
+      `UPDATE vpn_orders
+          SET amount_cents = ?, original_amount_cents = NULL, discount_cents = 0, coupon_id = NULL, updated_at = ?
+        WHERE id = ? AND payment_status = 'paid'`,
+    )
+    .bind(renewalCents, nowIso, orderId)
+    .run();
+}
+
+/** Stores the PayPal order/capture reference and marks the payment provider. */export async function attachVpnPaypalReference(
+  db: D1Database,
+  orderId: string,
+  paypalOrderId: string | null,
+  captureId: string | null,
+  nowIso: string,
+): Promise<void> {
+  await db
+    .prepare(
+      `UPDATE vpn_orders
+          SET payment_provider = 'paypal',
+              paypal_order_id = COALESCE(?, paypal_order_id),
+              paypal_capture_id = COALESCE(?, paypal_capture_id),
+              updated_at = ?
+        WHERE id = ?`,
+    )
+    .bind(paypalOrderId, captureId, nowIso, orderId)
+    .run();
 }
 
 export async function getVpnOrderByIdempotencyKey(

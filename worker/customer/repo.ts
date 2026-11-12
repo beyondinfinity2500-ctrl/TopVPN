@@ -7,6 +7,8 @@ export interface CustomerRow {
   email_norm: string;
   created_at: string;
   updated_at: string;
+  blocked_at: string | null;
+  blocked_reason: string | null;
 }
 
 export interface CustomerSessionRow {
@@ -28,6 +30,10 @@ export interface CustomerOrderRow {
   subscription_status: string;
   created_at: string;
   expire_at: string | null;
+  discount_cents: number;
+  original_amount_cents: number | null;
+  coupon_id: string | null;
+  payment_provider: string;
 }
 
 export async function findOrCreateCustomer(db: D1Database, emailNorm: string, now: string): Promise<CustomerRow> {
@@ -57,6 +63,54 @@ export async function findOrCreateCustomer(db: D1Database, emailNorm: string, no
 
 export async function getCustomerById(db: D1Database, id: string): Promise<CustomerRow | null> {
   return db.prepare(`SELECT * FROM vpn_customers WHERE id = ?`).bind(id).first<CustomerRow>();
+}
+
+export async function getCustomerByEmail(db: D1Database, emailNorm: string): Promise<CustomerRow | null> {
+  return db.prepare(`SELECT * FROM vpn_customers WHERE email_norm = ?`).bind(emailNorm).first<CustomerRow>();
+}
+
+/** Admin support action. Blocking revokes live sessions (see getCustomerSession). */
+export async function setCustomerBlocked(
+  db: D1Database,
+  id: string,
+  blocked: boolean,
+  reason: string | null,
+  nowIso: string,
+): Promise<boolean> {
+  const result = await db
+    .prepare(`UPDATE vpn_customers SET blocked_at = ?, blocked_reason = ?, updated_at = ? WHERE id = ?`)
+    .bind(blocked ? nowIso : null, blocked ? reason : null, nowIso, id)
+    .run();
+  const meta = result.meta as { changes?: number } | undefined;
+  return (meta?.changes ?? 0) > 0;
+}
+
+export interface CustomerListRow extends CustomerRow {
+  order_count: number;
+  paid_count: number;
+}
+
+/** Admin customer list with aggregate order counts. */
+export async function listCustomers(
+  db: D1Database,
+  search: string,
+  limit = 100,
+): Promise<CustomerListRow[]> {
+  const like = `%${search.trim().toLowerCase()}%`;
+  const result = await db
+    .prepare(
+      `SELECT c.*,
+              (SELECT COUNT(*) FROM vpn_customer_orders m WHERE m.customer_id = c.id) AS order_count,
+              (SELECT COUNT(*) FROM vpn_customer_orders m JOIN vpn_orders o ON o.id = m.order_id
+                WHERE m.customer_id = c.id AND o.payment_status = 'paid') AS paid_count
+         FROM vpn_customers c
+        WHERE (? = '' OR c.email_norm LIKE ?)
+        ORDER BY c.created_at DESC
+        LIMIT ?`,
+    )
+    .bind(search.trim() === '' ? '' : like, like, limit)
+    .all<CustomerListRow>();
+  return result.results ?? [];
 }
 
 export async function insertCustomerToken(
@@ -149,7 +203,7 @@ export async function getCustomerSession(
     .prepare(
       `SELECT s.customer_id, s.csrf_token, s.expires_at, c.email_norm
          FROM vpn_customer_sessions s JOIN vpn_customers c ON c.id = s.customer_id
-        WHERE s.token_hash = ? AND s.expires_at > ?`,
+        WHERE s.token_hash = ? AND s.expires_at > ? AND c.blocked_at IS NULL`,
     )
     .bind(tokenHash, now)
     .first<CustomerSessionRow>();
@@ -163,7 +217,8 @@ export async function listCustomerOrders(db: D1Database, customerId: string): Pr
   const result = await db
     .prepare(
       `SELECT o.id, o.plan_id, o.interval_months, o.amount_cents, o.currency, o.order_status, o.payment_status,
-              o.provisioning_status, o.subscription_status, o.created_at, o.expire_at
+              o.provisioning_status, o.subscription_status, o.created_at, o.expire_at,
+              o.discount_cents, o.original_amount_cents, o.coupon_id, o.payment_provider
          FROM vpn_orders o JOIN vpn_customer_orders m ON m.order_id = o.id
         WHERE m.customer_id = ?
         ORDER BY o.created_at DESC`,
@@ -182,7 +237,8 @@ export async function getCustomerOrder(
   return db
     .prepare(
       `SELECT o.id, o.plan_id, o.interval_months, o.amount_cents, o.currency, o.order_status, o.payment_status,
-              o.provisioning_status, o.subscription_status, o.created_at, o.expire_at
+              o.provisioning_status, o.subscription_status, o.created_at, o.expire_at,
+              o.discount_cents, o.original_amount_cents, o.coupon_id, o.payment_provider
          FROM vpn_orders o JOIN vpn_customer_orders m ON m.order_id = o.id
         WHERE m.customer_id = ? AND o.id = ?`,
     )

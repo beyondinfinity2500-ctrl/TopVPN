@@ -115,19 +115,27 @@ const breadcrumbItems = [{ label: 'Home', href: '/' }, { label: 'VPN Servers' }]
 ---
 
 <BaseLayout
-  title="VPN Server Locations | TopVPN"
-  description="Browse TopVPN's available VPN server locations worldwide. WireGuard and VLESS servers across 50+ countries."
-  hreflang={[{ lang: 'en', url: 'https://www.topvpn.top/vpn-servers' }]}
+  title="VPN Server Locations — 100+ WireGuard & VLESS Servers | TopVPN"
+  description="Browse every TopVPN VPN server location: 100+ WireGuard servers and VLESS nodes across 50+ countries. Available on every Premium plan from $3 for your first month."
+  keywords="vpn server locations, wireguard servers, vless servers, vpn countries list, topvpn servers"
   jsonLd={contextWrapper([breadcrumbSchema(breadcrumbItems)])}
 >
   <Breadcrumbs items={breadcrumbItems} />
 
   <section class="container-max py-10 md:py-14">
     <h1 class="text-3xl md:text-4xl font-bold mb-4" style="font-family: var(--font-heading);">VPN Server Locations</h1>
-    <p class="text-base max-w-2xl mb-8" style="color: var(--color-muted);">
+    <p class="text-base max-w-2xl mb-4" style="color: var(--color-muted);">
       Available server locations for TopVPN Premium. All servers are provided by our VPN infrastructure partner.
       Connection details are delivered securely through your customer account after purchase.
     </p>
+
+    <div class="card p-5 mb-6 flex flex-col sm:flex-row items-start sm:items-center gap-4" style="border-color: var(--color-gold);">
+      <div class="flex-grow">
+        <p class="text-sm font-semibold mb-0.5" style="color: var(--color-text);">Every server below is included in every plan</p>
+        <p class="text-xs" style="color: var(--color-muted);">Monthly, Annual or Two-Year — the full list is yours from day one. First month $3 for new customers.</p>
+      </div>
+      <a href="/order-vpn" class="btn-gold text-sm shrink-0" style="min-height: 44px;">Buy VPN — get all servers</a>
+    </div>
 
     <div class="mb-6">
       <p class="text-sm" style="color: var(--color-muted);">

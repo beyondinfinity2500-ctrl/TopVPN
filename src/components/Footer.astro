@@ -63,9 +63,28 @@ const paymentIcons = ['paypal', 'visa', 'mastercard', 'amex', 'applepay', 'googl
         Affiliate Disclosure: TopVPN may earn a commission when you purchase through links on this site, at no extra cost to you. This never affects our honest reviews and comparisons.
       </p>
       <div class="flex flex-col sm:flex-row items-center justify-between gap-2">
-        <p class="text-xs" style="color: var(--color-muted-dark);">&copy; {year} TopVPN.top — All rights reserved.</p>
+        <p class="text-xs flex items-center gap-1" style="color: var(--color-muted-dark);">&copy; {year} TopVPN.top — All rights reserved. Made with <span class="heartbeat" aria-hidden="true"><Icons name="heart" size={14} style="color: var(--color-gold);" /></span></p>
         <p class="text-xs" style="color: var(--color-muted-dark);">www.topvpn.top</p>
       </div>
     </div>
   </div>
 </footer>
+
+<style>
+  /* Gentle heartbeat: scales small -> big twice per cycle. */
+  .heartbeat {
+    display: inline-flex;
+    animation: heartbeat 1.4s ease-in-out infinite;
+    transform-origin: center;
+  }
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    20% { transform: scale(1.35); }
+    35% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    65% { transform: scale(1); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .heartbeat { animation: none; }
+  }
+</style>

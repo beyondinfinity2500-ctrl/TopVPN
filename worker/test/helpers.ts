@@ -11,6 +11,7 @@ import migrationSql2 from '../../migrations/0002_ads_creative_status.sql?raw';
 import migrationSql3 from '../../migrations/0003_vpn_orders.sql?raw';
 import migrationSql4 from '../../migrations/0004_vpn_customer_auth.sql?raw';
 import migrationSql5 from '../../migrations/0005_vpn_provisioning_attempts.sql?raw';
+import migrationSql6 from '../../migrations/0006_commerce.sql?raw';
 import { FIXTURES } from './fixtures';
 
 const BASE = 'https://topvpn.test';
@@ -86,6 +87,17 @@ export async function applyMigrations(): Promise<void> {
   const hasAttempts = (orderCols.results ?? []).some((c) => c.name === 'provisioning_attempts');
   if (!hasAttempts) {
     await testEnv.DB.batch(splitStatements(migrationSql5).map((s) => testEnv.DB.prepare(s)));
+  }
+
+  // 0006 adds commerce columns (ALTER TABLE, not re-runnable) + new tables.
+  const hasProvider = (orderCols.results ?? []).some((c) => c.name === 'payment_provider');
+  if (!hasProvider) {
+    await testEnv.DB.batch(splitStatements(migrationSql6).map((s) => testEnv.DB.prepare(s)));
+  } else {
+    // The ALTER statements cannot re-run, but CREATE TABLE IF NOT EXISTS and
+    // INSERT OR IGNORE are idempotent — apply them for fresh runtimes.
+    const tablesOnly = splitStatements(migrationSql6).filter((s) => !/^ALTER TABLE/i.test(s));
+    await testEnv.DB.batch(tablesOnly.map((s) => testEnv.DB.prepare(s)));
   }
 }
 

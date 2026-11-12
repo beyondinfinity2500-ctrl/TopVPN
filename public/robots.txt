@@ -1,0 +1,12 @@
+# TopVPN.top — robots.txt
+# Public pages are crawlable; app areas (admin, account, APIs) are not.
+
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /account
+Disallow: /api/
+Disallow: /checkout/
+Disallow: /support/
+
+Sitemap: https://www.topvpn.top/sitemap.xml

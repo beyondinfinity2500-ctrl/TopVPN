@@ -2,20 +2,35 @@ import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
 import { SITE } from '../lib/site';
 
-/** Public, indexable pages. Edit SITE.updated in src/lib/site.ts when page content changes. */
+/**
+ * Single sitemap following the sitemaps.org 0.9 protocol + Google's
+ * localized-versions guidance:
+ *  - one <url> entry per language URL (each translated page appears once per
+ *    language, never only as an alternate);
+ *  - <xhtml:link rel="alternate"> children listing EVERY variant including
+ *    itself, plus x-default -> English (the site default);
+ *  - accurate <lastmod> only (no changefreq/priority — Google ignores them);
+ *  - absolute URLs, UTF-8, protocol namespace.
+ * When adding a language, extend LANGS and the TRANSLATED base paths.
+ */
+
+const LANGS: { hreflang: string; prefix: string }[] = [
+  { hreflang: 'en', prefix: '' },
+  { hreflang: 'ar', prefix: '/ar' },
+  { hreflang: 'pcm', prefix: '/pcm' },
+];
+
+/** Base paths that exist in every language. */
+const TRANSLATED = ['/', '/about'];
+
+/** Static paths WITHOUT language variants. */
 const staticPaths = [
-  '/',
-  '/ar',
-  '/pcm',
   '/order-vpn',
   '/articles',
   '/vpn-types-guide',
   '/connection-guide',
   '/apps',
   '/vpn-servers',
-  '/about',
-  '/ar/about',
-  '/pcm/about',
   '/advertise',
   '/contact',
   '/affiliate-disclosure',
@@ -23,23 +38,52 @@ const staticPaths = [
   '/terms',
 ];
 
+/** Absolute URL for a language variant of a base path. Must match each page's
+ *  canonical exactly: home is "https://www.topvpn.top/", variants have no
+ *  trailing slash ("/ar", "/pcm/about"). */
+function urlFor(basePath: string, prefix: string): string {
+  if (basePath === '/') {
+    return prefix ? `${SITE.url}${prefix}` : `${SITE.url}/`;
+  }
+  return `${SITE.url}${prefix}${basePath}`;
+}
+
+function alternateLinks(basePath: string): string {
+  const links = LANGS.map(
+    (lang) => `    <xhtml:link rel="alternate" hreflang="${lang.hreflang}" href="${urlFor(basePath, lang.prefix)}"/>`,
+  );
+  links.push(`    <xhtml:link rel="alternate" hreflang="x-default" href="${urlFor(basePath, '')}"/>`);
+  return links.join('\n');
+}
+
 export const GET: APIRoute = async () => {
   const articles = await getCollection('articles', ({ data }) => !data.draft);
 
-  const entries = [
-    ...staticPaths.map((path) => ({ path, lastmod: SITE.updated })),
-    ...articles.map((a) => ({
-      path: `/articles/${a.id}`,
-      lastmod: a.data.updatedDate.toISOString().split('T')[0],
-    })),
-  ];
+  const urlEntries: string[] = [];
 
-  // Google ignores <changefreq> and <priority>; only an accurate <lastmod> is useful.
+  // Translated pages: one <url> per language, each carrying the full alternate set.
+  for (const basePath of TRANSLATED) {
+    for (const lang of LANGS) {
+      urlEntries.push(
+        `  <url>\n    <loc>${urlFor(basePath, lang.prefix)}</loc>\n    <lastmod>${SITE.updated}</lastmod>\n${alternateLinks(basePath)}\n  </url>`,
+      );
+    }
+  }
+
+  // Untranslated static pages.
+  for (const path of staticPaths) {
+    urlEntries.push(`  <url>\n    <loc>${SITE.url}${path}</loc>\n    <lastmod>${SITE.updated}</lastmod>\n  </url>`);
+  }
+
+  // Articles (English; each carries its own real updatedDate).
+  for (const a of articles) {
+    const lastmod = a.data.updatedDate.toISOString().split('T')[0];
+    urlEntries.push(`  <url>\n    <loc>${SITE.url}/articles/${a.id}</loc>\n    <lastmod>${lastmod}</lastmod>\n  </url>`);
+  }
+
   const body = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${entries
-  .map((e) => `  <url><loc>${SITE.url}${e.path === '/' ? '' : e.path}</loc><lastmod>${e.lastmod}</lastmod></url>`)
-  .join('\n')}
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+${urlEntries.join('\n')}
 </urlset>
 `;
 

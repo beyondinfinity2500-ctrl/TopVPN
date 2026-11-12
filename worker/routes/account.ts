@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Customer account portal (server-rendered by the Worker).
  *
  * - Magic-link sign-in; no password.
@@ -18,12 +18,26 @@ import {
   consumeMagicLink,
   customerAuthReady,
   customerCookie,
+  exchangeGoogleCode,
   getCustomerSessionFromToken,
+  googleAuthReady,
+  googleAuthorizeUrl,
   logoutCustomer,
   randomToken,
   requestMagicLink,
+  startCustomerSession,
   type CustomerSessionContext,
 } from '../customer/auth';
+import { findOrCreateCustomer, getCustomerByEmail } from '../customer/repo';
+import { vpnCheckout, vpnPayPalCreate } from './vpn';
+import {
+  addTicketMessage,
+  createTicket,
+  getCustomerTicket,
+  listTicketMessages,
+  listTicketsForCustomer,
+  setTicketStatus,
+} from '../support/tickets';
 import { buildConnectionInfo, credentialDeliveryReady, type CredentialProvider } from '../vpn/credentials';
 import {
   getCustomerOrder,
@@ -151,8 +165,9 @@ function page(title: string, body: string, status = 200, extraHeaders: Record<st
 </style>
 </head>
 <body>
-<div class="nav"><a href="/">TopVPN</a><a href="/#plans">Plans</a><a href="/contact">Support</a></div>
+<div class="nav"><a href="/">TopVPN</a><a href="/#plans">Plans</a><a href="/account">My VPN</a><a href="/account/support">Support</a></div>
 <main>${body}</main>
+<script src="/support/widget.js" defer></script>
 </body>
 </html>`;
   return new Response(html, {
@@ -162,7 +177,7 @@ function page(title: string, body: string, status = 200, extraHeaders: Record<st
       'Cache-Control': 'no-store',
       'X-Frame-Options': 'DENY',
       'Content-Security-Policy':
-        "default-src 'none'; style-src 'unsafe-inline'; img-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'",
+        "default-src 'none'; style-src 'unsafe-inline'; script-src 'self'; connect-src 'self'; img-src 'self'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'",
       'Referrer-Policy': 'no-referrer',
       'X-Content-Type-Options': 'nosniff',
       'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
@@ -213,10 +228,11 @@ function header(session: CustomerSessionContext): string {
 
 function signInPage(env: Env, message?: string): Response {
   const ready = customerAuthReady(env);
+  const google = googleAuthReady(env);
   const body = `<h1>Your account</h1>
   ${headerlessNotice(message)}
   ${
-    ready
+    ready || google
       ? `<div class="card">
           <p>Enter your email and we will send a one-time sign-in link. No password needed.</p>
           <form method="post" action="/account/api/request-link">
@@ -224,6 +240,7 @@ function signInPage(env: Env, message?: string): Response {
             <input id="email" name="email" type="email" required autocomplete="email" placeholder="you@example.com">
             <p><button type="submit">Email me a sign-in link</button></p>
           </form>
+          ${google ? `<p class="muted">or</p><form method="get" action="/account/auth/google"><button type="submit">Sign in with Google</button></form>` : ''}
         </div>`
       : `<div class="card">
           <h2>Sign-in email is not available yet</h2>
@@ -239,19 +256,61 @@ function headerlessNotice(message?: string): string {
   return message ? `<div class="card">${esc(message)}</div>` : '';
 }
 
-function dashboard(session: CustomerSessionContext, orders: CustomerOrderRow[]): Response {
+function amountSummary(order: CustomerOrderRow): string {
+  if (order.discount_cents > 0 && order.original_amount_cents) {
+    return `<s style="color:#98A2B3">${esc(money(order.original_amount_cents, order.currency))}</s> ${esc(money(order.amount_cents, order.currency))}`;
+  }
+  return esc(money(order.amount_cents, order.currency));
+}
+
+function buySection(session: CustomerSessionContext, env: Env): string {
+  const sales = env.VPN_SALES_ENABLED === 'true';
+  if (!sales) {
+    return `<div class="card"><h2>Buy VPN</h2><p class="muted">Online checkout is not open yet. <a href="/#plans">See plans</a> or <a href="/contact">contact us</a> to get started.</p></div>`;
+  }
+  const monthly = PLANS.monthly;
+  const paypal = env.PAYPAL_ENABLED === 'true';
+  const planCard = (id: string, name: string, months: number, cents: number, intro?: { cents: number }) => `
+    <div class="card">
+      <h2>${esc(name)}</h2>
+      <p style="font-size:1.3rem;margin:.2rem 0">
+        ${
+          intro
+            ? `<s class="muted">${esc(money(monthly.regularCents, 'USD'))}</s> <strong>${esc(money(intro.cents, 'USD'))}</strong> <span class="badge warn">First month offer</span>`
+            : `<strong>${esc(money(cents, 'USD'))}</strong>`
+        }
+      </p>
+      <p class="muted">One-time payment for ${months} month${months === 1 ? '' : 's'}. No automatic renewal.</p>
+      <form method="post" action="/account/buy">
+        <input type="hidden" name="csrf" value="${esc(session.csrfToken)}">
+        <input type="hidden" name="planId" value="${esc(id)}">
+        <label for="coupon-${esc(id)}">Coupon code (optional)</label>
+        <input id="coupon-${esc(id)}" name="couponCode" placeholder="e.g. FIRST-MONTH" autocomplete="off" style="max-width:240px">
+        <p class="row-actions">
+          <button type="submit" name="provider" value="stripe">Pay with card (Stripe)</button>
+          ${paypal ? `<button class="secondary" type="submit" name="provider" value="paypal">Pay with PayPal</button>` : ''}
+        </p>
+      </form>
+    </div>`;
+  return `<h2>Buy VPN</h2>
+  ${planCard('monthly', 'Monthly', monthly.intervalMonths, monthly.regularCents, { cents: monthly.introCents ?? monthly.regularCents })}
+  ${planCard('annual', 'Annual', PLANS.annual.intervalMonths, PLANS.annual.regularCents)}
+  ${planCard('two-year', 'Two-Year', PLANS['two-year'].intervalMonths, PLANS['two-year'].regularCents)}`;
+}
+
+function dashboard(session: CustomerSessionContext, orders: CustomerOrderRow[], env: Env): Response {
   const body = `<h1>Your account</h1>
   ${header(session)}
   <h2>Your orders</h2>
   ${
     orders.length === 0
-      ? `<div class="card"><p>No orders yet.</p><p><a href="/#plans">View plans</a></p></div>`
+      ? `<div class="card"><p>No orders yet.</p></div>`
       : orders
           .map(
             (order) => `<div class="card">
-              <h2>${esc(planName(order.plan_id))} · ${esc(money(order.amount_cents, order.currency))}</h2>
+              <h2>${esc(planName(order.plan_id))} آ· ${amountSummary(order)}</h2>
               <div>${orderBadges(order)}</div>
-              <p class="muted">Order ${esc(order.id)} · placed ${esc(order.created_at.slice(0, 10))}</p>
+              <p class="muted">Order ${esc(order.id)} آ· placed ${esc(order.created_at.slice(0, 10))}${order.payment_provider ? ' آ· ' + esc(order.payment_provider) : ''}</p>
               ${
                 order.order_status === 'provisioning_failed' || order.order_status === 'reconciliation_required'
                   ? `<p class="muted">We are reviewing this order. <a href="/contact">Contact support</a> and include the order ID.</p>`
@@ -261,7 +320,12 @@ function dashboard(session: CustomerSessionContext, orders: CustomerOrderRow[]):
             </div>`,
           )
           .join('')
-  }`;
+  }
+  ${buySection(session, env)}
+  <h2>Support</h2>
+  <div class="card">
+    <p>Need help? Ask the assistant (bottom-right) or <a href="/account/support">open a support ticket</a>.</p>
+  </div>`;
   return page('Your account', body);
 }
 
@@ -269,6 +333,7 @@ function orderDetail(session: CustomerSessionContext, order: CustomerOrderRow, s
   const status = effectiveOrderStatus(order);
   const active = order.order_status === 'active' && order.provisioning_status === 'succeeded';
   const eligibility = checkRenewalEligibility(order, new Date());
+  const renewalPrice = isPlanId(order.plan_id) ? PLANS[order.plan_id].regularCents : order.amount_cents;
   const body = `<h1>Order details</h1>
   ${header(session)}
   <div class="card">
@@ -276,11 +341,13 @@ function orderDetail(session: CustomerSessionContext, order: CustomerOrderRow, s
     <div>${orderBadges(order)}</div>
     <table>
       <tr><th>Order ID</th><td>${esc(order.id)}</td></tr>
-      <tr><th>Amount</th><td>${esc(money(order.amount_cents, order.currency))}</td></tr>
+      ${order.discount_cents > 0 && order.original_amount_cents ? `<tr><th>Original price</th><td><s>${esc(money(order.original_amount_cents, order.currency))}</s></td></tr>
+      <tr><th>Discount</th><td>âˆ’${esc(money(order.discount_cents, order.currency))}${order.coupon_id ? ' (coupon applied)' : ''}</td></tr>` : ''}
+      <tr><th>Amount paid</th><td>${esc(money(order.amount_cents, order.currency))}${order.payment_provider ? ' via ' + esc(order.payment_provider) : ''}</td></tr>
       <tr><th>Placed</th><td>${esc(order.created_at)}</td></tr>
       ${order.expire_at ? `<tr><th>Access until</th><td>${esc(order.expire_at)}</td></tr>` : ''}
       ${eligibility.days_remaining !== null ? `<tr><th>Days remaining</th><td>${eligibility.days_remaining}</td></tr>` : ''}
-      ${eligibility.eligible ? `<tr><th>Renewal price</th><td>${esc(money(order.amount_cents, order.currency))}</td></tr>` : ''}
+      ${eligibility.eligible ? `<tr><th>Renewal price</th><td>${esc(money(renewalPrice, order.currency))}</td></tr>` : ''}
     </table>
     ${
       active
@@ -308,7 +375,7 @@ function orderDetail(session: CustomerSessionContext, order: CustomerOrderRow, s
       eligibility.eligible
         ? `<form method="post" action="/api/vpn/orders/${encodeURIComponent(order.id)}/renew">
              <input type="hidden" name="csrf" value="${esc(session.csrfToken)}">
-             <button type="submit">Renew now — ${esc(money(order.amount_cents, order.currency))}</button>
+             <button type="submit">Renew now â€” ${esc(money(renewalPrice, order.currency))}</button>
              <p class="muted">Pay once. No automatic charge. Access extends from your current expiry date.</p>
            </form>`
         : eligibility.reason === 'not_in_window'
@@ -316,7 +383,7 @@ function orderDetail(session: CustomerSessionContext, order: CustomerOrderRow, s
           : ''
     }
   </div>
-  <p><a href="/account">← Back to your account</a></p>`;
+  <p><a href="/account">â†گ Back to your account</a></p>`;
   return page('Order details', body);
 }
 
@@ -329,7 +396,7 @@ export async function accountPage(request: Request, env: Env): Promise<Response>
   // so a verified customer always sees orders placed with their verified email.
   await linkOrdersToCustomer(env.DB, session.customerId, session.email, new Date().toISOString());
   const orders = await listCustomerOrders(env.DB, session.customerId);
-  return dashboard(session, orders);
+  return dashboard(session, orders, env);
 }
 
 async function readField(request: Request, field: string): Promise<string> {
@@ -518,7 +585,7 @@ export async function credentialsPage(
     `<h1>Connection details</h1>
     <div class="card">
       <p class="muted">Treat this configuration like a password. Do not share it or paste it into untrusted sites.</p>
-      <p><strong>${esc(protocol)}</strong> · ${esc(info.name)}</p>
+      <p><strong>${esc(protocol)}</strong> آ· ${esc(info.name)}</p>
       ${auth}
       <pre style="white-space:pre-wrap;word-break:break-all;background:#0E1326;padding:12px;border-radius:8px;border:1px solid #2A3352">${esc(info.content)}</pre>
     </div>
@@ -562,14 +629,14 @@ export async function checkoutSuccessPage(request: Request, env: Env): Promise<R
     : cancelled
       ? 'This order was cancelled. If you were charged, contact support and we will help.'
       : needsSupport
-        ? 'Your payment is confirmed. Account setup needs a manual check — our support team will help you finish it.'
+        ? 'Your payment is confirmed. Account setup needs a manual check â€” our support team will help you finish it.'
         : paid
           ? 'Thank you. Your payment is confirmed and your order is being set up.'
           : 'We have not received payment confirmation yet. If you just paid, it can take a moment for the payment provider to notify us.';
   const body = `<h1>${esc(title)}</h1>
   ${header(session)}
   <div class="card">
-    <h2>${esc(planName(order.plan_id))} · ${esc(money(order.amount_cents, order.currency))}</h2>
+    <h2>${esc(planName(order.plan_id))} آ· ${esc(money(order.amount_cents, order.currency))}</h2>
     <div>${orderBadges(order)}</div>
     <p>${esc(note)}</p>
     <p class="muted">Order ${esc(order.id)}</p>
@@ -586,6 +653,242 @@ export async function checkoutCancelPage(): Promise<Response> {
       <p>This checkout was cancelled. No payment was confirmed for it.</p>
       <p class="muted">If you did complete a payment, it may still be processing. Check your account before trying again.</p>
     </div>
-    <p><a href="/#plans">Back to plans</a> · <a href="/account">Your account</a> · <a href="/contact">Contact support</a></p>`,
+    <p><a href="/#plans">Back to plans</a> آ· <a href="/account">Your account</a> آ· <a href="/contact">Contact support</a></p>`,
   );
+}
+
+/* ---------- buy VPN (server-rendered checkout start; no client JS) ---------- */
+
+const OAUTH_STATE_COOKIE = 'topvpn_oauth_state';
+
+export async function buyRoute(request: Request, env: Env): Promise<Response> {
+  const session = await currentCustomer(request, env);
+  if (!session) return signInPage(env, 'Please sign in first.');
+
+  const fields = await readFields(request, ['csrf', 'planId', 'couponCode', 'provider']);
+  if (!fields.csrf || !timingSafeEqual(fields.csrf, session.csrfToken)) {
+    return page('Forbidden', `<h1>Could not verify the request</h1><p><a href="/account">Back to your account</a></p>`, 403);
+  }
+  if (env.VPN_SALES_ENABLED !== 'true') {
+    return page('Checkout closed', `<h1>Checkout is not open yet</h1><p><a href="/account">Back to your account</a></p>`, 503);
+  }
+
+  const planId = fields.planId;
+  if (!isPlanId(planId)) return page('Unknown plan', `<h1>Unknown plan</h1><p><a href="/account">Back to your account</a></p>`, 422);
+  const provider = fields.provider === 'paypal' ? 'paypal' : 'stripe';
+  const couponCode = (fields.couponCode ?? '').trim();
+
+  // Proxy through the public, fully-tested checkout handlers so sandbox gating,
+  // idempotency, coupon and provider rules stay in exactly one place.
+  const payload = JSON.stringify({
+    email: session.email,
+    planId,
+    couponCode,
+    idempotencyKey: randomToken(32),
+  });
+  const internal = new Request('https://internal.topvpn/api/vpn/checkout', {
+    method: 'POST',
+    body: payload,
+    headers: {
+      'Content-Type': 'application/json',
+      'CF-Connecting-IP': request.headers.get('CF-Connecting-IP') ?? '',
+    },
+  });
+  const res = provider === 'paypal' ? await vpnPayPalCreate(internal, env) : await vpnCheckout(internal, env);
+  const data = (await res.json().catch(() => ({}))) as { checkoutUrl?: string; approveUrl?: string; error?: string };
+
+  if (res.ok && (data.checkoutUrl || data.approveUrl)) {
+    return new Response(null, {
+      status: 303,
+      headers: { Location: (data.checkoutUrl ?? data.approveUrl) as string, 'Cache-Control': 'no-store' },
+    });
+  }
+  return page(
+    'Checkout could not start',
+    `<h1>Checkout could not start</h1>
+     <div class="card"><p>${esc(data.error ?? 'Please try again in a moment.')}</p>
+     <p class="muted">No payment was taken.</p></div>
+     <p><a href="/account">Back to your account</a></p>`,
+    res.status >= 400 && res.status < 500 ? res.status : 502,
+  );
+}
+
+/* ---------- Google (Gmail) sign-in ---------- */
+
+export async function googleStartRoute(request: Request, env: Env): Promise<Response> {
+  if (!googleAuthReady(env)) {
+    return signInPage(env, 'Google sign-in is not configured in this environment yet. Use the email link instead.');
+  }
+  const state = randomToken(16);
+  const origin = new URL(request.url).origin;
+  const redirectUri = `${origin}/account/auth/google/callback`;
+  const url = googleAuthorizeUrl(env, redirectUri, state);
+  const stateCookie = `${OAUTH_STATE_COOKIE}=${encodeURIComponent(state)}; Path=/account; HttpOnly; Secure; SameSite=Lax; Max-Age=600`;
+  return new Response(null, {
+    status: 303,
+    headers: { Location: url, 'Set-Cookie': stateCookie, 'Cache-Control': 'no-store' },
+  });
+}
+
+export async function googleCallbackRoute(
+  request: Request,
+  env: Env,
+  deps: { fetchImpl?: typeof fetch } = {},
+): Promise<Response> {
+  const url = new URL(request.url);
+  const code = url.searchParams.get('code') ?? '';
+  const state = url.searchParams.get('state') ?? '';
+  const cookieState = readCookie(request, OAUTH_STATE_COOKIE) ?? '';
+  const fail = (message: string, status = 400): Response =>
+    page('Sign-in failed', `<h1>Google sign-in failed</h1><div class="card"><p>${esc(message)}</p>
+      <p><a href="/account">Try again</a></p></div>`, status);
+
+  if (!code || !state || !cookieState || !timingSafeEqual(state, cookieState)) {
+    return fail('The sign-in request could not be verified. Please start again.');
+  }
+
+  const origin = url.origin;
+  const exchange = await exchangeGoogleCode(env, code, `${origin}/account/auth/google/callback`, deps);
+  if (!exchange.ok) return fail('Google did not confirm your sign-in. Please try the email link instead.');
+  if (!exchange.emailVerified) return fail('Your Google email address is not verified, so it cannot be used to sign in.');
+
+  const email = exchange.email.toLowerCase().trim();
+  const now = new Date();
+  const existing = await getCustomerByEmail(env.DB, email);
+  if (existing?.blocked_at) return fail('This account is blocked. Please contact support.', 403);
+
+  const customer = existing ?? (await findOrCreateCustomer(env.DB, email, now.toISOString()));
+  const session = await startCustomerSession(env, customer, now);
+  const clearState = `${OAUTH_STATE_COOKIE}=; Path=/account; HttpOnly; Secure; SameSite=Lax; Max-Age=0`;
+  const headers = new Headers({ Location: '/account', 'Cache-Control': 'no-store' });
+  headers.append('Set-Cookie', customerCookie(session.sessionToken));
+  headers.append('Set-Cookie', clearState);
+  return new Response(null, { status: 303, headers });
+}
+
+/* ---------- customer support tickets ---------- */
+
+function ticketsPage(session: CustomerSessionContext, tickets: Awaited<ReturnType<typeof listTicketsForCustomer>>): Response {
+  const rows = tickets
+    .map(
+      (t) => `<div class="card">
+        <h2>${esc(t.subject)}</h2>
+        <div>${badge(t.status, t.status === 'open' ? 'warn' : t.status === 'closed' ? '' : 'ok')}
+             <span class="muted">updated ${esc(t.updated_at.slice(0, 16).replace('T', ' '))}</span></div>
+        <p class="row-actions"><a href="/account/support/${encodeURIComponent(t.id)}">Open conversation</a></p>
+      </div>`,
+    )
+    .join('');
+  const body = `<h1>Support</h1>
+  ${header(session)}
+  <div class="card">
+    <h2>New ticket</h2>
+    <form method="post" action="/account/support">
+      <input type="hidden" name="csrf" value="${esc(session.csrfToken)}">
+      <label for="subject">Subject</label>
+      <input id="subject" name="subject" required maxlength="140" placeholder="e.g. Cannot connect on Windows">
+      <label for="tbody">Message</label>
+      <textarea id="tbody" name="body" rows="5" required maxlength="5000" style="width:100%;padding:10px;border-radius:8px;border:1px solid #2A3352;background:#0E1326;color:inherit" placeholder="Describe the problem, and include an order ID if relevant."></textarea>
+      <p><button type="submit">Open ticket</button></p>
+    </form>
+  </div>
+  <h2>Your tickets</h2>
+  ${rows || '<div class="card"><p class="muted">No tickets yet.</p></div>'}
+  <p><a href="/account">â†گ Back to your account</a></p>`;
+  return page('Support', body);
+}
+
+export async function supportPage(request: Request, env: Env): Promise<Response> {
+  const session = await currentCustomer(request, env);
+  if (!session) return signInPage(env);
+  const tickets = await listTicketsForCustomer(env.DB, session.customerId);
+  return ticketsPage(session, tickets);
+}
+
+export async function createTicketRoute(request: Request, env: Env): Promise<Response> {
+  const session = await currentCustomer(request, env);
+  if (!session) return signInPage(env, 'Please sign in first.');
+  const fields = await readFields(request, ['csrf', 'subject', 'body']);
+  if (!fields.csrf || !timingSafeEqual(fields.csrf, session.csrfToken)) {
+    return page('Forbidden', `<h1>Could not verify the request</h1><p><a href="/account/support">Back</a></p>`, 403);
+  }
+  const subject = (fields.subject ?? '').trim();
+  const text = (fields.body ?? '').trim();
+  if (subject.length < 3 || subject.length > 140 || !text || text.length > 5000) {
+    return page('Invalid ticket', `<h1>Ticket could not be created</h1>
+      <div class="card"><p>A subject (3-140 characters) and a message (max 5000 characters) are required.</p></div>
+      <p><a href="/account/support">Back</a></p>`, 422);
+  }
+  const now = new Date().toISOString();
+  const ticket = await createTicket(env.DB, {
+    customerId: session.customerId,
+    email: session.email,
+    subject,
+    body: text,
+    now,
+  });
+  return new Response(null, { status: 303, headers: { Location: `/account/support/${encodeURIComponent(ticket.id)}` } });
+}
+
+function ticketDetailPage(
+  session: CustomerSessionContext,
+  ticket: NonNullable<Awaited<ReturnType<typeof getCustomerTicket>>>,
+  messages: Awaited<ReturnType<typeof listTicketMessages>>,
+): Response {
+  const thread = messages
+    .map(
+      (m) => `<div class="card">
+        <p class="muted" style="margin:0 0 6px"><strong>${esc(m.author)}</strong> آ· ${esc(m.created_at.slice(0, 16).replace('T', ' '))}</p>
+        <div style="white-space:pre-wrap">${esc(m.body)}</div>
+      </div>`,
+    )
+    .join('');
+  const replyForm =
+    ticket.status === 'closed'
+      ? `<div class="card"><p class="muted">This ticket is closed. Open a new ticket if you still need help.</p></div>`
+      : `<div class="card">
+          <form method="post" action="/account/support/${encodeURIComponent(ticket.id)}/reply">
+            <input type="hidden" name="csrf" value="${esc(session.csrfToken)}">
+            <label for="reply">Reply</label>
+            <textarea id="reply" name="body" rows="4" required maxlength="5000" style="width:100%;padding:10px;border-radius:8px;border:1px solid #2A3352;background:#0E1326;color:inherit"></textarea>
+            <p><button type="submit">Send reply</button></p>
+          </form>
+        </div>`;
+  const body = `<h1>${esc(ticket.subject)}</h1>
+  ${header(session)}
+  <div>${badge(ticket.status, ticket.status === 'open' ? 'warn' : ticket.status === 'closed' ? '' : 'ok')}
+       <span class="muted">Ticket ${esc(ticket.id)}</span></div>
+  ${thread}
+  ${replyForm}
+  <p><a href="/account/support">â†گ All tickets</a></p>`;
+  return page('Support ticket', body);
+}
+
+export async function ticketPage(request: Request, env: Env, ticketId: string): Promise<Response> {
+  const session = await currentCustomer(request, env);
+  if (!session) return signInPage(env);
+  const ticket = await getCustomerTicket(env.DB, session.customerId, ticketId);
+  if (!ticket) return page('Ticket not found', `<h1>Ticket not found</h1><p><a href="/account/support">Back to support</a></p>`, 404);
+  return ticketDetailPage(session, ticket, await listTicketMessages(env.DB, ticketId));
+}
+
+export async function ticketReplyRoute(request: Request, env: Env, ticketId: string): Promise<Response> {
+  const session = await currentCustomer(request, env);
+  if (!session) return signInPage(env, 'Please sign in first.');
+  const ticket = await getCustomerTicket(env.DB, session.customerId, ticketId);
+  if (!ticket) return page('Ticket not found', `<h1>Ticket not found</h1><p><a href="/account/support">Back</a></p>`, 404);
+
+  const fields = await readFields(request, ['csrf', 'body']);
+  if (!fields.csrf || !timingSafeEqual(fields.csrf, session.csrfToken)) {
+    return page('Forbidden', `<h1>Could not verify the request</h1><p><a href="/account/support/${encodeURIComponent(ticketId)}">Back</a></p>`, 403);
+  }
+  const text = (fields.body ?? '').trim();
+  if (!text || text.length > 5000) {
+    return page('Invalid reply', `<h1>Reply could not be sent</h1><p><a href="/account/support/${encodeURIComponent(ticketId)}">Back</a></p>`, 422);
+  }
+  const now = new Date().toISOString();
+  await addTicketMessage(env.DB, ticketId, 'customer', text, now);
+  // Customer reply hands the ticket back to the team.
+  await setTicketStatus(env.DB, ticketId, 'open', now);
+  return new Response(null, { status: 303, headers: { Location: `/account/support/${encodeURIComponent(ticketId)}` } });
 }

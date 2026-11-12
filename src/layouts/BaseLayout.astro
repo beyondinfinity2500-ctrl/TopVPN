@@ -15,6 +15,8 @@ interface Hreflang {
 interface Props {
   title: string;
   description?: string;
+  /** Comma-separated SEO keywords (rendered as a meta keywords tag). */
+  keywords?: string;
   canonical?: string;
   noindex?: boolean;
   jsonLd?: object | object[];
@@ -34,6 +36,7 @@ interface Props {
 const {
   title,
   description = 'TopVPN Premium: a premium VPN service at an affordable price. Transparent plans from $9/month, secure checkout, plus honest VPN comparisons and guides.',
+  keywords,
   canonical,
   noindex = false,
   jsonLd,
@@ -82,6 +85,7 @@ const planCta =
     <meta name="color-scheme" content="dark" />
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
+    {keywords && <meta name="keywords" content={keywords} />}
     <link rel="canonical" href={canonicalUrl} />
     {hreflang?.map((h) => (
       <link rel="alternate" hreflang={h.lang} href={h.url} />
@@ -151,6 +155,9 @@ const planCta =
       <a href={planCta.href} class="btn-gold w-full text-sm">{planCta.label}</a>
     </div>
     <div class="h-16 md:hidden"></div>
+
+    <!-- Support assistant: 5KB lazy launcher; the panel opens only on click. -->
+    <script src="/support/widget.js" defer></script>
 
     <script>
       let consent = null;

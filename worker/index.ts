@@ -34,20 +34,44 @@ import {
   vpnAdminRecoveryList,
   vpnAdminReconcile,
   vpnCheckout,
+  vpnPayPalCreate,
+  vpnPayPalWebhook,
   vpnPlans,
   vpnStripeWebhook,
 } from './routes/vpn';
 import {
   accountOrderPage,
   accountPage,
+  buyRoute,
   checkoutCancelPage,
   checkoutSuccessPage,
+  createTicketRoute,
   credentialsPage,
+  googleCallbackRoute,
+  googleStartRoute,
   logoutRoute,
   requestLinkRoute,
+  supportPage,
+  ticketPage,
+  ticketReplyRoute,
   verifyRoute,
   verifySubmitRoute,
 } from './routes/account';
+import { supportChat, supportWidgetScript } from './routes/support';
+import { downloadRoute } from './downloads';
+import {
+  adminVpnAudit,
+  adminVpnCouponCreate,
+  adminVpnCouponToggle,
+  adminVpnCoupons,
+  adminVpnCustomerBlock,
+  adminVpnCustomers,
+  adminVpnOverview,
+  adminVpnTicketDetail,
+  adminVpnTicketReply,
+  adminVpnTicketStatus,
+  adminVpnTickets,
+} from './routes/admin-vpn';
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
@@ -68,6 +92,16 @@ export default {
       if (renewMatch && method === 'POST') return await renewOrderRoute(request, env, renewMatch[1]);
       if (path === '/api/vpn/checkout' && method === 'POST') return await vpnCheckout(request, env);
       if (path === '/api/vpn/webhook' && method === 'POST') return await vpnStripeWebhook(request, env);
+      if (path === '/api/vpn/paypal/create' && method === 'POST') return await vpnPayPalCreate(request, env);
+      if (path === '/api/vpn/paypal/webhook' && method === 'POST') return await vpnPayPalWebhook(request, env);
+
+      /* ---- support assistant (rule-based; no paid APIs) ---- */
+      if (path === '/api/support/chat' && method === 'POST') return await supportChat(request, env);
+      if (path === '/support/widget.js' && method === 'GET') return supportWidgetScript();
+
+      /* ---- white-label installer downloads (served from R2) ---- */
+      const downloadMatch = path.match(/^\/downloads\/([^/]+)$/);
+      if (downloadMatch && (method === 'GET' || method === 'HEAD')) return await downloadRoute(request, env, downloadMatch[1]);
 
       const vpnAdminOrderMatch = path.match(/^\/admin\/api\/vpn\/orders\/([^/]+)$/);
       if (vpnAdminOrderMatch && method === 'GET') return await vpnAdminOrder(request, env, vpnAdminOrderMatch[1]);
@@ -83,12 +117,21 @@ export default {
       const vpnRecoverMatch = path.match(/^\/admin\/api\/vpn\/orders\/([^/]+)\/recover$/);
       if (vpnRecoverMatch && method === 'POST') return await vpnAdminRecover(request, env, vpnRecoverMatch[1]);
 
-      /* ---- customer account portal (magic-link; separate from admin) ---- */
+      /* ---- customer account portal (magic-link + Google; separate from admin) ---- */
       if (path === '/account' && method === 'GET') return await accountPage(request, env);
       if (path === '/account/api/request-link' && method === 'POST') return await requestLinkRoute(request, env);
       if (path === '/account/verify' && method === 'GET') return await verifyRoute(request, env);
       if (path === '/account/verify' && method === 'POST') return await verifySubmitRoute(request, env);
       if (path === '/account/api/logout' && method === 'POST') return await logoutRoute(request, env);
+      if (path === '/account/buy' && method === 'POST') return await buyRoute(request, env);
+      if (path === '/account/auth/google' && method === 'GET') return await googleStartRoute(request, env);
+      if (path === '/account/auth/google/callback' && method === 'GET') return await googleCallbackRoute(request, env);
+      if (path === '/account/support' && method === 'GET') return await supportPage(request, env);
+      if (path === '/account/support' && method === 'POST') return await createTicketRoute(request, env);
+      const ticketPageMatch = path.match(/^\/account\/support\/([^/]+)$/);
+      if (ticketPageMatch && method === 'GET') return await ticketPage(request, env, ticketPageMatch[1]);
+      const ticketReplyMatch2 = path.match(/^\/account\/support\/([^/]+)\/reply$/);
+      if (ticketReplyMatch2 && method === 'POST') return await ticketReplyRoute(request, env, ticketReplyMatch2[1]);
 
       const credentialsMatch = path.match(/^\/account\/orders\/([^/]+)\/credentials$/);
       if (credentialsMatch && method === 'GET') return await credentialsPage(request, env, credentialsMatch[1]);
@@ -108,6 +151,24 @@ export default {
       if (path === '/admin/api/login' && method === 'POST') return await adminLogin(request, env);
       if (path === '/admin/api/logout' && method === 'POST') return await adminLogout(request, env);
       if (path === '/admin/api/orders' && method === 'GET') return await adminListOrders(request, env);
+
+      /* ---- admin: VPN commerce sections (all server-side authorized) ---- */
+      if (path === '/admin/api/vpn/overview' && method === 'GET') return await adminVpnOverview(request, env);
+      if (path === '/admin/api/vpn/customers' && method === 'GET') return await adminVpnCustomers(request, env);
+      const blockMatch = path.match(/^\/admin\/api\/vpn\/customers\/([^/]+)\/block$/);
+      if (blockMatch && method === 'POST') return await adminVpnCustomerBlock(request, env, blockMatch[1]);
+      if (path === '/admin/api/vpn/coupons' && method === 'GET') return await adminVpnCoupons(request, env);
+      if (path === '/admin/api/vpn/coupons' && method === 'POST') return await adminVpnCouponCreate(request, env);
+      const couponToggleMatch = path.match(/^\/admin\/api\/vpn\/coupons\/([^/]+)\/toggle$/);
+      if (couponToggleMatch && method === 'POST') return await adminVpnCouponToggle(request, env, couponToggleMatch[1]);
+      if (path === '/admin/api/vpn/tickets' && method === 'GET') return await adminVpnTickets(request, env);
+      const ticketMatch = path.match(/^\/admin\/api\/vpn\/tickets\/([^/]+)$/);
+      if (ticketMatch && method === 'GET') return await adminVpnTicketDetail(request, env, ticketMatch[1]);
+      const ticketReplyMatch = path.match(/^\/admin\/api\/vpn\/tickets\/([^/]+)\/reply$/);
+      if (ticketReplyMatch && method === 'POST') return await adminVpnTicketReply(request, env, ticketReplyMatch[1]);
+      const ticketStatusMatch = path.match(/^\/admin\/api\/vpn\/tickets\/([^/]+)\/status$/);
+      if (ticketStatusMatch && method === 'POST') return await adminVpnTicketStatus(request, env, ticketStatusMatch[1]);
+      if (path === '/admin/api/vpn/audit' && method === 'GET') return await adminVpnAudit(request, env);
 
       const detailMatch = path.match(/^\/admin\/api\/orders\/([^/]+)$/);
       if (detailMatch && method === 'GET') return await adminOrderDetail(request, env, detailMatch[1]);

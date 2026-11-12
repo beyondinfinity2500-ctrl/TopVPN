@@ -32,7 +32,7 @@ const copy = {
     firstMonth: '/first month',
     perMonth: '/month',
     then: (plan: PremiumPlan) =>
-      `Regular price is ${formatUsd(plan.regularMonthly!)} for one month. The ${formatUsd(plan.firstMonthPromo!)} first-month price requires a verified account and is not available yet. No automatic renewal.`,
+      `First month ${formatUsd(plan.firstMonthPromo!)} instead of ${formatUsd(plan.regularMonthly!)} — a one-time offer for first-time purchases, applied with the FIRST-MONTH coupon at checkout. After the first month the regular price is ${formatUsd(plan.regularMonthly!)} per month, always charged manually. No subscription, no automatic charge.`,
     period: (plan: PremiumPlan) =>
       `Billed ${formatUsd(plan.totalBilled)} once for ${plan.intervalMonths} months (no automatic renewal)`,
     billedToday: (period: string, total: number) =>
@@ -43,7 +43,7 @@ const copy = {
         ? [
             'Premium VPN experience',
             'Billed month to month',
-            'Intro price after account verification',
+            'First month $3 offer for new customers',
             'Secure payment',
           ]
         : [
@@ -52,10 +52,10 @@ const copy = {
             `One payment for ${plan.intervalMonths} months`,
             'Secure payment',
           ],
-    choose: (name: string) => `Choose ${name}`,
-    noteBefore: 'Online checkout for TopVPN Premium is opening soon. To order now or be notified at launch, ',
-    contact: 'contact us',
-    noteAfter: '. Prices shown in USD.',
+    choose: (name: string) => `Buy ${name}`,
+    noteBefore: 'Checkout is live: pick a plan and pay once through your ',
+    contact: 'TopVPN account',
+    noteAfter: ' (Stripe or PayPal). Prices shown in USD.',
   },
   pcm: {
     eyebrow: 'Price',
@@ -67,7 +67,7 @@ const copy = {
     firstMonth: '/first month',
     perMonth: '/month',
     then: (plan: PremiumPlan) =>
-      `Normal price na ${formatUsd(plan.regularMonthly!)} for one month. The ${formatUsd(plan.firstMonthPromo!)} first-month price need verified account and e never ready yet. No automatic renewal.`,
+      `First month na ${formatUsd(plan.firstMonthPromo!)} instead of ${formatUsd(plan.regularMonthly!)} — one-time offer for first-time buyers, applied with the FIRST-MONTH coupon at checkout. After the first month the regular price na ${formatUsd(plan.regularMonthly!)} per month, wey you go always pay manually. No subscription, no automatic charge.`,
     period: (plan: PremiumPlan) =>
       `You go pay ${formatUsd(plan.totalBilled)} once for ${plan.intervalMonths} months (no automatic renewal)`,
     billedToday: (period: string, total: number) =>
@@ -87,10 +87,10 @@ const copy = {
             `One payment for ${plan.intervalMonths} months`,
             'Safe payment',
           ],
-    choose: (name: string) => `Pick ${name}`,
-    noteBefore: 'Online checkout for TopVPN Premium dey come soon. To order now or make we tell you when e open, ',
-    contact: 'contact us',
-    noteAfter: '. All price na USD.',
+    choose: (name: string) => `Buy ${name}`,
+    noteBefore: 'Checkout don live: pick a plan, pay once through your ',
+    contact: 'TopVPN account',
+    noteAfter: ' (Stripe or PayPal). All price na USD.',
   },
 };
 
@@ -127,9 +127,10 @@ const c = copy[locale];
 
         {plan.id === 'monthly' ? (
           <div class="mb-4">
-            <div class="flex items-baseline gap-1">
-              <span class="text-4xl font-bold gold-text" style="font-family: var(--font-heading);">{formatUsd(plan.perMonth)}</span>
-              <span class="text-sm" style="color: var(--color-muted);">{c.perMonth}</span>
+            <div class="flex items-baseline gap-2">
+              <s class="text-xl" style="color: var(--color-muted);">{formatUsd(plan.regularMonthly!)}</s>
+              <span class="text-4xl font-bold gold-text" style="font-family: var(--font-heading);">{formatUsd(plan.firstMonthPromo!)}</span>
+              <span class="text-sm" style="color: var(--color-muted);">{c.firstMonth}</span>
             </div>
             <p class="text-xs mt-2" style="color: var(--color-muted);">
               {c.then(plan)}
@@ -166,7 +167,7 @@ const c = copy[locale];
           ))}
         </ul>
 
-        <a href="/contact" class="btn-gold w-full justify-center mt-auto">
+        <a href="/account" class="btn-gold w-full justify-center mt-auto" rel="nofollow">
           {c.choose(plan.name)}
         </a>
       </div>

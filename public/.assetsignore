@@ -1,0 +1,6 @@
+# Installers above the 25 MiB static-asset limit; served from the
+# topvpn-downloads R2 bucket by worker/downloads.ts instead.
+TOPVPN.TOP-Windows.exe
+TOPVPN.TOPApple-Mac.dmg
+TOPVPN.TOP-Linux.run
+TOPVPN.TOPFirestick-Android_TV.apk

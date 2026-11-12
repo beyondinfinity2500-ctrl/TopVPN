@@ -19,6 +19,7 @@ import {
   createCustomerSession,
   deleteCustomerSession,
   findOrCreateCustomer,
+  getCustomerByEmail,
   getCustomerById,
   getCustomerSession,
   insertCustomerToken,
@@ -110,6 +111,10 @@ export async function requestMagicLink(
   // No deliverable email channel: do not create a token that can never arrive.
   if (!deps.send && !customerAuthReady(env)) return { ok: true };
 
+  // Blocked customers silently receive nothing (no account enumeration).
+  const existing = await getCustomerByEmail(env.DB, email);
+  if (existing?.blocked_at) return { ok: true };
+
   const customer = await findOrCreateCustomer(env.DB, email, nowIso);
   const token = randomToken();
   await insertCustomerToken(env.DB, {
@@ -162,8 +167,22 @@ export async function consumeMagicLink(
 
   const customer = await getCustomerById(env.DB, customerId);
   if (!customer) return { ok: false, reason: 'invalid_or_expired' };
+  if (customer.blocked_at) return { ok: false, reason: 'account_blocked' };
 
-  await linkOrdersToCustomer(env.DB, customerId, customer.email_norm, nowIso);
+  return { ok: true, session: await startCustomerSession(env, customer, now) };
+}
+
+/**
+ * Shared session bootstrap for magic-link and Google sign-in: links the
+ * customer's orders and creates the session row + cookie token.
+ */
+export async function startCustomerSession(
+  env: Env,
+  customer: { id: string; email_norm: string },
+  now: Date,
+): Promise<CustomerSessionContext & { sessionToken: string }> {
+  const nowIso = now.toISOString();
+  await linkOrdersToCustomer(env.DB, customer.id, customer.email_norm, nowIso);
 
   const sessionToken = randomToken();
   const csrfToken = randomToken(24);
@@ -171,16 +190,12 @@ export async function consumeMagicLink(
   const tokenHash = await sha256Hex(sessionToken);
   await createCustomerSession(env.DB, {
     tokenHash,
-    customerId,
+    customerId: customer.id,
     csrfToken,
     now: nowIso,
     expiresAt,
   });
-
-  return {
-    ok: true,
-    session: { customerId, email: customer.email_norm, csrfToken, tokenHash, sessionToken },
-  };
+  return { customerId: customer.id, email: customer.email_norm, csrfToken, tokenHash, sessionToken };
 }
 
 export async function logoutCustomer(env: Env, rawToken: string | null | undefined): Promise<void> {
@@ -194,4 +209,81 @@ export function customerCookie(token: string): string {
 
 export function clearCustomerCookie(): string {
   return `${CUSTOMER_COOKIE}=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`;
+}
+
+/* ---------- Google (Gmail) sign-in ---------- */
+
+export function googleAuthReady(env: Env): boolean {
+  return !!env.GOOGLE_CLIENT_ID && !!env.GOOGLE_CLIENT_SECRET;
+}
+
+export function googleAuthorizeUrl(env: Env, redirectUri: string, state: string): string {
+  const params = new URLSearchParams({
+    client_id: env.GOOGLE_CLIENT_ID ?? '',
+    redirect_uri: redirectUri,
+    response_type: 'code',
+    scope: 'openid email',
+    state,
+    prompt: 'select_account',
+  });
+  return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+}
+
+export interface GoogleOAuthDeps {
+  fetchImpl?: typeof fetch;
+}
+
+export type GoogleExchangeResult =
+  | { ok: true; email: string; emailVerified: boolean }
+  | { ok: false; reason: string };
+
+/**
+ * Exchanges an OAuth code for a verified Google email. The email comes from
+ * Google's userinfo endpoint over TLS using the token we just exchanged — no
+ * unverified client data is trusted. Only email_verified accounts sign in.
+ */
+export async function exchangeGoogleCode(
+  env: Env,
+  code: string,
+  redirectUri: string,
+  deps: GoogleOAuthDeps = {},
+): Promise<GoogleExchangeResult> {
+  if (!googleAuthReady(env)) return { ok: false, reason: 'google_not_configured' };
+  const fetchImpl = deps.fetchImpl ?? fetch;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 10_000);
+  try {
+    const tokenRes = await fetchImpl('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        code,
+        client_id: env.GOOGLE_CLIENT_ID ?? '',
+        client_secret: env.GOOGLE_CLIENT_SECRET ?? '',
+        redirect_uri: redirectUri,
+        grant_type: 'authorization_code',
+      }).toString(),
+      signal: controller.signal,
+    });
+    const tokenData = (await tokenRes.json().catch(() => null)) as { access_token?: string } | null;
+    if (!tokenRes.ok || typeof tokenData?.access_token !== 'string') {
+      return { ok: false, reason: 'google_token_exchange_failed' };
+    }
+
+    const profileRes = await fetchImpl('https://openidconnect.googleapis.com/v1/userinfo', {
+      headers: { Authorization: `Bearer ${tokenData.access_token}` },
+      signal: controller.signal,
+    });
+    const profile = (await profileRes.json().catch(() => null)) as
+      | { email?: string; email_verified?: boolean }
+      | null;
+    if (!profileRes.ok || typeof profile?.email !== 'string' || !isValidEmail(profile.email)) {
+      return { ok: false, reason: 'google_profile_unavailable' };
+    }
+    return { ok: true, email: profile.email, emailVerified: profile.email_verified === true };
+  } catch {
+    return { ok: false, reason: 'google_timeout' };
+  } finally {
+    clearTimeout(timer);
+  }
 }

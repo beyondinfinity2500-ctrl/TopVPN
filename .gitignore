@@ -27,3 +27,6 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# Installers: served from topvpn-downloads R2 bucket, not stored in git
+public/downloads/

@@ -26,10 +26,17 @@
   ],
   // R2 bucket for uploaded image creatives (never served from public URLs).
   // Create with: npx wrangler r2 bucket create topvpn-ad-creatives
+  // Second bucket holds the white-label installers (50-80 MB, above the
+  // 25 MiB static-asset limit); worker/downloads.ts serves them at
+  // /downloads/<file>. Create with: npx wrangler r2 bucket create topvpn-downloads
   "r2_buckets": [
     {
       "binding": "CREATIVES",
       "bucket_name": "topvpn-ad-creatives"
+    },
+    {
+      "binding": "DOWNLOADS",
+      "bucket_name": "topvpn-downloads"
     }
   ],
   // Cloudflare Images binding: transcodes advertiser uploads to optimized WebP

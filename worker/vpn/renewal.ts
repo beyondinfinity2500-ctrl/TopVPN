@@ -13,6 +13,7 @@
    */
 
 import type { D1Database } from '@cloudflare/workers-types';
+import { getPlan, isPlanId } from '../../src/lib/plans';
 import { getVpnOrder, recordVpnOrderEvent, type VpnOrderRow } from './repo';
 import { expiryDateFor } from '../provisioning';
 
@@ -52,7 +53,9 @@ export function checkRenewalEligibility(
   order: RenewalOrder,
   now: Date = new Date(),
 ): RenewalEligibility {
-  const renewalPriceCents = order.amount_cents;
+  // Renewal always costs the regular plan price — an intro/coupon discount is
+  // a one-time first-purchase offer and never applies to renewals.
+  const renewalPriceCents = isPlanId(order.plan_id) ? getPlan(order.plan_id).regularCents : order.amount_cents;
 
   if (
     order.order_status !== 'active' ||
