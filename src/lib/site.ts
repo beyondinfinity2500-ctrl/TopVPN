@@ -8,3 +8,9 @@ export const SITE = {
   /** Set to true once AdSense is approved; empty placeholder boxes are hidden until then. */
   ads: false,
 } as const;
+
+/** URL-safe tag slug: "public Wi-Fi" -> "public-wifi". Used by tag pages,
+ *  TagChips links and the sitemap so URLs match Google's clean-URL guidance. */
+export function slugifyTag(tag: string): string {
+  return tag.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}

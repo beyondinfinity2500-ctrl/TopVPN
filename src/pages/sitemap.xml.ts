@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { getCollection } from 'astro:content';
-import { SITE } from '../lib/site';
+import { SITE, slugifyTag } from '../lib/site';
 
 /**
  * Single sitemap following the sitemaps.org 0.9 protocol + Google's
@@ -79,6 +79,15 @@ export const GET: APIRoute = async () => {
   for (const a of articles) {
     const lastmod = a.data.updatedDate.toISOString().split('T')[0];
     urlEntries.push(`  <url>\n    <loc>${SITE.url}/articles/${a.id}</loc>\n    <lastmod>${lastmod}</lastmod>\n  </url>`);
+  }
+
+  // Tag archive pages (clean slugs; lastmod = newest article in that tag).
+  const tags = [...new Set(articles.flatMap((a) => a.data.tags))];
+  for (const tag of tags) {
+    const newest = articles
+      .filter((a) => a.data.tags.includes(tag))
+      .reduce((max, a) => (a.data.updatedDate > max ? a.data.updatedDate : max), articles[0].data.updatedDate);
+    urlEntries.push(`  <url>\n    <loc>${SITE.url}/tags/${slugifyTag(tag)}</loc>\n    <lastmod>${newest.toISOString().split('T')[0]}</lastmod>\n  </url>`);
   }
 
   const body = `<?xml version="1.0" encoding="UTF-8"?>

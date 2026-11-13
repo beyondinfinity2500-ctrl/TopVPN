@@ -27,10 +27,11 @@ const openSourceClients = [
 ];
 
 /**
- * Branded TopVPN installers (white-label). Files live on OUR host under
- * /downloads/ with the exact names below. A button renders only when the file
- * exists at build time — drop the installer into public/downloads/ with the
- * listed name, rebuild, and it goes live. No dead links, ever.
+ * Branded TopVPN installers (white-label). Served from the `topvpn-downloads`
+ * R2 bucket by worker/downloads.ts at /downloads/<file> (installers exceed
+ * Cloudflare's 25 MiB static-asset limit). Always rendered — availability is
+ * decided by the R2 bucket, not by build-time files. A size label shows only
+ * when the installer happens to exist in public/downloads/ at build time.
  */
 const brandedApps = [
   {
@@ -71,18 +72,15 @@ const storeApps = [
 
 const fs = await import('node:fs');
 const brandedAvailable = brandedApps.map((app) => {
-  let exists = false;
   let sizeMb: string | null = null;
   try {
     const stat = fs.statSync(new URL(`../../public/downloads/${app.file}`, import.meta.url));
-    exists = stat.isFile();
-    sizeMb = (stat.size / (1024 * 1024)).toFixed(1);
+    if (stat.isFile()) sizeMb = (stat.size / (1024 * 1024)).toFixed(1);
   } catch {
-    /* installer not uploaded yet */
+    /* size unknown in CI builds — R2 decides availability */
   }
-  return { ...app, exists, sizeMb };
+  return { ...app, sizeMb };
 });
-const anyBranded = brandedAvailable.some((a) => a.exists);
 
 const leakTestSteps = [
   { step: 1, title: 'Note your real IP address', text: 'Before connecting the VPN, visit a site like whatismyipaddress.com and write down your IP.' },
@@ -138,9 +136,8 @@ const tags = ['vpn download', 'apps', 'devices', 'Windows', 'macOS', 'Android', 
       Download the official TopVPN app for your device. Sign in with your TopVPN account, and connect — your server list and configuration are pulled automatically.
     </p>
 
-    {anyBranded && (
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4 max-w-5xl">
-        {brandedAvailable.filter((a) => a.exists).map((a) => (
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4 max-w-5xl">
+      {brandedAvailable.map((a) => (
           <div class="card p-5 flex flex-col">
             <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl mb-3 shrink-0" style="background: linear-gradient(135deg, rgba(212,175,55,0.18), rgba(212,175,55,0.06));">
               <Icons name={a.icon} size={26} class="text-amber-400" />
@@ -153,13 +150,12 @@ const tags = ['vpn download', 'apps', 'devices', 'Windows', 'macOS', 'Android', 
               ))}
             </div>
             <a href={`/downloads/${a.file}`} download class="btn-gold w-full justify-center text-sm" rel="nofollow">Download for {a.platform}</a>
-            <p class="text-[10px] mt-2 text-center" style="color: var(--color-muted-dark);">{a.file} · {a.sizeMb} MB</p>
+            {a.sizeMb && <p class="text-[10px] mt-2 text-center" style="color: var(--color-muted-dark);">{a.file} · {a.sizeMb} MB</p>}
           </div>
         ))}
       </div>
-    )}
 
-    <div class={`grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 max-w-3xl ${anyBranded ? '' : 'mt-6'}`}>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 max-w-3xl">
       {storeApps.map((a) => (
         <div class="card p-5 flex flex-col">
           <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl mb-3 shrink-0" style="background: linear-gradient(135deg, rgba(212,175,55,0.18), rgba(212,175,55,0.06));">

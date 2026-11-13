@@ -3,12 +3,14 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import Icons from '../../components/Icons.astro';
+import TagChips from '../../components/TagChips.astro';
+import { slugifyTag } from '../../lib/site';
 
 export async function getStaticPaths() {
   const articles = await getCollection('articles', ({ data }) => !data.draft);
   const tags = [...new Set(articles.flatMap((a) => a.data.tags))];
   return tags.map((tag) => ({
-    params: { tag },
+    params: { tag: slugifyTag(tag) },
     props: {
       tag,
       articles: articles
@@ -20,9 +22,23 @@ export async function getStaticPaths() {
 
 const { tag, articles } = Astro.props;
 const tagLabel = tag.charAt(0).toUpperCase() + tag.slice(1);
+// Every tag article also carries "guide" and "privacy"; use the freshest
+// updatedDate as a truthful lastmod for the sitemap.
+const newest = articles.reduce((max, a) => (a.data.updatedDate > max ? a.data.updatedDate : max), articles[0].data.updatedDate);
+const count = articles.length;
 ---
 
-<BaseLayout title={`Articles tagged "${tagLabel}"`} description={`Browse all TopVPN articles tagged with ${tagLabel}.`}>
+<BaseLayout
+  title={`Best VPN Guides About ${tagLabel}`}
+  description={`All TopVPN VPN guides about ${tagLabel.toLowerCase()} — ${count} ${count === 1 ? 'guide' : 'guides'}, reviewed and updated.`}
+  jsonLd={{
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: `VPN guides about ${tagLabel}`,
+    description: `All TopVPN VPN guides about ${tagLabel.toLowerCase()}.`,
+    url: Astro.url.href,
+  }}
+>
   <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Articles', href: '/articles' }, { label: tagLabel }]} />
 
   <section class="container-max py-8 md:py-12">
@@ -31,9 +47,11 @@ const tagLabel = tag.charAt(0).toUpperCase() + tag.slice(1);
       <span class="text-xs uppercase tracking-wide font-semibold" style="color: var(--color-muted);">Tag</span>
     </div>
     <h1 class="text-3xl md:text-4xl font-bold mb-4" style="font-family: var(--font-heading);">{tagLabel}</h1>
-    <p class="text-base mb-8 max-w-2xl" style="color: var(--color-muted);">
-      All articles tagged with {tagLabel}. {articles.length} {articles.length === 1 ? 'guide' : 'guides'} found.
+    <p class="text-base mb-6 max-w-2xl" style="color: var(--color-muted);">
+      All TopVPN VPN guides about {tagLabel.toLowerCase()}. {count} {count === 1 ? 'guide' : 'guides'}, last updated {newest.toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}.
     </p>
+
+    <TagChips chips={[...new Set(articles.flatMap((a) => a.data.tags))].filter((t) => t !== tag)} class="mb-8" />
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {articles.map((article) => (

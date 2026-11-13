@@ -1,19 +1,38 @@
 ---
+import { getCollection } from 'astro:content';
+import { slugifyTag } from '../lib/site';
+
 interface Props {
   chips: string[];
   class?: string;
 }
 
 const { chips, class: className = '' } = Astro.props;
+
+// Only chips that have a real tag archive (/tags/<slug>) become links;
+// page-local keywords stay decorative so we never link a 404.
+const articleTags = new Set(
+  (await getCollection('articles', ({ data }) => !data.draft)).flatMap((a) => a.data.tags),
+);
 ---
 
 <div class:list={['flex flex-wrap gap-2', className]}>
   {chips.map((chip) => (
-    <span
-      class="inline-block text-xs px-3 py-1.5 rounded-full"
-      style="background: var(--color-bg-alt); border: 1px solid var(--color-border); color: var(--color-muted);"
-    >
-      {chip}
-    </span>
+    articleTags.has(chip) ? (
+      <a
+        href={`/tags/${slugifyTag(chip)}`}
+        class="inline-block text-xs px-3 py-1.5 rounded-full transition-colors hover:border-amber-400 hover:text-amber-400"
+        style="background: var(--color-bg-alt); border: 1px solid var(--color-border); color: var(--color-muted);"
+      >
+        {chip}
+      </a>
+    ) : (
+      <span
+        class="inline-block text-xs px-3 py-1.5 rounded-full"
+        style="background: var(--color-bg-alt); border: 1px solid var(--color-border); color: var(--color-muted);"
+      >
+        {chip}
+      </span>
+    )
   ))}
 </div>
