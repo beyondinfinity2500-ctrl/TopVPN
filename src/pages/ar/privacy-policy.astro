@@ -1,0 +1,101 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Icons from '../../components/Icons.astro';
+import { breadcrumbSchema, contextWrapper } from '../../lib/schema';
+
+const updatedStr = 'أكتوبر 2026';
+
+const hreflang = [
+  { lang: 'en', url: 'https://www.topvpn.top/privacy-policy' },
+  { lang: 'ar', url: 'https://www.topvpn.top/ar/privacy-policy' },
+  { lang: 'pcm', url: 'https://www.topvpn.top/pcm/privacy-policy' },
+  { lang: 'x-default', url: 'https://www.topvpn.top/privacy-policy' },
+];
+
+const breadcrumbs = [
+  { label: 'الرئيسية', href: '/' },
+  { label: 'سياسة الخصوصية' },
+];
+---
+
+<BaseLayout
+  title="سياسة الخصوصية"
+  description="كيف يتعامل توب في بي ان مع معلوماتك. لا نجمع بيانات شخصية إلا بما هو ضروري لتشغيل الموقع."
+  lang="ar"
+  dir="rtl"
+  hreflang={hreflang}
+  autolink={false}
+  ogLocale="ar_AR"
+  jsonLd={contextWrapper(breadcrumbSchema(breadcrumbs))}
+>
+  <Breadcrumbs items={breadcrumbs} />
+
+  <section class="container-max py-8 md:py-12">
+    <div class="max-w-3xl">
+      <div class="mb-4 flex items-center gap-2 text-xs" style="color: var(--color-muted-dark);">
+        <Icons name="doc" size={14} />
+        <span>آخر تحديث {updatedStr}</span>
+      </div>
+
+      <h1 class="text-3xl md:text-4xl font-bold mb-6" style="font-family: var(--font-heading);">
+        سياسة <span class="gold-text">الخصوصية</span>
+      </h1>
+
+      <p class="text-sm mb-6" style="color: var(--color-muted);">
+        توضح سياسة الخصوصية هذه المعلومات التي يجمعها توب في بي ان، وكيف نستخدمها، والخيارات المتاحة لك. ونسعى إلى إبقاء الأمر بسيطًا وصادقًا.
+      </p>
+
+      <div class="space-y-6">
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">ما نجمعه</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            توب في بي ان موقع ثابت (static). لا نطلب منك إنشاء حساب، ولا نطلب اسمك أو بريدك الإلكتروني أو بيانات الدفع مباشرة. وأي تفاعل مع نموذج التواصل يفتح برنامج البريد الإلكتروني لديك، فتصل رسالتك مباشرة من بريدك إلى بريدنا.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">ملفات تعريف الارتباط والتحليلات</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            قد نستخدم أدوات تحليل تحترم الخصوصية لفهم الصفحات التي تُزار وكيف يعثر الزوار على الموقع. لا نستخدم ملفات تعريف الارتباط الإعلانية ولا نبيع البيانات لأطراف ثالثة. وإذا أضفنا أدوات تحليل مستقبلًا، فستُحدَّث هذه الصفحة.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">روابط الأفلييت</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            بعض الروابط في هذا الموقع روابط أفلييت. عند النقر على أحدها وإتمام عملية شراء، قد يضع مزود VPN ملفات تعريف ارتباط في متصفحك. وتخضع هذه الملفات لسياسة خصوصية المزود لا لسياستنا. نحن لا نتحكم في تلك البيانات ولا نطلع عليها.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">مواقع الطرف الثالث</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            الروابط المؤدية إلى مواقع مزودي VPN تنقلك إلى خدمات لا نتحكم فيها. وبمجرد مغادرتك توب في بي ان، تسري سياسة الخصوصية الخاصة بهم. ونشجعك على قراءتها قبل التسجيل.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">التواصل</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            إذا كانت لديك أسئلة حول هذه السياسة، راجع <a href="/contact" class="gold-text">صفحة التواصل</a> لمعرفة حالة التواصل الحالية. الإرسال المباشر للرسائل غير متاح حاليًا، لذا لا يمكننا استلام الرسائل عبر الموقع في الوقت الحالي.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">التغييرات على هذه السياسة</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            قد نحدّث هذه السياسة من وقت لآخر. وتسري التغييرات عند نشر النسخة المحدثة في هذه الصفحة. ويعكس تاريخ «آخر تحديث» أعلاه أحدث مراجعة.
+          </p>
+        </div>
+      </div>
+
+      <div class="mt-8">
+        <a href="/" class="inline-flex items-center gap-2 text-sm font-semibold gold-text">
+          <Icons name="arrow-right" size={14} class="rotate-180 text-amber-400" />
+          العودة إلى الرئيسية
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

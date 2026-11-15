@@ -1,0 +1,371 @@
+---
+/**
+ * /order-vpn — the site's primary "buy VPN" landing page (Arabic version).
+ *
+ * Structure (owner-approved, 2026-11):
+ *   1. TopVPN's own three plans with a buy button under each plan;
+ *   2. a plain-numbers comparison concluding the Two-Year plan is the best value;
+ *   3. the one-time $3-first-month trust offer for new customers;
+ *   4. PureVPN — the only third-party provider listed (global brand, special prices).
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import FAQ from '../../components/FAQ.astro';
+import Icons from '../../components/Icons.astro';
+import NewsiqAd from '../../components/newsiq/NewsiqAd.astro';
+import { newsiqInline } from '../../data/newsiq-ads';
+import { breadcrumbSchema, faqSchema, contextWrapper } from '../../lib/schema';
+import { formatUsd } from '../../lib/premium';
+
+const hreflang = [
+  { lang: 'en', url: 'https://www.topvpn.top/order-vpn' },
+  { lang: 'ar', url: 'https://www.topvpn.top/ar/order-vpn' },
+  { lang: 'pcm', url: 'https://www.topvpn.top/pcm/order-vpn' },
+  { lang: 'x-default', url: 'https://www.topvpn.top/order-vpn' },
+];
+
+const paymentIcons = ['paypal', 'visa', 'mastercard', 'amex', 'applepay', 'googlepay', 'crypto'];
+
+const KEYWORD = 'شراء في بي ان';
+
+const plans = [
+  {
+    id: 'monthly',
+    name: 'الشهرية',
+    price: 9,
+    perMonth: 9,
+    months: 1,
+    billed: 9,
+    intro: 3,
+    badge: 'جرّبها أولاً',
+    highlighted: false,
+    blurb: 'أسهل طريقة للبداية. شهر واحد من تجربة Premium الكاملة، تُدفع مرة واحدة.',
+    bullets: ['تجربة Premium كاملة', 'الشهر الأول بـ $3 للعملاء الجدد', 'التجديد يدويًا في أي وقت'],
+  },
+  {
+    id: 'annual',
+    name: 'السنوية',
+    price: 72,
+    perMonth: 6,
+    months: 12,
+    billed: 72,
+    badge: 'وفّر 33%',
+    highlighted: false,
+    blurb: 'دفعة واحدة تغطي سنة كاملة — 12 شهرًا بسعر 8 أشهر.',
+    bullets: ['$6.00 شهريًا، تُدفع مرة واحدة', 'نفس ميزات Premium في كل الباقات', 'التجديد يدويًا قبل انتهاء الصلاحية'],
+  },
+  {
+    id: 'two-year',
+    name: 'السنتين',
+    price: 120,
+    perMonth: 5,
+    months: 24,
+    billed: 120,
+    badge: 'أفضل قيمة — وفّر 44%',
+    highlighted: true,
+    blurb: 'الفائز الواضح في السعر: 24 شهرًا من في بي ان Premium بـ $5.00 شهريًا.',
+    bullets: ['$5.00 شهريًا — أقل سعر نقدمه', 'دفعة واحدة، بلا تجديدات تتابعها', 'كل الميزات مفتوحة لسنتين كاملتين'],
+  },
+];
+
+const faqs = [
+  { question: `أين يمكنني ${KEYWORD} بسعر عادل؟`, answer: 'هنا بالضبط. باقة TopVPN Premium الشهرية بسعر $9 — وكترحيب لمرة واحدة، يكلفك شهرك الأول $3 بدلًا من $9. وإذا كنت تعلم مسبقًا أنك ستبقى، فباقة السنتين تعادل $5.00 شهريًا، وهي أقل سعر نقدمه.' },
+  { question: 'لماذا باقة السنتين هي الأفضل قيمة؟', answer: 'لأن حساب التكلفة الشهرية يتحرك في اتجاه واحد فقط: $9.00 شهريًا، و$6.00 في الباقة السنوية، و$5.00 في باقة السنتين. تدفع مرة واحدة، ولا يتغير السعر خلال مدتك، ولا يوجد اشتراك تذكره — التجديد دائمًا يدوي ويُعلن عنه مسبقًا.' },
+  { question: 'كيف يعمل عرض $3 للشهر الأول؟', answer: 'عملية شرائك الأولى كعميل جديد تحصل على قسيمة FIRST-MONTH: الباقة الشهرية بـ $3 بدلًا من $9 للشهر الأول. تُطبَّق مرة واحدة لكل عميل، ويُتحقق منها على خادمنا عند الدفع، وهي موجودة لبناء الثقة فقط — بعد الشهر الأول يسري السعر الاعتيادي $9، ويُحصَّل دائمًا يدويًا.' },
+  { question: 'هل يوجد اشتراك أو تجديد تلقائي؟', answer: 'لا. كل دفعة في TopVPN هي عملية شراء لمرة واحدة لمدة محددة. لا يُحصَّل أي مبلغ تلقائيًا أبدًا ولا تُخزَّن أي بطاقة لخصم لاحق. إذا أردت مدة أخرى، تضع طلبًا جديدًا بنفسك — يظهر زر التجديد قبل 30 يومًا من انتهاء الصلاحية.' },
+  { question: 'ماذا لو أردت علامة VPN أخرى؟', answer: 'نعرض خيارًا خارجيًا واحدًا فقط: PureVPN، علامة عالمية، متوفرة بأسعار خاصة عبر رابط شريكنا أدناه. نُبقي القائمة قصيرة عن قصد — نفضّل أن نقف وراء توصية واحدة على أن نغرقك بالخيارات.' },
+];
+
+const productJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: 'TopVPN Premium',
+  description: 'خدمة VPN متميزة بأسعار لمرة واحدة: $3 للشهر الأول للعملاء الجدد، $9 شهريًا كالسعر الاعتيادي، $72 سنويًا أو $120 لسنتين. بلا اشتراك ولا تجديد تلقائي.',
+  brand: { '@type': 'Brand', name: 'TopVPN' },
+  offers: {
+    '@type': 'AggregateOffer',
+    priceCurrency: 'USD',
+    lowPrice: '3.00',
+    highPrice: '120.00',
+    offerCount: '3',
+    offers: [
+      { '@type': 'Offer', name: 'الشهرية (الشهر الأول للعملاء الجدد)', price: '3.00', priceCurrency: 'USD', availability: 'https://schema.org/InStock', url: 'https://www.topvpn.top/order-vpn#monthly' },
+      { '@type': 'Offer', name: 'السنوية — 12 شهرًا', price: '72.00', priceCurrency: 'USD', availability: 'https://schema.org/InStock', url: 'https://www.topvpn.top/order-vpn#annual' },
+      { '@type': 'Offer', name: 'السنتين — 24 شهرًا (أفضل قيمة)', price: '120.00', priceCurrency: 'USD', availability: 'https://schema.org/InStock', url: 'https://www.topvpn.top/order-vpn#two-year' },
+    ],
+  },
+};
+
+const orderJsonLd = [
+  productJsonLd,
+  breadcrumbSchema([{ label: 'الرئيسية', href: '/' }, { label: 'شراء في بي ان' }]),
+  faqSchema(faqs),
+];
+---
+
+<BaseLayout
+  title="شراء في بي ان أونلاين — باقات Premium تبدأ من $3 للشهر الأول"
+  description={`تريد ${KEYWORD} دون مفاجآت؟ أسعار لمرة واحدة تبدأ من $3 للشهر الأول، و$5.00 شهريًا في باقة السنتين. بلا اشتراك ولا تجديد تلقائي. PureVPN بأسعار خاصة.`}
+  keywords="شراء vpn, شراء في بي ان, شراء في بي ان بريميوم, باقات vpn رخيصة, مقارنة اسعار vpn, عروض purevpn, vpn بدون اشتراك"
+  lang="ar"
+  dir="rtl"
+  hreflang={hreflang}
+  autolink={false}
+  ogLocale="ar_AR"
+  jsonLd={contextWrapper(orderJsonLd)}
+>
+  <Breadcrumbs items={[{ label: 'الرئيسية', href: '/' }, { label: 'شراء في بي ان' }]} />
+
+  <section class="container-max py-8 md:py-12">
+    <h1 class="text-3xl md:text-4xl font-bold mb-4" style="font-family: var(--font-heading);">
+      شراء في بي ان أونلاين — <span class="gold-text">باقات Premium</span> بقائمة أسعار صادقة
+    </h1>
+    <p class="text-base md:text-lg mb-3 max-w-2xl" style="color: var(--color-muted);">
+      تريد {KEYWORD} مرة واحدة ثم تكمل حياتك. أدناه باقات TopVPN Premium الخاصة بنا بالأرقام الحقيقية النهائية — ثم شهر أول بـ $3 لمرة واحدة للعملاء الجدد، وأخيرًا بديل موثوق واحد إن أردت علامة ثانية.
+    </p>
+    <p class="text-sm mb-6 max-w-2xl" style="color: var(--color-muted);">
+      كل سعر هنا هو السعر الذي تدفعه فعلًا. لا فخاخ تجربة مجانية، ولا قفزات في سعر التجديد، ولا مربعات محددة مسبقًا — كل دفعة لمرة واحدة ويدوية.
+    </p>
+
+    <div class="card p-4 mb-8 text-xs flex items-start gap-2" style="background: var(--color-bg-alt);">
+      <Icons name="shield" size={14} class="mt-0.5 shrink-0 text-amber-400" />
+      <p style="color: var(--color-muted);">
+        <strong style="color: var(--color-text);">ملاحظة شفافية:</strong> الرابط الخارجي الوحيد في هذه الصفحة (PureVPN) هو رابط أفلييت — قد نحصل على عمولة دون أي تكلفة إضافية عليك. أما باقاتنا الخاصة فتُباع مباشرة على هذا الموقع.
+      </p>
+    </div>
+
+    <!-- ===== باقات TopVPN الخاصة ===== -->
+    <h2 class="text-2xl font-bold mb-2" style="font-family: var(--font-heading);">
+      الخطوة 1 — اختر باقة <span class="gold-text">TopVPN Premium</span> المناسبة
+    </h2>
+    <p class="text-sm mb-6 max-w-2xl" style="color: var(--color-muted);">
+      نفس الميزات في كل باقة. الفرق الوحيد هو مدة صلاحية الدفعة الواحدة.
+    </p>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto items-start">
+      {plans.map((plan) => (
+        <div id={plan.id} class:list={['card p-7 flex flex-col h-full relative scroll-mt-24', plan.highlighted ? 'border-2' : '']}
+          style={plan.highlighted ? 'border-color: var(--color-gold);' : ''}>
+          {plan.badge && (
+            <span class="absolute -top-3 left-1/2 -translate-x-1/2 text-[11px] font-bold uppercase tracking-wide px-3 py-1 rounded-full whitespace-nowrap"
+              style={plan.highlighted ? 'background: linear-gradient(135deg, #D4AF37, #F5D77A); color: #0B1020;' : 'background: #1D2440; color: var(--color-muted);'}>
+              {plan.badge}
+            </span>
+          )}
+
+          <h3 class="text-lg font-bold mb-4 mt-1" style="font-family: var(--font-heading);">TopVPN Premium — {plan.name}</h3>
+
+          <div class="mb-4">
+            {plan.intro ? (
+              <div class="flex items-baseline gap-2">
+                <s class="text-xl" style="color: var(--color-muted);">{formatUsd(plan.price)}</s>
+                <span class="text-4xl font-bold gold-text" style="font-family: var(--font-heading);">{formatUsd(plan.intro)}</span>
+                <span class="text-sm" style="color: var(--color-muted);">للشهر الأول</span>
+              </div>
+            ) : (
+              <div class="flex items-baseline gap-2">
+                <span class="text-4xl font-bold gold-text" style="font-family: var(--font-heading);">{formatUsd(plan.perMonth)}</span>
+                <span class="text-sm" style="color: var(--color-muted);">شهريًا</span>
+              </div>
+            )}
+            {plan.months > 1 && (
+              <p class="text-xs mt-2" style="color: var(--color-muted);">
+                {formatUsd(plan.billed)} تُدفع مرة واحدة مقابل {plan.months} أشهر. أي {formatUsd(plan.perMonth)} شهريًا.
+              </p>
+            )}
+          </div>
+
+          <ul class="space-y-2.5 mb-6 flex-grow">
+            {plan.bullets.map((b) => (
+              <li class="flex items-start gap-2 text-sm">
+                <Icons name="check" size={16} class="mt-0.5 shrink-0" style="color: var(--color-emerald);" />
+                <span style="color: var(--color-text);">{b}</span>
+              </li>
+            ))}
+          </ul>
+
+          <a href="/account" class="btn-gold w-full justify-center mt-auto" rel="nofollow">
+            {plan.intro ? 'اشترِ الشهرية — $3 للشهر الأول' : `اشترِ باقة ${plan.name} — ${formatUsd(plan.billed)}`}
+          </a>
+          <p class="text-[11px] text-center mt-2" style="color: var(--color-muted-dark);">دفعة واحدة. بلا اشتراك، وبلا خصم تلقائي.</p>
+        </div>
+      ))}
+    </div>
+
+    <p class="text-xs text-center mt-4 max-w-2xl mx-auto" style="color: var(--color-muted-dark);">
+      أزرار الشراء تفتح حسابك في TopVPN، حيث تبدأ عملية الدفع (Stripe وPayPal) خلال نقرات قليلة.
+    </p>
+
+    <!-- ===== مقارنة جنبًا إلى جنب + الخلاصة ===== -->
+    <div class="mt-14">
+      <h2 class="text-2xl font-bold mb-2" style="font-family: var(--font-heading);">
+        الخطوة 2 — <span class="gold-text">قارن</span> الباقات جنبًا إلى جنب
+      </h2>
+      <p class="text-sm mb-6 max-w-2xl" style="color: var(--color-muted);">
+        نفس الخدمة المتميزة في الصفوف الثلاثة — تتغير المدة فقط.
+      </p>
+
+      <div class="card p-0 overflow-x-auto">
+        <table class="w-full text-sm" style="min-width: 560px;">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--color-border);">
+              <th class="text-left px-5 py-3" style="color: var(--color-muted);">الباقة</th>
+              <th class="text-left px-5 py-3" style="color: var(--color-muted);">تدفع مرة واحدة</th>
+              <th class="text-left px-5 py-3" style="color: var(--color-muted);">شهريًا</th>
+              <th class="text-left px-5 py-3" style="color: var(--color-muted);">مقارنةً بالدفع الشهري</th>
+              <th class="text-left px-5 py-3" style="color: var(--color-muted);">الشراء</th>
+            </tr>
+          </thead>
+          <tbody>
+            {plans.map((plan) => (
+              <tr style="border-bottom: 1px solid var(--color-border);" class:list={[plan.highlighted ? 'bg-transparent' : '']}>
+                <td class="px-5 py-4 font-semibold" style="color: var(--color-text);">
+                  {plan.name}{plan.highlighted && <span class="ml-2 text-[10px] px-2 py-0.5 rounded-full align-middle" style="background: rgba(212,175,55,.15); color: var(--color-gold-light);">أفضل قيمة</span>}
+                </td>
+                <td class="px-5 py-4" style="color: var(--color-text);">
+                  {plan.intro ? <span><s style="color: var(--color-muted);">{formatUsd(plan.price)}</s> <strong class="gold-text">{formatUsd(plan.intro)}</strong> للشهر الأول، ثم {formatUsd(plan.price)}</span> : formatUsd(plan.billed)}
+                </td>
+                <td class="px-5 py-4" style="color: var(--color-text);">{formatUsd(plan.perMonth)}</td>
+                <td class="px-5 py-4" style="color: var(--color-emerald);">{Math.round((1 - plan.perMonth / 9) * 100)}% أرخص</td>
+                <td class="px-5 py-4"><a href="/account" class="btn-gold text-xs" rel="nofollow" style="padding: 8px 14px; min-height: 36px;">اشترِ</a></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card p-6 mt-6" style="border-color: var(--color-gold); background: linear-gradient(135deg, rgba(212,175,55,.06), rgba(212,175,55,.02));">
+        <h3 class="text-lg font-bold mb-2 flex items-center gap-2" style="font-family: var(--font-heading);">
+          <Icons name="check" size={18} style="color: var(--color-gold);" /> خلاصتنا: اشترِ باقة السنتين
+        </h3>
+        <p class="text-sm mb-2" style="color: var(--color-text);">
+          انظر إلى العمود الأخير: الشهري $9.00، والسنوي ينخفض إلى $6.00، وباقة السنتين تصل إلى <strong class="gold-text">$5.00 شهريًا — أرخص بـ 44%</strong> من الدفع شهرًا بشهر. دفعة واحدة بقيمة $120 تغطي سنتين كاملتين من الخدمة المتميزة، ومع الخصم الخاص تحصل على في بي ان Premium بأقل من ثمن باقتين شهريتين في السنة.
+        </p>
+        <p class="text-sm" style="color: var(--color-muted);">
+          وإذا لم تكن مستعدًا للالتزام لسنتين، فهذا بالضبط ما وُجد له شهر الـ $3 الأول — جرّب الخدمة الحقيقية ثم قرر.
+        </p>
+      </div>
+    </div>
+
+    <!-- ===== عرض $3 للشهر الأول ===== -->
+    <div class="card p-6 mt-10">
+      <h2 class="text-xl font-bold mb-2" style="font-family: var(--font-heading);">
+        لست متأكدًا بعد؟ اشترِ شهرك الأول بـ <span class="gold-text">$3 بدلًا من $9</span>
+      </h2>
+      <p class="text-sm mb-3" style="color: var(--color-muted);">
+        الثقة تُكتسب ولا تُفترض. لذلك تحصل أول عملية شراء لك كعميل جديد على <strong style="color: var(--color-text);">عرض FIRST-MONTH</strong>: الباقة الشهرية بـ $3 بدلًا من $9 — مرة واحدة لكل عميل حصرًا، وتُطبَّق تلقائيًا عند الدفع.
+      </p>
+      <ul class="space-y-1.5 text-sm mb-4" style="color: var(--color-muted);">
+        <li class="flex items-start gap-2"><Icons name="check" size={14} class="mt-0.5 shrink-0" style="color: var(--color-emerald);" /> استخدام واحد لكل عميل جديد، مع تحقق من جهة الخادم عند الدفع.</li>
+        <li class="flex items-start gap-2"><Icons name="check" size={14} class="mt-0.5 shrink-0" style="color: var(--color-emerald);" /> بعد الشهر الأول يسري السعر الاعتيادي $9 — ويُحصَّل دائمًا يدويًا.</li>
+        <li class="flex items-start gap-2"><Icons name="check" size={14} class="mt-0.5 shrink-0" style="color: var(--color-emerald);" /> لا يُنشأ أي اشتراك. لا يُحصَّل أي مبلغ تلقائيًا أبدًا.</li>
+      </ul>
+      <a href="/account" class="btn-gold" rel="nofollow">ابدأ بـ $3 — اشترِ الشهر الأول</a>
+    </div>
+
+    <!-- Sponsored in-content placement -->
+    <div class="my-10">
+      <NewsiqAd placement={newsiqInline} id="newsiq-order-inline" />
+    </div>
+
+    <!-- ===== PureVPN — الخيار الخارجي الوحيد ===== -->
+    <div class="mt-12">
+      <h2 class="text-2xl font-bold mb-2" style="font-family: var(--font-heading);">
+        الخطوة 3 — تريد خدمات أخرى أيضًا؟ <span class="gold-text">PureVPN</span>، علامة عالمية بأسعار خاصة
+      </h2>
+      <p class="text-sm mb-6 max-w-2xl" style="color: var(--color-muted);">
+        نعرض خيارًا خارجيًا واحدًا فقط عن قصد. إذا أردت تحديدًا علامة دولية كبرى إلى جانب TopVPN، فـ PureVPN هي الخيار — متوفرة عبر رابط شريكنا بأسعار خاصة، مع ضمان استرداد لمدة 31 يومًا.
+      </p>
+
+      <div id="purevpn" class="card p-5 scroll-mt-24">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-3">
+          <div>
+            <h3 class="text-lg font-bold" style="font-family: var(--font-heading);">PureVPN</h3>
+            <p class="text-sm" style="color: var(--color-muted);">علامة عالمية — قيمة طويلة الأمد وحزم ميزات</p>
+          </div>
+          <a
+            href="https://billing.purevpn.com/aff.php?aff=49385888"
+            target="_blank"
+            rel="sponsored nofollow noopener"
+            class="btn-gold text-sm shrink-0"
+            style="min-height: 44px;"
+          >
+            احصل على PureVPN بأسعار خاصة
+          </a>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+          <div>
+            <span class="block text-xs mb-0.5" style="color: var(--color-muted-dark);">شهر واحد</span>
+            <span style="color: var(--color-text); font-weight: 600;">$12.95</span>
+          </div>
+          <div>
+            <span class="block text-xs mb-0.5" style="color: var(--color-muted-dark);">الباقة الطويلة / شهريًا</span>
+            <span style="color: var(--color-text); font-weight: 600;">$2.15</span>
+          </div>
+          <div>
+            <span class="block text-xs mb-0.5" style="color: var(--color-muted-dark);">البروتوكولات</span>
+            <span style="color: var(--color-text); font-weight: 600;">WireGuard, OpenVPN, IKEv2</span>
+          </div>
+          <div>
+            <span class="block text-xs mb-0.5" style="color: var(--color-muted-dark);">الضمان</span>
+            <span style="color: var(--color-text); font-weight: 600;">31 يومًا</span>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+          <div>
+            <p class="text-xs font-semibold mb-1" style="color: var(--color-emerald);">الإيجابيات</p>
+            <ul class="space-y-1">
+              <li class="flex items-start gap-2 text-xs" style="color: var(--color-muted);"><Icons name="check" size={12} class="mt-0.5 shrink-0" /> علامة عالمية بشبكة خوادم واسعة</li>
+              <li class="flex items-start gap-2 text-xs" style="color: var(--color-muted);"><Icons name="check" size={12} class="mt-0.5 shrink-0" /> ضمان استرداد لمدة 31 يومًا</li>
+              <li class="flex items-start gap-2 text-xs" style="color: var(--color-muted);"><Icons name="check" size={12} class="mt-0.5 shrink-0" /> مستويات باقات متعددة للاختيار بينها</li>
+            </ul>
+          </div>
+          <div>
+            <p class="text-xs font-semibold mb-1" style="color: var(--color-muted-dark);">ما يجب معرفته</p>
+            <ul class="space-y-1">
+              <li class="flex items-start gap-2 text-xs" style="color: var(--color-muted);"><Icons name="x" size={12} class="mt-0.5 shrink-0" /> قد تتغير الأسعار الترويجية دون إشعار</li>
+              <li class="flex items-start gap-2 text-xs" style="color: var(--color-muted);"><Icons name="x" size={12} class="mt-0.5 shrink-0" /> سعر التجديد أعلى من السعر التمهيدي</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-12 grid md:grid-cols-2 gap-8">
+      <div class="card p-6">
+        <h2 class="text-xl font-bold mb-4" style="font-family: var(--font-heading);">كيف تشتري في بي ان في 60 ثانية</h2>
+        <ul class="space-y-3 text-sm" style="color: var(--color-muted);">
+          <li class="flex items-start gap-2">
+            <Icons name="check" size={16} class="mt-0.5 shrink-0 text-amber-400" />
+            <span><strong style="color: var(--color-text);">غير متأكد؟ ابدأ بـ $3.</strong> الشهر الأول يكلف $3 للعملاء الجدد — أرخص طريقة لتقييم الخدمة الحقيقية.</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <Icons name="check" size={16} class="mt-0.5 shrink-0 text-amber-400" />
+            <span><strong style="color: var(--color-text);">مقتنع؟ اختر السنتين.</strong> بسعر $5.00 شهريًا تتفوق على كل صف آخر في هذه الصفحة.</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <Icons name="check" size={16} class="mt-0.5 shrink-0 text-amber-400" />
+            <span><strong style="color: var(--color-text);">جدد عندما تقرر أنت.</strong> يظهر زر التجديد قبل 30 يومًا من الانتهاء — لا قبل ذلك، ولا تلقائيًا أبدًا.</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card p-6">
+        <h2 class="text-xl font-bold mb-4" style="font-family: var(--font-heading);">طرق الدفع المقبولة</h2>
+        <div class="flex flex-wrap gap-3 mb-4">
+          {paymentIcons.map((name) => (
+            <Icons name={name} size={28} />
+          ))}
+        </div>
+        <p class="text-xs" style="color: var(--color-muted-dark);">
+          تتم عملية الدفع لـ TopVPN Premium عبر Stripe (البطاقات) وPayPal. أما PureVPN فتقبل طرق الدفع الخاصة بها على موقعها.
+        </p>
+      </div>
+    </div>
+
+    <div class="mt-12 max-w-3xl mx-auto">
+      <h2 class="text-2xl font-bold mb-6 text-center" style="font-family: var(--font-heading);">الأسئلة الشائعة</h2>
+      <FAQ items={faqs} />
+    </div>
+  </section>
+</BaseLayout>

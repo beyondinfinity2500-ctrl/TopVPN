@@ -1,0 +1,172 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import TagChips from '../../components/TagChips.astro';
+import Icons from '../../components/Icons.astro';
+import NewsiqAd from '../../components/newsiq/NewsiqAd.astro';
+import { newsiqInline } from '../../data/newsiq-ads';
+import { breadcrumbSchema, contextWrapper } from '../../lib/schema';
+
+const updatedStr = 'أكتوبر 2026';
+
+const hreflang = [
+  { lang: 'en', url: 'https://www.topvpn.top/vpn-types-guide' },
+  { lang: 'ar', url: 'https://www.topvpn.top/ar/vpn-types-guide' },
+  { lang: 'pcm', url: 'https://www.topvpn.top/pcm/vpn-types-guide' },
+  { lang: 'x-default', url: 'https://www.topvpn.top/vpn-types-guide' },
+];
+
+const comparison = [
+  { use: 'البث والمشاهدة', sharedIp: 'جيد — مستخدمون كثيرون يتشاركون العنوان نفسه، مما يصعّب حجبه فرديًا', dedicatedIp: 'أفضل — أشخاص أقل على عنوانك، وأقل عرضة للوسم من مواقع البث' },
+  { use: 'الخدمات البنكية', sharedIp: 'محفوف بالمخاطر — قد يستخدمه مستخدم آخر فيُطلق تنبيهات احتيال', dedicatedIp: 'أكثر أمانًا — العنوان الثابت يقلل الإقفالات الأمنية الخاطئة' },
+  { use: 'العمل عن بُعد', sharedIp: 'غالبًا محجوب — جدران الحماية المؤسسية لا تثق بعناوين IP المشتركة', dedicatedIp: 'غالبًا مسموح — يبدو عنوانك ثابتًا ومتوقعًا' },
+  { use: 'الألعاب', sharedIp: 'مقبول — تقنية NAT والعناوين المشتركة قد تضيف تأخيرًا', dedicatedIp: 'أكثر سلاسة — توجيه ثابت وتذبذب أقل في الـ ping' },
+  { use: 'استضافة الخدمات', sharedIp: 'غير مناسب — لا يمكنك تشغيل خادم على عنوان IP مشترك', dedicatedIp: 'ممكن — يمكنك استضافة خدماتك على عنوان معروف وثابت' },
+  { use: 'تجنب اختبارات CAPTCHA', sharedIp: 'اختبارات متكررة — العناوين المشتركة تلفت انتباه محركات البحث', dedicatedIp: 'اختبارات أقل — العنوان المخصص النظيف يخضع لتدقيق أقل' },
+];
+
+const faqs = [
+  { question: 'هل في بي ان بعنوان IP مخصص أكثر أمانًا من IP مشترك؟', answer: 'ليس بالضرورة. كلاهما يوفر التشفير نفسه. العنوان المخصص يتعلق بالراحة والاستقرار، لا بأمان أقوى. التشفير وحماية الخصوصية متطابقان — الفرق هو ما إذا كان أشخاص آخرون يتشاركون عنوانك.' },
+  { question: 'هل يمكنني التبديل بين IP المشترك والمخصص في الـ VPN نفسه؟', answer: 'بعض المزودين يتيحون التبديل بين الوضعين من داخل التطبيق، بينما يربط آخرون عنوانك المخصص بخادم معين تتصل به يدويًا. راجع إعدادات مزودك أو تواصل مع فريق الدعم لمعرفة طريقة العمل.' },
+  { question: 'هل العنوان المخصص يعني إخفاءً أقل لهويتي؟', answer: 'العنوان المخصص أكثر قابلية للتتبع إليك لأن لا أحد غيرك يستخدمه. إذا كانت أولويتك أقصى إخفاء، فالعنوان المشترك أفضل. وإذا كانت أولويتك الاستقرار وتقليل الانقطاعات، فالعنوان المخصص هو المقايضة.' },
+  { question: 'هل سيكلفني العنوان المخصص أكثر؟', answer: 'نعم، معظم المزودين يتقاضون رسومًا شهرية إضافية على العنوان المخصص فوق اشتراكك. تختلف التكلفة من مزود لآخر، لذا قارن الخيارات قبل أن تقرر.' },
+];
+
+const tags = ['أنواع في بي ان', 'IP مخصص', 'IP مشترك', 'دليل'];
+---
+
+<BaseLayout
+  title="في بي ان بعنوان IP مخصص أم IP مشترك: أيّهما تحتاج؟"
+  description="مقارنة بلغة واضحة بين في بي ان بعنوان IP مخصص وIP مشترك — للبث والخدمات البنكية والعمل عن بُعد والألعاب. اعرف الأنسب لحالتك."
+  lang="ar"
+  dir="rtl"
+  hreflang={hreflang}
+  autolink={false}
+  ogLocale="ar_AR"
+  jsonLd={contextWrapper(breadcrumbSchema([{ label: 'الرئيسية', href: '/' }, { label: 'دليل أنواع في بي ان' }]))}
+>
+  <Breadcrumbs items={[{ label: 'الرئيسية', href: '/' }, { label: 'دليل أنواع في بي ان' }]} />
+
+  <section class="container-max py-8 md:py-12">
+    <div class="max-w-3xl">
+      <div class="mb-4 flex items-center gap-2 text-xs" style="color: var(--color-muted-dark);">
+        <Icons name="doc" size={14} />
+        <span>آخر تحديث: {updatedStr}</span>
+      </div>
+
+      <h1 class="text-3xl md:text-4xl font-bold mb-4" style="font-family: var(--font-heading);">
+        في بي ان بعنوان IP مخصص أم IP مشترك: <span class="gold-text">أيّهما تحتاج؟</span>
+      </h1>
+
+      <p class="text-base md:text-lg mb-4" style="color: var(--color-muted);">
+        في بي ان بعنوان IP مشترك يخفيك بين الزحام — مستخدمون كثيرون يتشاركون العنوان نفسه، فيصعب تتبع أي نشاط إلى شخص بعينه. وفي بي ان بعنوان IP مخصص يمنحك عنوانًا تستخدمه وحدك. معظم الناس يحتاجون العنوان المشترك؛ وبعضهم يحتاج المخصص للخدمات البنكية أو العمل عن بُعد أو الاستضافة.
+      </p>
+
+      <div class="card p-4 mb-6 text-sm" style="background: var(--color-bg-alt);">
+        <p style="color: var(--color-muted);"><strong style="color: var(--color-text);">الإجابة السريعة:</strong> اختر العنوان المشترك للخصوصية والبث بميزانية محدودة. واختر المخصص إذا كنت تحتاج وصولًا ثابتًا إلى الخدمات البنكية أو أدوات العمل عن بُعد أو الخدمات التي تحجب العناوين المشتركة. تختلف قوانين الـ VPN بين الدول — تحقق من القواعد المحلية قبل الاستخدام.</p>
+      </div>
+
+      <TagChips chips={tags} class="mb-6" />
+    </div>
+
+    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">ما هو في بي ان بعنوان IP مشترك؟</h2>
+    <p class="text-sm mb-6 max-w-3xl" style="color: var(--color-muted);">
+      عندما تتصل بخادم VPN قياسي، تحصل على عنوان IP يتشاركه عشرات أو مئات المستخدمين الآخرين. هذا جيد للخصوصية — حركتك تختلط بحركة الجميع، فيصبح ربط أي إجراء محدد بك شبه مستحيل. الجانب السلب أن بعض المواقع تعتبر العناوين المشتركة مشبوهة، ما قد يطلق اختبارات CAPTCHA أو حجبًا للوصول.
+    </p>
+
+    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">ما هو في بي ان بعنوان IP مخصص؟</h2>
+    <p class="text-sm mb-6 max-w-3xl" style="color: var(--color-muted);">
+      العنوان المخصص يمنحك عنوان IP شخصيًا لا يستخدمه أحد غيرك. تحصل على تشفير الـ VPN ذاته، لكن عنوانك يبقى ثابتًا في كل مرة تتصل فيها. هذا مفيد للخدمات التي تحتاج التعرف على اتصالك — مثل بنكك أو شبكة عملك — لكنه يكلف إضافيًا ويقلل الإخفاء لأن العنوان قابل للتتبع إليك وحدك.
+    </p>
+
+    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">مقارنة جنبًا إلى جنب</h2>
+    <div class="overflow-x-auto mb-8">
+      <table class="responsive-table w-full text-sm" style="border-collapse: collapse;">
+        <thead>
+          <tr style="border-bottom: 2px solid var(--color-border);">
+            <th class="text-left py-3 px-2 md:px-4 font-semibold" style="color: var(--color-text);">حالة الاستخدام</th>
+            <th class="text-left py-3 px-2 md:px-4 font-semibold" style="color: var(--color-text);">IP مشترك</th>
+            <th class="text-left py-3 px-2 md:px-4 font-semibold" style="color: var(--color-text);">IP مخصص</th>
+          </tr>
+        </thead>
+        <tbody>
+          {comparison.map((row, i) => (
+            <tr style={i < comparison.length - 1 ? 'border-bottom: 1px solid var(--color-border);' : ''}>
+              <td data-label="حالة الاستخدام" class="py-3 px-2 md:px-4 font-semibold" style="color: var(--color-text);">{row.use}</td>
+              <td data-label="IP مشترك" class="py-3 px-2 md:px-4" style="color: var(--color-muted);">{row.sharedIp}</td>
+              <td data-label="IP مخصص" class="py-3 px-2 md:px-4" style="color: var(--color-muted);">{row.dedicatedIp}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">المقايضات بصراحة</h2>
+    <div class="grid md:grid-cols-2 gap-4 mb-8 max-w-4xl">
+      <div class="card p-5">
+        <h3 class="text-base font-bold mb-2" style="font-family: var(--font-heading);">مقايضات العنوان المشترك</h3>
+        <ul class="space-y-1.5 text-sm" style="color: var(--color-muted);">
+          <li class="flex items-start gap-2"><Icons name="check" size={12} class="mt-1 shrink-0 text-emerald-400" /> الأفضل للإخفاء</li>
+          <li class="flex items-start gap-2"><Icons name="check" size={12} class="mt-1 shrink-0 text-emerald-400" /> مضمّن في الباقات القياسية</li>
+          <li class="flex items-start gap-2"><Icons name="x" size={12} class="mt-1 shrink-0" /> اختبارات CAPTCHA وحجب أكثر</li>
+          <li class="flex items-start gap-2"><Icons name="x" size={12} class="mt-1 shrink-0" /> قد يُطلق تنبيهات احتيال لدى البنك</li>
+        </ul>
+      </div>
+      <div class="card p-5">
+        <h3 class="text-base font-bold mb-2" style="font-family: var(--font-heading);">مقايضات العنوان المخصص</h3>
+        <ul class="space-y-1.5 text-sm" style="color: var(--color-muted);">
+          <li class="flex items-start gap-2"><Icons name="check" size={12} class="mt-1 shrink-0 text-emerald-400" /> اتصال ثابت ومتوقع</li>
+          <li class="flex items-start gap-2"><Icons name="check" size={12} class="mt-1 shrink-0 text-emerald-400" /> اختبارات CAPTCHA ومشكلات وصول أقل</li>
+          <li class="flex items-start gap-2"><Icons name="x" size={12} class="mt-1 shrink-0" /> يكلف إضافيًا في معظم الباقات</li>
+          <li class="flex items-start gap-2"><Icons name="x" size={12} class="mt-1 shrink-0" /> أقل إخفاءً — العنوان لك وحدك</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">إذا كنت… فاختر هذا</h2>
+    <div class="card p-5 mb-8 max-w-3xl">
+      <ul class="space-y-3 text-sm">
+        <li class="flex items-start gap-2"><Icons name="arrow-right" size={16} class="mt-0.5 shrink-0 text-amber-400" /><span style="color: var(--color-muted);"><strong style="color: var(--color-text);">تريد أقصى خصوصية بميزانية محدودة</strong> ← IP مشترك</span></li>
+        <li class="flex items-start gap-2"><Icons name="arrow-right" size={16} class="mt-0.5 shrink-0 text-amber-400" /><span style="color: var(--color-muted);"><strong style="color: var(--color-text);">تحتاج وصولًا موثوقًا إلى الخدمات البنكية</strong> ← IP مخصص</span></li>
+        <li class="flex items-start gap-2"><Icons name="arrow-right" size={16} class="mt-0.5 shrink-0 text-amber-400" /><span style="color: var(--color-muted);"><strong style="color: var(--color-text);">تعمل عن بُعد وتتصل بأدوات الشركة</strong> ← IP مخصص</span></li>
+        <li class="flex items-start gap-2"><Icons name="arrow-right" size={16} class="mt-0.5 shrink-0 text-amber-400" /><span style="color: var(--color-muted);"><strong style="color: var(--color-text);">تريد اختبارات CAPTCHA أقل أثناء التصفح</strong> ← IP مخصص</span></li>
+        <li class="flex items-start gap-2"><Icons name="arrow-right" size={16} class="mt-0.5 shrink-0 text-amber-400" /><span style="color: var(--color-muted);"><strong style="color: var(--color-text);">تشاهد محتوى من دول أخرى</strong> ← IP مشترك (كافٍ عادة)</span></li>
+      </ul>
+    </div>
+
+    <div class="my-10">
+      <NewsiqAd placement={newsiqInline} id="newsiq-guide-vpntypes" />
+    </div>
+
+    <div class="max-w-3xl mb-8">
+      <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">الأسئلة الشائعة</h2>
+      <div class="space-y-3">
+        {faqs.map((f) => (
+          <details class="card p-4 group">
+            <summary class="font-semibold cursor-pointer text-sm flex items-center justify-between" style="font-family: var(--font-heading);">
+              {f.question}
+              <Icons name="chevron-down" size={16} class="text-amber-400 transition-transform group-open:rotate-180" />
+            </summary>
+            <p class="text-sm mt-3" style="color: var(--color-muted);">{f.answer}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+
+    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">أدلة ذات صلة</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 max-w-4xl">
+      <a href="/connection-guide" class="card p-4 block transition-all hover:border-amber-400">
+        <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">شرح بروتوكولات VPN</h3>
+        <p class="text-xs" style="color: var(--color-muted);">WireGuard وOpenVPN وغيرهما — أي بروتوكول يناسب إعدادك</p>
+      </a>
+      <a href="/order-vpn" class="card p-4 block transition-all hover:border-amber-400">
+        <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">قارن باقات في بي ان</h3>
+        <p class="text-xs" style="color: var(--color-muted);">الأسعار والميزات جنبًا إلى جنب لكل مزود نغطيه</p>
+      </a>
+      <a href="/" class="card p-4 block transition-all hover:border-amber-400">
+        <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">الصفحة الرئيسية لـ TopVPN</h3>
+        <p class="text-xs" style="color: var(--color-muted);">أفضل اختياراتنا ولماذا ننصح بها</p>
+      </a>
+    </div>
+  </section>
+</BaseLayout>

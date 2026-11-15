@@ -1,0 +1,118 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import TagChips from '../../components/TagChips.astro';
+import Icons from '../../components/Icons.astro';
+import { breadcrumbSchema, contextWrapper } from '../../lib/schema';
+
+const updatedStr = 'أكتوبر 2026';
+
+const faqs = [
+  { question: 'هل تؤثر العمولة على خدمات VPN التي توصون بها؟', answer: 'لا. نوصي بخدمات VPN بناءً على جدارتها — الخصوصية، السرعة، الميزات، والقيمة. وإذا كان في مزود نكسب منه عمولة نقطة ضعف، نذكرها بصراحة. نحن نفضل خسارة عمولة على تضليل قارئ.' },
+  { question: 'هل تكسبون عمولة على كل VPN مدرج؟', answer: 'ليس بالضرورة. بعض الروابط روابط أفلييت وبعضها ليس كذلك. وندرج خدمات VPN نرى أنها تستحق المقارنة سواء كنا نكسب منها أم لا.' },
+  { question: 'هل أدفع أكثر إذا استخدمت رابطكم؟', answer: 'لا. السعر الذي تدفعه هو نفسه سواء استخدمت رابطنا أو ذهبت مباشرة إلى المزود. العمولة تأتي من هامش المزود، لا من جيبك.' },
+  { question: 'هل يمكنني شراء VPN دون استخدام رابط الأفلييت؟', answer: 'بالتأكيد. لك الحرية الكاملة في زيارة أي مزود مباشرة. ومحتوانا مجاني للقراءة في الحالتين.' },
+];
+
+const tags = ['إفصاح', 'أفلييت', 'شفافية'];
+
+const hreflang = [
+  { lang: 'en', url: 'https://www.topvpn.top/affiliate-disclosure' },
+  { lang: 'ar', url: 'https://www.topvpn.top/ar/affiliate-disclosure' },
+  { lang: 'pcm', url: 'https://www.topvpn.top/pcm/affiliate-disclosure' },
+  { lang: 'x-default', url: 'https://www.topvpn.top/affiliate-disclosure' },
+];
+
+const breadcrumbs = [
+  { label: 'الرئيسية', href: '/' },
+  { label: 'إفصاح الأفلييت' },
+];
+---
+
+<BaseLayout
+  title="إفصاح الأفلييت"
+  description="يحصل توب في بي ان على عمولة عند الشراء عبر بعض الروابط، دون أي تكلفة إضافية عليك. وهذا لا يؤثر على آرائنا."
+  lang="ar"
+  dir="rtl"
+  hreflang={hreflang}
+  autolink={false}
+  ogLocale="ar_AR"
+  jsonLd={contextWrapper(breadcrumbSchema(breadcrumbs))}
+>
+  <Breadcrumbs items={breadcrumbs} />
+
+  <section class="container-max py-8 md:py-12">
+    <div class="max-w-3xl">
+      <div class="mb-4 flex items-center gap-2 text-xs" style="color: var(--color-muted-dark);">
+        <Icons name="doc" size={14} />
+        <span>آخر تحديث {updatedStr}</span>
+      </div>
+
+      <h1 class="text-3xl md:text-4xl font-bold mb-6" style="font-family: var(--font-heading);">
+        إفصاح <span class="gold-text">الأفلييت</span>
+      </h1>
+
+      <div class="card p-4 mb-6 text-sm" style="background: var(--color-bg-alt);">
+        <p style="color: var(--color-muted);"><strong style="color: var(--color-text);">الإجابة السريعة:</strong> نحصل على عمولة عند الشراء عبر بعض الروابط، دون أي تكلفة إضافية عليك. وهذا لا يؤثر على آرائنا.</p>
+      </div>
+
+      <TagChips chips={tags} class="mb-6" />
+
+      <div class="space-y-6">
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">كيف نكسب</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            بعض الروابط على توب في بي ان روابط أفلييت. عند النقر على أحدها والاشتراك في خدمة VPN، قد نحصل على عمولة من المزود. هذا لا يرفع السعر الذي تدفعه. فالعمولة يتحملها المزود، لا أنت.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">استقلاليتنا التحريرية</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            العمولة لا تحدد أبدًا تقييماتنا أو ترتيبنا أو توصياتنا. نختبر خدمات VPN ونقارنها وفق معايير حقيقية — سياسات الخصوصية، السرعة، شبكات الخوادم، دعم الأجهزة، والقيمة مقابل السعر. وإذا كان في خدمة ما نقطة ضعف، نقول ذلك سواء كنا نكسب منها أم لا.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">لماذا يهمك هذا</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            من حقك أن تعرف متى تكون بين الموقع والمنتجات التي يغطيها علاقة مالية. الشفافية تتيح لك وزن توصياتنا في سياقها الصحيح. فإذا أخفى موقع علاقاته بالأفلييت، فلن تتمكن من الثقة بأن نصيحته مستقلة. ونحن نريدك أن تثق بنصائحنا.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">لديك أسئلة؟</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            إذا كانت لديك أسئلة حول كيفية كسبنا أو كيفية عمل روابط الأفلييت، يسعدنا أن نشرح أكثر. راجع <a href="/contact" class="gold-text">صفحة التواصل</a> لمعرفة حالة التواصل الحالية — فالإرسال المباشر للرسائل غير متاح حاليًا.
+          </p>
+        </div>
+      </div>
+
+      <div class="mt-8">
+        <h2 class="text-xl font-bold mb-4" style="font-family: var(--font-heading);">الأسئلة الشائعة</h2>
+        <div class="space-y-3">
+          {faqs.map((f) => (
+            <details class="card p-4 group">
+              <summary class="font-semibold cursor-pointer text-sm flex items-center justify-between" style="font-family: var(--font-heading);">
+                {f.question}
+                <Icons name="chevron-down" size={16} class="text-amber-400 transition-transform group-open:rotate-180" />
+              </summary>
+              <p class="text-sm mt-3" style="color: var(--color-muted);">{f.answer}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+
+      <div class="mt-8 flex flex-col sm:flex-row gap-4">
+        <a href="/" class="inline-flex items-center gap-2 text-sm font-semibold gold-text">
+          <Icons name="arrow-right" size={14} class="rotate-180 text-amber-400" />
+          العودة إلى الرئيسية
+        </a>
+        <a href="/order-vpn" class="inline-flex items-center gap-2 text-sm font-semibold gold-text">
+          قارن باقات VPN
+          <Icons name="arrow-right" size={14} class="text-amber-400" />
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

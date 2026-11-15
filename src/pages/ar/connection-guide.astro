@@ -1,0 +1,226 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import TagChips from '../../components/TagChips.astro';
+import Icons from '../../components/Icons.astro';
+import NewsiqAd from '../../components/newsiq/NewsiqAd.astro';
+import { newsiqInline } from '../../data/newsiq-ads';
+import { breadcrumbSchema, contextWrapper } from '../../lib/schema';
+
+const updatedStr = 'أكتوبر 2026';
+
+const hreflang = [
+  { lang: 'en', url: 'https://www.topvpn.top/connection-guide' },
+  { lang: 'ar', url: 'https://www.topvpn.top/ar/connection-guide' },
+  { lang: 'pcm', url: 'https://www.topvpn.top/pcm/connection-guide' },
+  { lang: 'x-default', url: 'https://www.topvpn.top/connection-guide' },
+];
+
+const protocolSituations = [
+  { situation: 'التصفح والبث اليومي', recommendation: 'WireGuard', reason: 'الأسرع، تشفير حديث، حِمل منخفض' },
+  { situation: 'الشبكات التي تحجب WireGuard', recommendation: 'OpenVPN (UDP)', reason: 'بديل موثوق مدعوم على نطاق واسع' },
+  { situation: 'جدران حماية مقيّدة', recommendation: 'OpenVPN (TCP)', reason: 'أبطأ لكنه يتجاوز جدران الحماية بشكل أفضل' },
+  { situation: 'الجوال والتنقل', recommendation: 'IKEv2/IPSec', reason: 'يعيد الاتصال بسرعة عند التبديل بين الشبكات' },
+  { situation: 'الشبكات شديدة التقييد', recommendation: 'Shadowsocks أو V2Ray', reason: 'مصمم لإخفاء الحركة كأنها HTTPS عادية' },
+  { situation: 'أقصى سرعة على الأجهزة الموثوقة', recommendation: 'WireGuard', reason: 'قاعدة برمجية خفيفة وزمن استجابة أدنى' },
+];
+
+const countryProtocols = [
+  { country: 'الصين', pop: 'أكثر من 1.1 مليار', oftenWorks: 'Shadowsocks, V2Ray', mayBeBlocked: 'WireGuard, OpenVPN', note: 'الفحص العميق للحزم يستهدف حركة VPN القياسية؛ أدوات التمويه تعمل غالبًا بشكل أفضل' },
+  { country: 'الهند', pop: 'أكثر من 700 مليون', oftenWorks: 'WireGuard, OpenVPN', mayBeBlocked: 'Shadowsocks (نادرًا ما يلزم)', note: 'البروتوكولات القياسية تعمل عادة؛ تخفيض عرضي للسرعة على بعض الشبكات' },
+  { country: 'الولايات المتحدة', pop: 'أكثر من 310 ملايين', oftenWorks: 'WireGuard, OpenVPN, IKEv2', mayBeBlocked: 'V2Ray (نادرًا ما يلزم)', note: 'جميع البروتوكولات القياسية تعمل بحرية' },
+  { country: 'إندونيسيا', pop: 'أكثر من 210 ملايين', oftenWorks: 'WireGuard, OpenVPN', mayBeBlocked: 'بعض الخوادم على شبكات الجوال', note: 'قيود عرضية على حركة الألعاب والتواصل الاجتماعي' },
+  { country: 'البرازيل', pop: 'أكثر من 180 مليونًا', oftenWorks: 'WireGuard, OpenVPN', mayBeBlocked: 'IKEv2 (غير شائع)', note: 'البروتوكولات القياسية تعمل عمومًا دون مشكلات' },
+  { country: 'تركيا', pop: 'أكثر من 80 مليونًا', oftenWorks: 'OpenVPN (TCP), Shadowsocks', mayBeBlocked: 'WireGuard (متقطع)', note: 'تخفيض دوري للسرعة؛ البروتوكولات المعتمدة على TCP غالبًا أكثر موثوقية' },
+  { country: 'روسيا', pop: 'أكثر من 130 مليونًا', oftenWorks: 'Shadowsocks, V2Ray, OpenVPN (TCP)', mayBeBlocked: 'WireGuard, OpenVPN (UDP)', note: 'حجب نشط لبروتوكولات VPN القياسية؛ يُنصح بأدوات التمويه' },
+  { country: 'إيران', pop: 'أكثر من 90 مليونًا', oftenWorks: 'Shadowsocks, V2Ray', mayBeBlocked: 'WireGuard, OpenVPN, IKEv2', note: 'تصفية واسعة النطاق؛ أدوات التمويه ضرورية عادة' },
+];
+
+const protocols = [
+  {
+    name: 'WireGuard',
+    badge: 'الأسرع',
+    description: 'أحدث البروتوكولات الرئيسية. يستخدم تشفيرًا حديثًا وقاعدة برمجية خفيفة، ما يجعله سريعًا وسهل التدقيق. الأفضل للاستخدام اليومي.',
+    bestFor: 'البث والتصفح وبيانات الجوال',
+  },
+  {
+    name: 'OpenVPN (UDP)',
+    badge: 'موثوق',
+    description: 'بروتوكول مفتوح المصدر مُجرَّب في الميدان. نسخة UDP تعطي الأولوية للسرعة. خيار جيد عندما يكون WireGuard محجوبًا أو غير مستقر على شبكتك.',
+    bestFor: 'البديل عندما لا يعمل WireGuard',
+  },
+  {
+    name: 'OpenVPN (TCP)',
+    badge: 'تخفّي',
+    description: 'التشفير نفسه لكن عبر TCP، وهو أكثر تسامحًا مع الاتصالات غير المستقرة. أبطأ، لكنه يستطيع عبور جدران الحماية التي تُسقط UDP.',
+    bestFor: 'الشبكات المقيدة وجدران الحماية',
+  },
+  {
+    name: 'IKEv2/IPSec',
+    badge: 'مناسب للجوال',
+    description: 'مدمج أصلًا في معظم الهواتف. يعيد الاتصال بسرعة عند الانتقال بين الواي فاي وشبكة الجوال، ما يجعله مثاليًا للاستخدام المتنقل.',
+    bestFor: 'الهواتف والأجهزة اللوحية والتنقل',
+  },
+  {
+    name: 'Shadowsocks',
+    badge: 'تمويه',
+    description: 'وسيط (بروكسي) مصمم لإخفاء حركتك كأنها HTTPS عادية. ليس بروتوكول VPN كاملًا، لكنه يُستخدم غالبًا حيث تُحجب شبكات VPN القياسية.',
+    bestFor: 'الشبكات شديدة التقييد',
+  },
+  {
+    name: 'V2Ray',
+    badge: 'تمويه متقدم',
+    description: 'أداة مرنة يمكنها إخفاء حركة الـ VPN بطرق متعددة. أكثر تعقيدًا في الإعداد، لكنها فعالة في المناطق التي تعتمد الفحص العميق للحزم.',
+    bestFor: 'الدول التي تحجب الـ VPN بنشاط',
+  },
+];
+
+const faqs = [
+  { question: 'أي بروتوكول أستخدم افتراضيًا؟', answer: 'ابدأ بـ WireGuard إذا كان مزودك يوفره. إنه الأسرع ويعمل جيدًا للبث والتصفح وبيانات الجوال. انتقل إلى OpenVPN (UDP) فقط إذا كان WireGuard محجوبًا أو غير موثوق على شبكتك.' },
+  { question: 'ما الفرق بين Shadowsocks والـ VPN؟', answer: 'Shadowsocks وسيط يُشفّر حركتك ويخفيها كأنها HTTPS، لكنه لا يُشفّر كل حركة جهازك كما يفعل الـ VPN الكامل. يُستخدم أساسًا لتجاوز الحجب، لا للخصوصية العامة.' },
+  { question: 'هل V2Ray أفضل من Shadowsocks؟', answer: 'V2Ray أكثر مرونة ويمكنه إخفاء الحركة بطرق أكثر، لكنه أصعب في الإعداد. لمعظم الناس في المناطق المقيدة، Shadowsocks أبسط وكافٍ غالبًا. جرّب V2Ray إذا توقف Shadowsocks عن العمل.' },
+  { question: 'لماذا لا يتصل WireGuard أحيانًا؟', answer: 'بعض الشبكات والدول تحجب حركة WireGuard بنشاط لأن حزمها ذات نمط يمكن التعرف عليه. إذا حدث ذلك، انتقل إلى OpenVPN (TCP) أو جرّب أداة تمويه مثل Shadowsocks إذا كان مزودك يدعمها.' },
+];
+
+const tags = ['بروتوكولات', 'WireGuard', 'OpenVPN', 'V2Ray', 'Shadowsocks', 'دليل'];
+---
+
+<BaseLayout
+  title="بروتوكولات VPN بالتفصيل: WireGuard وOpenVPN وV2Ray وShadowsocks"
+  description="دليل مبسط لبروتوكولات VPN: أي بروتوكول تستخدم للبث والألعاب والشبكات المقيدة — مع نظرة عامة دولة بدولة."
+  lang="ar"
+  dir="rtl"
+  hreflang={hreflang}
+  autolink={false}
+  ogLocale="ar_AR"
+  jsonLd={contextWrapper(breadcrumbSchema([{ label: 'الرئيسية', href: '/' }, { label: 'دليل الاتصال' }]))}
+>
+  <Breadcrumbs items={[{ label: 'الرئيسية', href: '/' }, { label: 'دليل الاتصال' }]} />
+
+  <section class="container-max py-8 md:py-12">
+    <div class="max-w-3xl">
+      <div class="mb-4 flex items-center gap-2 text-xs" style="color: var(--color-muted-dark);">
+        <Icons name="doc" size={14} />
+        <span>آخر تحديث: {updatedStr}</span>
+      </div>
+
+      <h1 class="text-3xl md:text-4xl font-bold mb-4" style="font-family: var(--font-heading);">
+        بروتوكولات VPN <span class="gold-text">بالتفصيل</span>: WireGuard وOpenVPN وV2Ray وShadowsocks
+      </h1>
+
+      <p class="text-base md:text-lg mb-4" style="color: var(--color-muted);">
+        بروتوكول الـ VPN هو الطريقة التي يستخدمها الـ VPN لتشفير حركتك وتوجيهها. الاختيار الصحيح يؤثر على السرعة والموثوقية، وعلى ما إذا كان اتصالك يعمل في المناطق المقيدة. معظم الناس ينبغي أن يستخدموا WireGuard؛ ومن هم في شبكات مصفاة بشدة قد يحتاجون Shadowsocks أو V2Ray.
+      </p>
+
+      <div class="card p-4 mb-6 text-sm" style="background: var(--color-bg-alt);">
+        <p style="color: var(--color-muted);"><strong style="color: var(--color-text);">الإجابة السريعة:</strong> استخدم WireGuard للسرعة والتصفح اليومي. وOpenVPN (UDP) كبديل. وOpenVPN (TCP) أو Shadowsocks أو V2Ray في الدول أو الشبكات التي تحجب حركة VPN القياسية. تختلف قوانين الـ VPN بين الدول — تحقق من القواعد المحلية قبل الاستخدام.</p>
+      </div>
+
+      <TagChips chips={tags} class="mb-6" />
+    </div>
+
+    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">أي بروتوكول لأي حالة</h2>
+    <div class="overflow-x-auto mb-8">
+      <table class="responsive-table w-full text-sm" style="border-collapse: collapse;">
+        <thead>
+          <tr style="border-bottom: 2px solid var(--color-border);">
+            <th class="text-left py-3 px-2 md:px-4 font-semibold" style="color: var(--color-text);">الحالة</th>
+            <th class="text-left py-3 px-2 md:px-4 font-semibold" style="color: var(--color-text);">الموصى به</th>
+            <th class="text-left py-3 px-2 md:px-4 font-semibold" style="color: var(--color-text);">السبب</th>
+          </tr>
+        </thead>
+        <tbody>
+          {protocolSituations.map((row, i) => (
+            <tr style={i < protocolSituations.length - 1 ? 'border-bottom: 1px solid var(--color-border);' : ''}>
+              <td data-label="الحالة" class="py-3 px-2 md:px-4 font-semibold" style="color: var(--color-text);">{row.situation}</td>
+              <td data-label="الموصى به" class="py-3 px-2 md:px-4" style="color: var(--color-gold-light); font-weight: 600;">{row.recommendation}</td>
+              <td data-label="السبب" class="py-3 px-2 md:px-4" style="color: var(--color-muted);">{row.reason}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">البروتوكولات التي تعمل غالبًا بشكل أفضل حسب الدولة</h2>
+    <p class="text-sm mb-4 max-w-3xl" style="color: var(--color-muted);">
+      هذا الجدول مبني على خبرة عامة، لا على ضمانات. فعالية البروتوكولات تتغير مع الوقت مع تطور أساليب التصفية. «تعمل جيدًا غالبًا» تعني أن المستخدمين يبلّغون كثيرًا عن نجاحها؛ و«قد تُحجب» تعني أنه قد تفشل أو يُخفَّض سرعتها.
+    </p>
+    <div class="overflow-x-auto mb-8">
+      <table class="responsive-table w-full text-sm" style="border-collapse: collapse;">
+        <thead>
+          <tr style="border-bottom: 2px solid var(--color-border);">
+            <th class="text-left py-3 px-2 md:px-4 font-semibold" style="color: var(--color-text);">الدولة</th>
+            <th class="text-left py-3 px-2 md:px-4 font-semibold" style="color: var(--color-text);">مستخدمو الإنترنت</th>
+            <th class="text-left py-3 px-2 md:px-4 font-semibold" style="color: var(--color-text);">تعمل جيدًا غالبًا</th>
+            <th class="text-left py-3 px-2 md:px-4 font-semibold" style="color: var(--color-text);">قد تُحجب</th>
+            <th class="text-left py-3 px-2 md:px-4 font-semibold" style="color: var(--color-text);">ملاحظات</th>
+          </tr>
+        </thead>
+        <tbody>
+          {countryProtocols.map((row, i) => (
+            <tr style={i < countryProtocols.length - 1 ? 'border-bottom: 1px solid var(--color-border);' : ''}>
+              <td data-label="الدولة" class="py-3 px-2 md:px-4 font-semibold" style="color: var(--color-text);">{row.country}</td>
+              <td data-label="مستخدمو الإنترنت" class="py-3 px-2 md:px-4" style="color: var(--color-muted);">{row.pop}</td>
+              <td data-label="تعمل جيدًا غالبًا" class="py-3 px-2 md:px-4" style="color: var(--color-emerald); font-weight: 600;">{row.oftenWorks}</td>
+              <td data-label="قد تُحجب" class="py-3 px-2 md:px-4" style="color: var(--color-muted-dark);">{row.mayBeBlocked}</td>
+              <td data-label="ملاحظات" class="py-3 px-2 md:px-4" style="color: var(--color-muted);">{row.note}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">تفصيل البروتوكولات</h2>
+    <div class="space-y-4 mb-8">
+      {protocols.map((p) => (
+        <div class="card p-5">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-lg font-bold" style="font-family: var(--font-heading);">{p.name}</h3>
+            <span class="text-xs px-2 py-1 rounded" style="background: rgba(212, 175, 55, 0.1); color: var(--color-gold-light);">{p.badge}</span>
+          </div>
+          <p class="text-sm mb-2" style="color: var(--color-muted);">{p.description}</p>
+          <p class="text-xs mb-3" style="color: var(--color-muted-dark);">الأفضل لـ: {p.bestFor}</p>
+          <a href="/order-vpn" class="inline-flex items-center gap-1 text-xs font-semibold gold-text">
+            شاهد باقات في بي ان التي تدعم {p.name}
+            <Icons name="arrow-right" size={14} class="text-amber-400" />
+          </a>
+        </div>
+      ))}
+    </div>
+
+    <div class="my-10">
+      <NewsiqAd placement={newsiqInline} id="newsiq-guide-connections" />
+    </div>
+
+    <div class="max-w-3xl mb-8">
+      <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">الأسئلة الشائعة</h2>
+      <div class="space-y-3">
+        {faqs.map((f) => (
+          <details class="card p-4 group">
+            <summary class="font-semibold cursor-pointer text-sm flex items-center justify-between" style="font-family: var(--font-heading);">
+              {f.question}
+              <Icons name="chevron-down" size={16} class="text-amber-400 transition-transform group-open:rotate-180" />
+            </summary>
+            <p class="text-sm mt-3" style="color: var(--color-muted);">{f.answer}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+
+    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">أدلة ذات صلة</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
+      <a href="/vpn-types-guide" class="card p-4 block transition-all hover:border-amber-400">
+        <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">IP مخصص أم مشترك</h3>
+        <p class="text-xs" style="color: var(--color-muted);">أي نوع يناسبك للخدمات البنكية والبث والعمل</p>
+      </a>
+      <a href="/order-vpn" class="card p-4 block transition-all hover:border-amber-400">
+        <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">قارن باقات في بي ان</h3>
+        <p class="text-xs" style="color: var(--color-muted);">الأسعار ودعم البروتوكولات جنبًا إلى جنب لكل مزود</p>
+      </a>
+      <a href="/" class="card p-4 block transition-all hover:border-amber-400">
+        <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">الصفحة الرئيسية لـ TopVPN</h3>
+        <p class="text-xs" style="color: var(--color-muted);">أفضل اختياراتنا وما يميزها</p>
+      </a>
+    </div>
+  </section>
+</BaseLayout>

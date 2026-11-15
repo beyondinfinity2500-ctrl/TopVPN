@@ -1,0 +1,364 @@
+---
+/**
+ * /pcm/order-vpn — Pidgin version of the "buy VPN" landing page.
+ * Structure mirrors /order-vpn (owner-approved, 2026-11).
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import FAQ from '../../components/FAQ.astro';
+import Icons from '../../components/Icons.astro';
+import NewsiqAd from '../../components/newsiq/NewsiqAd.astro';
+import { newsiqInline } from '../../data/newsiq-ads';
+import { breadcrumbSchema, faqSchema, contextWrapper } from '../../lib/schema';
+import { formatUsd } from '../../lib/premium';
+
+const hreflang = [
+  { lang: 'en', url: 'https://www.topvpn.top/order-vpn' },
+  { lang: 'ar', url: 'https://www.topvpn.top/ar/order-vpn' },
+  { lang: 'pcm', url: 'https://www.topvpn.top/pcm/order-vpn' },
+  { lang: 'x-default', url: 'https://www.topvpn.top/order-vpn' },
+];
+
+const paymentIcons = ['paypal', 'visa', 'mastercard', 'amex', 'applepay', 'googlepay', 'crypto'];
+
+const KEYWORD = 'buy VPN';
+
+const plans = [
+  {
+    id: 'monthly',
+    name: 'Monthly',
+    price: 9,
+    perMonth: 9,
+    months: 1,
+    billed: 9,
+    intro: 3,
+    badge: 'Try am first',
+    highlighted: false,
+    blurb: 'The easiest way to start. One month of the full Premium experience, you go pay once.',
+    bullets: ['Full Premium experience', 'First month na $3 for new customers', 'Renew am yourself any time'],
+  },
+  {
+    id: 'annual',
+    name: 'Annual',
+    price: 72,
+    perMonth: 6,
+    months: 12,
+    billed: 72,
+    badge: 'Save 33%',
+    highlighted: false,
+    blurb: 'One payment cover full year — 12 months for the price of 8.',
+    bullets: ['$6.00 every month, you go pay once', 'Same Premium features like every plan', 'Renew am yourself before e expire'],
+  },
+  {
+    id: 'two-year',
+    name: 'Two-Year',
+    price: 120,
+    perMonth: 5,
+    months: 24,
+    billed: 120,
+    badge: 'Best value — save 44%',
+    highlighted: true,
+    blurb: 'The clear winner on price: 24 months of Premium VPN for $5.00 every month.',
+    bullets: ['$5.00 every month — na the lowest wey we get', 'One payment, no renewal wahala', 'Everything open for two full years'],
+  },
+];
+
+const faqs = [
+  { question: `Where I fit ${KEYWORD} for price wey fair?`, answer: 'Right here. TopVPN Premium na $9 for one month — and as one-time welcome, your first month na $3 instead of $9. If you already know say you go keep am, the Two-Year plan na $5.00 every month, na the lowest price wey we get.' },
+  { question: 'Why the Two-Year plan na the best value?', answer: 'Because the per-month math only dey move one direction: $9.00 monthly, $6.00 for the Annual plan, and $5.00 for the Two-Year plan. You pay once, the price no go change during your period, and no subscription wey you go dey remember — renewal na always manual and dem go announce am before time.' },
+  { question: 'How the $3 first-month offer dey work?', answer: 'Your first purchase as new customer go get the FIRST-MONTH coupon: the Monthly plan go cost $3 instead of $9 for the first month. E dey apply once per customer, our server go validate am for checkout, and e exist just to build trust — after the first month, the normal $9 price go dey, and na manual charge every time.' },
+  { question: 'Any subscription or automatic renewal?', answer: 'No. Every TopVPN payment na one-time purchase for fixed period. Nothing go ever charge automatic and dem no go store your card for future charge. If you want another period, you go place new order yourself — the renewal button go show 30 days before e expire.' },
+  { question: 'Wetin if I want different VPN brand?', answer: 'We list exactly one outside option: PureVPN, global brand, e dey available at special prices through our partner link for down. We keep the list short on purpose — we prefer to stand behind one recommendation than to bury you inside plenty options.' },
+];
+
+const productJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: 'TopVPN Premium',
+  description: 'Premium VPN service with one-time pricing: $3 first month for new customers, $9 every month normal, $72 annual or $120 two-year. No subscription, no automatic renewal.',
+  brand: { '@type': 'Brand', name: 'TopVPN' },
+  offers: {
+    '@type': 'AggregateOffer',
+    priceCurrency: 'USD',
+    lowPrice: '3.00',
+    highPrice: '120.00',
+    offerCount: '3',
+    offers: [
+      { '@type': 'Offer', name: 'Monthly (first month for new customers)', price: '3.00', priceCurrency: 'USD', availability: 'https://schema.org/InStock', url: 'https://www.topvpn.top/pcm/order-vpn#monthly' },
+      { '@type': 'Offer', name: 'Annual — 12 months', price: '72.00', priceCurrency: 'USD', availability: 'https://schema.org/InStock', url: 'https://www.topvpn.top/pcm/order-vpn#annual' },
+      { '@type': 'Offer', name: 'Two-Year — 24 months (best value)', price: '120.00', priceCurrency: 'USD', availability: 'https://schema.org/InStock', url: 'https://www.topvpn.top/pcm/order-vpn#two-year' },
+    ],
+  },
+};
+
+const orderJsonLd = [
+  productJsonLd,
+  breadcrumbSchema([{ label: 'Home', href: '/' }, { label: 'Buy VPN' }]),
+  faqSchema(faqs),
+];
+---
+
+<BaseLayout
+  title="Buy VPN Online — Premium Plans from $3 for First Month"
+  description={`You wan ${KEYWORD} without wahala? $3 for your first month, $5.00/month on Two-Year plan. No subscription, no automatic charge. PureVPN at special prices.`}
+  lang="pcm"
+  hreflang={hreflang}
+  autolink={false}
+  ogLocale="pcm_NG"
+  jsonLd={contextWrapper(orderJsonLd)}
+>
+  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Buy VPN' }]} />
+
+  <section class="container-max py-8 md:py-12">
+    <h1 class="text-3xl md:text-4xl font-bold mb-4" style="font-family: var(--font-heading);">
+      Buy VPN Online — <span class="gold-text">Premium Plans</span>, One Honest Price List
+    </h1>
+    <p class="text-base md:text-lg mb-3 max-w-2xl" style="color: var(--color-muted);">
+      You wan {KEYWORD} once and continue your life. For down here na our own TopVPN Premium plans with the real, final numbers — then one-time $3 first month for new customers, and finally one trusted alternative if you want second brand.
+    </p>
+    <p class="text-sm mb-6 max-w-2xl" style="color: var(--color-muted);">
+      Every price for here na the price you go actually pay. No trial trap, no renewal jump, no box wey dem don tick before — each payment na one-time and manual.
+    </p>
+
+    <div class="card p-4 mb-8 text-xs flex items-start gap-2" style="background: var(--color-bg-alt);">
+      <Icons name="shield" size={14} class="mt-0.5 shrink-0 text-amber-400" />
+      <p style="color: var(--color-muted);">
+        <strong style="color: var(--color-text);">Open talk:</strong> The only external link on this page (PureVPN) na affiliate link — we fit earn commission and e no go add any extra cost for you. We dey sell our own plans directly on this site.
+      </p>
+    </div>
+
+    <!-- ===== TopVPN's own plans ===== -->
+    <h2 class="text-2xl font-bold mb-2" style="font-family: var(--font-heading);">
+      Step 1 — Choose your <span class="gold-text">TopVPN Premium</span> plan
+    </h2>
+    <p class="text-sm mb-6 max-w-2xl" style="color: var(--color-muted);">
+      Same features on every plan. Na only how long one payment last dey different.
+    </p>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto items-start">
+      {plans.map((plan) => (
+        <div id={plan.id} class:list={['card p-7 flex flex-col h-full relative scroll-mt-24', plan.highlighted ? 'border-2' : '']}
+          style={plan.highlighted ? 'border-color: var(--color-gold);' : ''}>
+          {plan.badge && (
+            <span class="absolute -top-3 left-1/2 -translate-x-1/2 text-[11px] font-bold uppercase tracking-wide px-3 py-1 rounded-full whitespace-nowrap"
+              style={plan.highlighted ? 'background: linear-gradient(135deg, #D4AF37, #F5D77A); color: #0B1020;' : 'background: #1D2440; color: var(--color-muted);'}>
+              {plan.badge}
+            </span>
+          )}
+
+          <h3 class="text-lg font-bold mb-4 mt-1" style="font-family: var(--font-heading);">TopVPN Premium — {plan.name}</h3>
+
+          <div class="mb-4">
+            {plan.intro ? (
+              <div class="flex items-baseline gap-2">
+                <s class="text-xl" style="color: var(--color-muted);">{formatUsd(plan.price)}</s>
+                <span class="text-4xl font-bold gold-text" style="font-family: var(--font-heading);">{formatUsd(plan.intro)}</span>
+                <span class="text-sm" style="color: var(--color-muted);">/first month</span>
+              </div>
+            ) : (
+              <div class="flex items-baseline gap-2">
+                <span class="text-4xl font-bold gold-text" style="font-family: var(--font-heading);">{formatUsd(plan.perMonth)}</span>
+                <span class="text-sm" style="color: var(--color-muted);">/month</span>
+              </div>
+            )}
+            {plan.months > 1 && (
+              <p class="text-xs mt-2" style="color: var(--color-muted);">
+                You go pay {formatUsd(plan.billed)} once for {plan.months} months. Na {formatUsd(plan.perMonth)} every month.
+              </p>
+            )}
+          </div>
+
+          <ul class="space-y-2.5 mb-6 flex-grow">
+            {plan.bullets.map((b) => (
+              <li class="flex items-start gap-2 text-sm">
+                <Icons name="check" size={16} class="mt-0.5 shrink-0" style="color: var(--color-emerald);" />
+                <span style="color: var(--color-text);">{b}</span>
+              </li>
+            ))}
+          </ul>
+
+          <a href="/account" class="btn-gold w-full justify-center mt-auto" rel="nofollow">
+            {plan.intro ? 'Buy Monthly — $3 first month' : `Buy ${plan.name} — ${formatUsd(plan.billed)}`}
+          </a>
+          <p class="text-[11px] text-center mt-2" style="color: var(--color-muted-dark);">One-time payment. No subscription, no automatic charge.</p>
+        </div>
+      ))}
+    </div>
+
+    <p class="text-xs text-center mt-4 max-w-2xl mx-auto" style="color: var(--color-muted-dark);">
+      The buy buttons go open your TopVPN account, where checkout (Stripe and PayPal) go start with small clicks.
+    </p>
+
+    <!-- ===== Side-by-side comparison + verdict ===== -->
+    <div class="mt-14">
+      <h2 class="text-2xl font-bold mb-2" style="font-family: var(--font-heading);">
+        Step 2 — <span class="gold-text">Compare</span> the plans side by side
+      </h2>
+      <p class="text-sm mb-6 max-w-2xl" style="color: var(--color-muted);">
+        Na the same premium service for all the three rows — na only the duration dey change.
+      </p>
+
+      <div class="card p-0 overflow-x-auto">
+        <table class="w-full text-sm" style="min-width: 560px;">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--color-border);">
+              <th class="text-left px-5 py-3" style="color: var(--color-muted);">Plan</th>
+              <th class="text-left px-5 py-3" style="color: var(--color-muted);">You pay once</th>
+              <th class="text-left px-5 py-3" style="color: var(--color-muted);">Every month</th>
+              <th class="text-left px-5 py-3" style="color: var(--color-muted);">If you compare with monthly</th>
+              <th class="text-left px-5 py-3" style="color: var(--color-muted);">Buy</th>
+            </tr>
+          </thead>
+          <tbody>
+            {plans.map((plan) => (
+              <tr style="border-bottom: 1px solid var(--color-border);" class:list={[plan.highlighted ? 'bg-transparent' : '']}>
+                <td class="px-5 py-4 font-semibold" style="color: var(--color-text);">
+                  {plan.name}{plan.highlighted && <span class="ml-2 text-[10px] px-2 py-0.5 rounded-full align-middle" style="background: rgba(212,175,55,.15); color: var(--color-gold-light);">BEST VALUE</span>}
+                </td>
+                <td class="px-5 py-4" style="color: var(--color-text);">
+                  {plan.intro ? <span><s style="color: var(--color-muted);">{formatUsd(plan.price)}</s> <strong class="gold-text">{formatUsd(plan.intro)}</strong> first month, then {formatUsd(plan.price)}</span> : formatUsd(plan.billed)}
+                </td>
+                <td class="px-5 py-4" style="color: var(--color-text);">{formatUsd(plan.perMonth)}</td>
+                <td class="px-5 py-4" style="color: var(--color-emerald);">{Math.round((1 - plan.perMonth / 9) * 100)}% cheaper</td>
+                <td class="px-5 py-4"><a href="/account" class="btn-gold text-xs" rel="nofollow" style="padding: 8px 14px; min-height: 36px;">Buy</a></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card p-6 mt-6" style="border-color: var(--color-gold); background: linear-gradient(135deg, rgba(212,175,55,.06), rgba(212,175,55,.02));">
+        <h3 class="text-lg font-bold mb-2 flex items-center gap-2" style="font-family: var(--font-heading);">
+          <Icons name="check" size={18} style="color: var(--color-gold);" /> Our verdict: buy the Two-Year plan
+        </h3>
+        <p class="text-sm mb-2" style="color: var(--color-text);">
+          Look the last column: monthly na $9.00, Annual come down to $6.00, and the Two-Year plan land for <strong class="gold-text">$5.00 every month — 44% cheaper</strong> than to dey pay month by month. One payment of $120 cover full two years of the premium service, and with the special discount you dey get Premium VPN for less than the price of two monthly plans per year.
+        </p>
+        <p class="text-sm" style="color: var(--color-muted);">
+          If you no ready to commit for two years, na exactly why the $3 first month dey — try the real service first, then decide.
+        </p>
+      </div>
+    </div>
+
+    <!-- ===== $3 first-month trust offer ===== -->
+    <div class="card p-6 mt-10">
+      <h2 class="text-xl font-bold mb-2" style="font-family: var(--font-heading);">
+        You never sure? Buy your first month for <span class="gold-text">$3 instead of $9</span>
+      </h2>
+      <p class="text-sm mb-3" style="color: var(--color-muted);">
+        Trust na wetin you go earn, no be wetin dem go give you like that. So your very first order as new customer go get the <strong style="color: var(--color-text);">FIRST-MONTH offer</strong>: the Monthly plan at $3 instead of $9 — strictly one time per customer, e go apply automatic for checkout.
+      </p>
+      <ul class="space-y-1.5 text-sm mb-4" style="color: var(--color-muted);">
+        <li class="flex items-start gap-2"><Icons name="check" size={14} class="mt-0.5 shrink-0" style="color: var(--color-emerald);" /> Na one redemption per new customer, our server go validate am for checkout.</li>
+        <li class="flex items-start gap-2"><Icons name="check" size={14} class="mt-0.5 shrink-0" style="color: var(--color-emerald);" /> After the first month, the normal $9 price go dey — na manual charge every time.</li>
+        <li class="flex items-start gap-2"><Icons name="check" size={14} class="mt-0.5 shrink-0" style="color: var(--color-emerald);" /> No subscription go dey. Nothing go ever charge automatic.</li>
+      </ul>
+      <a href="/account" class="btn-gold" rel="nofollow">Start with $3 — buy the first month</a>
+    </div>
+
+    <!-- Sponsored in-content placement -->
+    <div class="my-10">
+      <NewsiqAd placement={newsiqInline} id="newsiq-order-inline" />
+    </div>
+
+    <!-- ===== PureVPN — the only external option ===== -->
+    <div class="mt-12">
+      <h2 class="text-2xl font-bold mb-2" style="font-family: var(--font-heading);">
+        Step 3 — You want other services too? <span class="gold-text">PureVPN</span>, global brand at special prices
+      </h2>
+      <p class="text-sm mb-6 max-w-2xl" style="color: var(--color-muted);">
+        We deliberately list only one outside option. If you specifically want big international brand alongside TopVPN, na PureVPN be that — e dey available through our partner link at special prices, with 31-day money-back guarantee.
+      </p>
+
+      <div id="purevpn" class="card p-5 scroll-mt-24">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-3">
+          <div>
+            <h3 class="text-lg font-bold" style="font-family: var(--font-heading);">PureVPN</h3>
+            <p class="text-sm" style="color: var(--color-muted);">Global brand — long-term value and feature bundle</p>
+          </div>
+          <a
+            href="https://billing.purevpn.com/aff.php?aff=49385888"
+            target="_blank"
+            rel="sponsored nofollow noopener"
+            class="btn-gold text-sm shrink-0"
+            style="min-height: 44px;"
+          >
+            Get PureVPN at special prices
+          </a>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+          <div>
+            <span class="block text-xs mb-0.5" style="color: var(--color-muted-dark);">1-Month</span>
+            <span style="color: var(--color-text); font-weight: 600;">$12.95</span>
+          </div>
+          <div>
+            <span class="block text-xs mb-0.5" style="color: var(--color-muted-dark);">Long-term / every month</span>
+            <span style="color: var(--color-text); font-weight: 600;">$2.15</span>
+          </div>
+          <div>
+            <span class="block text-xs mb-0.5" style="color: var(--color-muted-dark);">Protocols</span>
+            <span style="color: var(--color-text); font-weight: 600;">WireGuard, OpenVPN, IKEv2</span>
+          </div>
+          <div>
+            <span class="block text-xs mb-0.5" style="color: var(--color-muted-dark);">Guarantee</span>
+            <span style="color: var(--color-text); font-weight: 600;">31 days</span>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
+          <div>
+            <p class="text-xs font-semibold mb-1" style="color: var(--color-emerald);">The good side</p>
+            <ul class="space-y-1">
+              <li class="flex items-start gap-2 text-xs" style="color: var(--color-muted);"><Icons name="check" size={12} class="mt-0.5 shrink-0" /> Global brand with big server network</li>
+              <li class="flex items-start gap-2 text-xs" style="color: var(--color-muted);"><Icons name="check" size={12} class="mt-0.5 shrink-0" /> 31-day money-back guarantee</li>
+              <li class="flex items-start gap-2 text-xs" style="color: var(--color-muted);"><Icons name="check" size={12} class="mt-0.5 shrink-0" /> Plenty plan tiers to choose from</li>
+            </ul>
+          </div>
+          <div>
+            <p class="text-xs font-semibold mb-1" style="color: var(--color-muted-dark);">Make you know</p>
+            <ul class="space-y-1">
+              <li class="flex items-start gap-2 text-xs" style="color: var(--color-muted);"><Icons name="x" size={12} class="mt-0.5 shrink-0" /> Promo price fit change anytime wey dem like</li>
+              <li class="flex items-start gap-2 text-xs" style="color: var(--color-muted);"><Icons name="x" size={12} class="mt-0.5 shrink-0" /> Renewal price dey higher than the welcome price</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-12 grid md:grid-cols-2 gap-8">
+      <div class="card p-6">
+        <h2 class="text-xl font-bold mb-4" style="font-family: var(--font-heading);">How to Buy VPN Quick (60 Seconds)</h2>
+        <ul class="space-y-3 text-sm" style="color: var(--color-muted);">
+          <li class="flex items-start gap-2">
+            <Icons name="check" size={16} class="mt-0.5 shrink-0 text-amber-400" />
+            <span><strong style="color: var(--color-text);">You never sure? Start with $3.</strong> First month na $3 for new customers — na the cheapest way to judge the real service.</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <Icons name="check" size={16} class="mt-0.5 shrink-0 text-amber-400" />
+            <span><strong style="color: var(--color-text);">You don believe? Go for Two-Year.</strong> For $5.00 every month, e pass every other row for this page.</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <Icons name="check" size={16} class="mt-0.5 shrink-0 text-amber-400" />
+            <span><strong style="color: var(--color-text);">Renew when YOU decide.</strong> The renewal button go show 30 days before e expire — no be before, and e no go happen automatic.</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card p-6">
+        <h2 class="text-xl font-bold mb-4" style="font-family: var(--font-heading);">Payment Methods Wey Dem Accept</h2>
+        <div class="flex flex-wrap gap-3 mb-4">
+          {paymentIcons.map((name) => (
+            <Icons name={name} size={28} />
+          ))}
+        </div>
+        <p class="text-xs" style="color: var(--color-muted-dark);">
+          TopVPN Premium checkout dey go through Stripe (cards) and PayPal. PureVPN dey collect im own payment methods for im site.
+        </p>
+      </div>
+    </div>
+
+    <div class="mt-12 max-w-3xl mx-auto">
+      <h2 class="text-2xl font-bold mb-6 text-center" style="font-family: var(--font-heading);">Questions people dey ask</h2>
+      <FAQ items={faqs} />
+    </div>
+  </section>
+</BaseLayout>

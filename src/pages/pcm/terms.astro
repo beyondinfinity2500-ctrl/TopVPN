@@ -1,0 +1,100 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Icons from '../../components/Icons.astro';
+import { breadcrumbSchema, contextWrapper } from '../../lib/schema';
+
+const updatedStr = 'October 2026';
+
+const hreflang = [
+  { lang: 'en', url: 'https://www.topvpn.top/terms' },
+  { lang: 'ar', url: 'https://www.topvpn.top/ar/terms' },
+  { lang: 'pcm', url: 'https://www.topvpn.top/pcm/terms' },
+  { lang: 'x-default', url: 'https://www.topvpn.top/terms' },
+];
+
+const breadcrumbs = [
+  { label: 'Home', href: '/' },
+  { label: 'Terms' },
+];
+---
+
+<BaseLayout
+  title="Terms of Service — TopVPN"
+  description="The terms wey TopVPN take dey provide its content and services. Abeg read am before you use the site."
+  lang="pcm"
+  hreflang={hreflang}
+  autolink={false}
+  ogLocale="pcm_NG"
+  jsonLd={contextWrapper(breadcrumbSchema(breadcrumbs))}
+>
+  <Breadcrumbs items={breadcrumbs} />
+
+  <section class="container-max py-8 md:py-12">
+    <div class="max-w-3xl">
+      <div class="mb-4 flex items-center gap-2 text-xs" style="color: var(--color-muted-dark);">
+        <Icons name="doc" size={14} />
+        <span>Last update: {updatedStr}</span>
+      </div>
+
+      <h1 class="text-3xl md:text-4xl font-bold mb-6" style="font-family: var(--font-heading);">
+        Terms of <span class="gold-text">Service</span>
+      </h1>
+
+      <p class="text-sm mb-6" style="color: var(--color-muted);">
+        As you dey use TopVPN, e mean say you agree to these terms. Dem write am for plain language so you go know wetin to expect.
+      </p>
+
+      <div class="space-y-6">
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">Wetin We Dey Provide</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            TopVPN dey offer informational content about VPN services, including review, comparison, and guides. We no dey sell VPN services directly. Any purchase wey you make dey happen on third-party provider website under their own terms.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">We No Give Guarantee</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            We dey do our best to keep information accurate and up to date, but VPN price, features, and availability dey change often. We no fit guarantee say every detail dey current at the time wey you read am. Always verify details on the provider website before you buy.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">Affiliate Relationship</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            We dey earn commission when you buy through some links, and e no go add any extra cost for you. E no dey affect our opinion. This relationship no create any contractual obligation between you and TopVPN.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">No Be Legal or Professional Advice</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            Our content na for general information only. E no be legal advice. VPN laws dey different from country to country and dem fit change. Na you responsible to check whether to use VPN dey legal for your location, and to follow local regulations.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">Limitation of Liability</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            TopVPN no liable for any loss wey come from your use of the site or from decision wey you make based on our content. Your use of any VPN service na for your own risk and e dey under that provider own terms.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">Change to These Terms</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            We fit update these terms at any time. If you continue to use the site after we post changes, e mean say you accept the updated terms.
+          </p>
+        </div>
+      </div>
+
+      <div class="mt-8">
+        <a href="/" class="inline-flex items-center gap-2 text-sm font-semibold gold-text">
+          <Icons name="arrow-right" size={14} class="rotate-180 text-amber-400" />
+          Back to Home
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

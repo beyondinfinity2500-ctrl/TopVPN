@@ -1,0 +1,80 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../../components/Breadcrumbs.astro';
+import ComparisonSummary from '../../../components/ComparisonSummary.astro';
+import Icons from '../../../components/Icons.astro';
+import { providers } from '../../../data/providers';
+import { breadcrumbSchema, contextWrapper } from '../../../lib/schema';
+
+const allArticles = await getCollection('articles');
+const publishedArticles = allArticles
+  .filter((a) => !a.data.draft)
+  .sort((a, b) => b.data.updatedDate.getTime() - a.data.updatedDate.getTime());
+
+const hreflang = [
+  { lang: 'en', url: 'https://www.topvpn.top/articles' },
+  { lang: 'ar', url: 'https://www.topvpn.top/ar/articles' },
+  { lang: 'pcm', url: 'https://www.topvpn.top/pcm/articles' },
+  { lang: 'x-default', url: 'https://www.topvpn.top/articles' },
+];
+
+const breadcrumbs = [
+  { label: 'Home', href: '/' },
+  { label: 'Articles & Guides' },
+];
+---
+
+<BaseLayout
+  title="VPN Articles & Guides — Simple Language"
+  description="VPN guides and articles wey dem write for simple language — advice for your country, privacy tips, and explanation wey clear."
+  lang="pcm"
+  hreflang={hreflang}
+  autolink={false}
+  ogLocale="pcm_NG"
+  jsonLd={contextWrapper(breadcrumbSchema(breadcrumbs))}
+>
+  <Breadcrumbs items={breadcrumbs} />
+
+  <section class="container-max py-8 md:py-12">
+    <h1 class="text-3xl md:text-4xl font-bold mb-4" style="font-family: var(--font-heading);">
+      VPN <span class="gold-text">Articles</span> & Guides
+    </h1>
+    <p class="text-base md:text-lg mb-8 max-w-2xl" style="color: var(--color-muted);">
+      Practical guides wey dem write for simple language to help you choose and use VPN. Whether you dey look for advice for your own country or general privacy tips, you go find am here.
+    </p>
+
+    {publishedArticles.length > 0 ? (
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        {publishedArticles.map((article) => (
+          <a
+            href={`/articles/${article.id}`}
+            class="card p-6 block transition-all hover:border-amber-400"
+          >
+            <div class="flex items-center gap-2 mb-3 text-xs" style="color: var(--color-muted-dark);">
+              <Icons name="doc" size={12} />
+              <span>{article.data.updatedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+            </div>
+            <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">{article.data.title}</h2>
+            <p class="text-sm mb-4" style="color: var(--color-muted);">{article.data.description}</p>
+            <div class="flex flex-wrap gap-1.5">
+              {article.data.tags.slice(0, 3).map((tag) => (
+                <span class="text-xs px-2 py-1 rounded-full" style="background: var(--color-bg-alt); border: 1px solid var(--color-border); color: var(--color-muted);">{tag}</span>
+              ))}
+            </div>
+          </a>
+        ))}
+      </div>
+    ) : (
+      <p class="text-sm mb-12" style="color: var(--color-muted);">Articles dey come soon. Meanwhile, check our VPN comparison wey dey below.</p>
+    )}
+
+    <div class="mt-12">
+      <div class="text-center mb-8">
+        <h2 class="text-2xl md:text-3xl font-bold mb-2" style="font-family: var(--font-heading);">Compare All the VPNs</h2>
+        <p class="text-sm" style="color: var(--color-muted);">Price and features side by side for every provider wey we cover.</p>
+      </div>
+      <ComparisonSummary providers={providers} />
+    </div>
+  </section>
+</BaseLayout>

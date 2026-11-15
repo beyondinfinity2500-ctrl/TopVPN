@@ -1,0 +1,100 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Icons from '../../components/Icons.astro';
+import { breadcrumbSchema, contextWrapper } from '../../lib/schema';
+
+const updatedStr = 'October 2026';
+
+const hreflang = [
+  { lang: 'en', url: 'https://www.topvpn.top/privacy-policy' },
+  { lang: 'ar', url: 'https://www.topvpn.top/ar/privacy-policy' },
+  { lang: 'pcm', url: 'https://www.topvpn.top/pcm/privacy-policy' },
+  { lang: 'x-default', url: 'https://www.topvpn.top/privacy-policy' },
+];
+
+const breadcrumbs = [
+  { label: 'Home', href: '/' },
+  { label: 'Privacy Policy' },
+];
+---
+
+<BaseLayout
+  title="Privacy Policy — TopVPN"
+  description="How TopVPN dey handle your information. We no dey collect personal data pass wetin necessary to run the site."
+  lang="pcm"
+  hreflang={hreflang}
+  autolink={false}
+  ogLocale="pcm_NG"
+  jsonLd={contextWrapper(breadcrumbSchema(breadcrumbs))}
+>
+  <Breadcrumbs items={breadcrumbs} />
+
+  <section class="container-max py-8 md:py-12">
+    <div class="max-w-3xl">
+      <div class="mb-4 flex items-center gap-2 text-xs" style="color: var(--color-muted-dark);">
+        <Icons name="doc" size={14} />
+        <span>Last update: {updatedStr}</span>
+      </div>
+
+      <h1 class="text-3xl md:text-4xl font-bold mb-6" style="font-family: var(--font-heading);">
+        Privacy <span class="gold-text">Policy</span>
+      </h1>
+
+      <p class="text-sm mb-6" style="color: var(--color-muted);">
+        This privacy policy explain wetin information TopVPN dey collect, how we dey use am, and the choices wey you get. We dey aim to keep am simple and honest.
+      </p>
+
+      <div class="space-y-6">
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">Wetin We Dey Collect</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            TopVPN na static website. We no require you to create account, and we no dey ask for your name, email, or payment information directly. Any interaction with our contact form go open your email client, so your message go go directly from your email to our own.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">Cookies and Analytics</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            We fit use analytics wey respect privacy to understand which pages people dey visit and how dem dey find the site. We no dey use advertising cookies or sell data to third parties. If we add analytics for future, we go update this page.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">Affiliate Links</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            Some links for this site na affiliate links. When you click one and make purchase, the VPN provider fit set cookies for your browser. Those cookies dey under the provider privacy policy, no be our own. We no dey control or access that data.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">Third-Party Websites</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            Links to VPN provider websites dey carry you go services wey we no control. Once you leave TopVPN, na their privacy policy dey apply. We encourage you to read am before you sign up.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">Contact</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            If you get question about this policy, see our <a href="/contact" class="gold-text">Contact page</a> for the current contact status. Online message sending no dey available now, so we no fit receive message through the website at this time.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">Change to This Policy</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            We fit update this policy from time to time. Changes go take effect when we post the updated version on this page. The "Last update" date above show the most recent revision.
+          </p>
+        </div>
+      </div>
+
+      <div class="mt-8">
+        <a href="/" class="inline-flex items-center gap-2 text-sm font-semibold gold-text">
+          <Icons name="arrow-right" size={14} class="rotate-180 text-amber-400" />
+          Back to Home
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,83 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../../components/Breadcrumbs.astro';
+import ComparisonSummary from '../../../components/ComparisonSummary.astro';
+import Icons from '../../../components/Icons.astro';
+import { providers } from '../../../data/providers';
+import { breadcrumbSchema, contextWrapper } from '../../../lib/schema';
+
+const allArticles = await getCollection('articles');
+const publishedArticles = allArticles
+  .filter((a) => !a.data.draft)
+  .sort((a, b) => b.data.updatedDate.getTime() - a.data.updatedDate.getTime());
+
+// hreflang: this Arabic page pairs with the English articles index. x-default points
+// to the English page (the site's default/global version).
+const hreflang = [
+  { lang: 'en', url: 'https://www.topvpn.top/articles' },
+  { lang: 'ar', url: 'https://www.topvpn.top/ar/articles' },
+  { lang: 'pcm', url: 'https://www.topvpn.top/pcm/articles' },
+  { lang: 'x-default', url: 'https://www.topvpn.top/articles' },
+];
+
+const breadcrumbs = [
+  { label: 'الرئيسية', href: '/' },
+  { label: 'المقالات' },
+];
+---
+
+<BaseLayout
+  title="مقالات وأدلة VPN"
+  description="أدلة ومقالات VPN متعمقة — توصيات حسب الدولة، نصائح الخصوصية، وشروحات بلغة واضحة ومباشرة."
+  lang="ar"
+  dir="rtl"
+  hreflang={hreflang}
+  autolink={false}
+  ogLocale="ar_AR"
+  jsonLd={contextWrapper(breadcrumbSchema(breadcrumbs))}
+>
+  <Breadcrumbs items={breadcrumbs} />
+
+  <section class="container-max py-8 md:py-12">
+    <h1 class="text-3xl md:text-4xl font-bold mb-4" style="font-family: var(--font-heading);">
+      مقالات وأدلة <span class="gold-text">VPN</span>
+    </h1>
+    <p class="text-base md:text-lg mb-8 max-w-2xl" style="color: var(--color-muted);">
+      أدلة عملية بلغة واضحة تساعدك على اختيار واستخدام VPN. سواء كنت تبحث عن نصائح لدولة معينة أو عن نصائح عامة للخصوصية، ستجدها هنا.
+    </p>
+
+    {publishedArticles.length > 0 ? (
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        {publishedArticles.map((article) => (
+          <a
+            href={`/articles/${article.id}`}
+            class="card p-6 block transition-all hover:border-amber-400"
+          >
+            <div class="flex items-center gap-2 mb-3 text-xs" style="color: var(--color-muted-dark);">
+              <Icons name="doc" size={12} />
+              <span>{article.data.updatedDate.toLocaleDateString('ar-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+            </div>
+            <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">{article.data.title}</h2>
+            <p class="text-sm mb-4" style="color: var(--color-muted);">{article.data.description}</p>
+            <div class="flex flex-wrap gap-1.5">
+              {article.data.tags.slice(0, 3).map((tag) => (
+                <span class="text-xs px-2 py-1 rounded-full" style="background: var(--color-bg-alt); border: 1px solid var(--color-border); color: var(--color-muted);">{tag}</span>
+              ))}
+            </div>
+          </a>
+        ))}
+      </div>
+    ) : (
+      <p class="text-sm mb-12" style="color: var(--color-muted);">ستصدر المقالات قريبًا. في هذه الأثناء، يمكنك الاطلاع على مقارنة خدمات VPN أدناه.</p>
+    )}
+
+    <div class="mt-12">
+      <div class="text-center mb-8">
+        <h2 class="text-2xl md:text-3xl font-bold mb-2" style="font-family: var(--font-heading);">قارن جميع خدمات VPN</h2>
+        <p class="text-sm" style="color: var(--color-muted);">الأسعار والميزات جنبًا إلى جنب لكل مزود نغطيه.</p>
+      </div>
+      <ComparisonSummary providers={providers} />
+    </div>
+  </section>
+</BaseLayout>

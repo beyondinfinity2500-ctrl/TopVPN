@@ -1,0 +1,124 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import TagChips from '../../components/TagChips.astro';
+import Icons from '../../components/Icons.astro';
+import { breadcrumbSchema, contextWrapper } from '../../lib/schema';
+
+const updatedStr = 'October 2026';
+
+const hreflang = [
+  { lang: 'en', url: 'https://www.topvpn.top/contact' },
+  { lang: 'ar', url: 'https://www.topvpn.top/ar/contact' },
+  { lang: 'pcm', url: 'https://www.topvpn.top/pcm/contact' },
+  { lang: 'x-default', url: 'https://www.topvpn.top/contact' },
+];
+
+const breadcrumbs = [
+  { label: 'Home', href: '/' },
+  { label: 'Contact Us' },
+];
+
+const faqs = [
+  { question: 'How long e go take before I go get reply?', answer: 'We dey try reply within 2 working days. Advertising and partnership inquiries fit take small extra time when period dey busy.' },
+  { question: 'You fit help me choose the right VPN?', answer: 'Yes. Our comparison and guides cover privacy, streaming, budget, and wetin your device need — start with the VPN plans comparison to find the one wey fit you. But note say online messaging no dey available now.' },
+  { question: 'You dey offer technical support for my VPN app?', answer: 'We fit help with general guidance, but for issue wey concern your account or technical mata, we advise make you contact your VPN provider support directly. Na dem get access to your account details.' },
+  { question: 'You go respond to partnership inquiries?', answer: 'Yes, we dey review all advertising and partnership inquiries. Make you include details about your service, price, and refund policy so we go fit evaluate whether e fit work.' },
+];
+
+const tags = ['contact', 'support', 'help'];
+---
+
+<BaseLayout
+  title="Contact Us — TopVPN"
+  description="Reach TopVPN — help with your order, advertising inquiries, or general questions. We dey reply within 2 working days."
+  lang="pcm"
+  hreflang={hreflang}
+  autolink={false}
+  ogLocale="pcm_NG"
+  jsonLd={contextWrapper(breadcrumbSchema(breadcrumbs))}
+>
+  <Breadcrumbs items={breadcrumbs} />
+
+  <section class="container-max py-8 md:py-12">
+    <div class="max-w-2xl">
+      <div class="mb-4 flex items-center gap-2 text-xs" style="color: var(--color-muted-dark);">
+        <Icons name="doc" size={14} />
+        <span>Last update: {updatedStr}</span>
+      </div>
+
+      <h1 class="text-3xl md:text-4xl font-bold mb-4" style="font-family: var(--font-heading);">
+        Contact <span class="gold-text">Us</span>
+      </h1>
+
+      <p class="text-base md:text-lg mb-4" style="color: var(--color-muted);">
+        You need help to choose VPN, you dey interested in advertising, or you get general question? Online message sending no dey available for this page now — see the notice below.
+      </p>
+
+      <div class="card p-4 mb-6 text-sm" style="background: var(--color-bg-alt);">
+        <p style="color: var(--color-muted);"><strong style="color: var(--color-text);">Short answer:</strong> Online message sending no dey available now, so we no fit receive message through this page.</p>
+      </div>
+
+      <TagChips chips={tags} class="mb-6" />
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-8 max-w-4xl">
+      <div>
+        <h2 class="text-xl font-bold mb-4" style="font-family: var(--font-heading);">Contact</h2>
+        <div class="card p-6" style="background: var(--color-bg-alt);">
+          <div class="flex items-start gap-3">
+            <Icons name="mail" size={20} class="text-amber-400 mt-0.5" />
+            <div>
+              <p class="text-sm font-semibold mb-1" style="color: var(--color-text);">Online message sending no dey available now.</p>
+              <p class="text-sm" style="color: var(--color-muted);">
+                This page no connect to live inbox, so we no fit receive message wey you send from here. We no dey accept online message at the moment; any contact option wey dey work go show here once e dey available.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h2 class="text-xl font-bold mb-4" style="font-family: var(--font-heading);">Reply Time</h2>
+        <div class="card p-5 mb-4">
+          <div class="flex items-center gap-3 mb-2">
+            <Icons name="headset" size={20} class="text-amber-400" />
+            <h3 class="text-sm font-bold" style="font-family: var(--font-heading);">We dey reply within 2 working days</h3>
+          </div>
+          <p class="text-sm" style="color: var(--color-muted);">
+            Question about order help dey usually get faster reply. Advertising inquiries fit take small extra time when period dey busy.
+          </p>
+        </div>
+
+        <h2 class="text-xl font-bold mb-4" style="font-family: var(--font-heading);">Questions people dey ask</h2>
+        <div class="space-y-3">
+          {faqs.map((f) => (
+            <details class="card p-4 group">
+              <summary class="font-semibold cursor-pointer text-sm flex items-center justify-between" style="font-family: var(--font-heading);">
+                {f.question}
+                <Icons name="chevron-down" size={16} class="text-amber-400 transition-transform group-open:rotate-180" />
+              </summary>
+              <p class="text-sm mt-3" style="color: var(--color-muted);">{f.answer}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <h2 class="text-2xl font-bold mb-4 mt-10" style="font-family: var(--font-heading);">Related Pages</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
+      <a href="/order-vpn" class="card p-4 block transition-all hover:border-amber-400">
+        <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">Compare VPN Plans</h3>
+        <p class="text-xs" style="color: var(--color-muted);">Price and features side by side — good place to start before you contact us</p>
+      </a>
+      <a href="/advertise" class="card p-4 block transition-all hover:border-amber-400">
+        <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">Advertise With Us</h3>
+        <p class="text-xs" style="color: var(--color-muted);">Partnership details, requirements, and our editorial independence policy</p>
+      </a>
+      <a href="/" class="card p-4 block transition-all hover:border-amber-400">
+        <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">TopVPN Home</h3>
+        <p class="text-xs" style="color: var(--color-muted);">Our top VPN picks and comparison guides</p>
+      </a>
+    </div>
+  </section>
+</BaseLayout>

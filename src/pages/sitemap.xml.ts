@@ -21,7 +21,11 @@ const LANGS: { hreflang: string; prefix: string }[] = [
 ];
 
 /** Base paths that exist in every language. */
-const TRANSLATED = ['/', '/about'];
+const TRANSLATED = [
+  '/', '/about', '/apps', '/order-vpn', '/vpn-servers', '/vpn-types-guide',
+  '/connection-guide', '/articles', '/contact', '/advertise',
+  '/privacy-policy', '/terms', '/affiliate-disclosure',
+];
 
 /** Static paths WITHOUT language variants. */
 const staticPaths = [

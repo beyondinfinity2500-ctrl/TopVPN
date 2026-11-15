@@ -1,0 +1,101 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import Icons from '../../components/Icons.astro';
+import { breadcrumbSchema, contextWrapper } from '../../lib/schema';
+
+const updatedStr = 'أكتوبر 2026';
+
+const hreflang = [
+  { lang: 'en', url: 'https://www.topvpn.top/terms' },
+  { lang: 'ar', url: 'https://www.topvpn.top/ar/terms' },
+  { lang: 'pcm', url: 'https://www.topvpn.top/pcm/terms' },
+  { lang: 'x-default', url: 'https://www.topvpn.top/terms' },
+];
+
+const breadcrumbs = [
+  { label: 'الرئيسية', href: '/' },
+  { label: 'شروط الخدمة' },
+];
+---
+
+<BaseLayout
+  title="شروط الخدمة"
+  description="الشروط التي يقدم بموجبها توب في بي ان محتواه وخدماته. يرجى القراءة قبل استخدام الموقع."
+  lang="ar"
+  dir="rtl"
+  hreflang={hreflang}
+  autolink={false}
+  ogLocale="ar_AR"
+  jsonLd={contextWrapper(breadcrumbSchema(breadcrumbs))}
+>
+  <Breadcrumbs items={breadcrumbs} />
+
+  <section class="container-max py-8 md:py-12">
+    <div class="max-w-3xl">
+      <div class="mb-4 flex items-center gap-2 text-xs" style="color: var(--color-muted-dark);">
+        <Icons name="doc" size={14} />
+        <span>آخر تحديث {updatedStr}</span>
+      </div>
+
+      <h1 class="text-3xl md:text-4xl font-bold mb-6" style="font-family: var(--font-heading);">
+        شروط <span class="gold-text">الخدمة</span>
+      </h1>
+
+      <p class="text-sm mb-6" style="color: var(--color-muted);">
+        باستخدامك توب في بي ان فإنك توافق على هذه الشروط. وقد كُتبت بلغة مبسطة لتعرف ما هو متوقع.
+      </p>
+
+      <div class="space-y-6">
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">ما نقدمه</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            يقدم توب في بي ان محتوى معلوماتيًا عن خدمات VPN، بما يشمل المراجعات والمقارنات والأدلة. نحن لا نبيع خدمات VPN مباشرة. وأي عملية شراء تجري على موقع مزود تابع لطرف ثالث ووفق شروطه الخاصة.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">بدون ضمانات</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            نبذل قصارى جهدنا لإبقاء المعلومات دقيقة ومحدّثة، لكن أسعار وميزات وتوافر خدمات VPN تتغير باستمرار. ولا يمكننا ضمان حداثة كل تفصيل لحظة قراءتها. تحقق دائمًا من التفاصيل على موقع المزود قبل الشراء.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">علاقة الأفلييت</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            نحصل على عمولة عند الشراء عبر بعض الروابط، دون أي تكلفة إضافية عليك. وهذا لا يؤثر على آرائنا. ولا تنشئ هذه العلاقة أي التزام تعاقدي بينك وبين توب في بي ان.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">ليست استشارة قانونية أو مهنية</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            محتوانا لغرض المعلومات العامة فقط، وهو ليس استشارة قانونية. تختلف قوانين VPN من دولة لأخرى وقد تتغير. أنت المسؤول عن التحقق من شرعية استخدام VPN في موقعك ومن الالتزام بالقوانين المحلية.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">حدود المسؤولية</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            لا يتحمل توب في بي ان مسؤولية أي خسائر تنشأ عن استخدامك للموقع أو عن قرارات اتخذت بناءً على محتوانا. واستخدامك لأي خدمة VPN يتم على مسؤوليتك الخاصة ويخضع لشروط ذلك المزود.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">التغييرات على هذه الشروط</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            قد نحدّث هذه الشروط في أي وقت. ويُعد استمرارك في استخدام الموقع بعد نشر التغييرات موافقةً على الشروط المحدثة.
+          </p>
+        </div>
+      </div>
+
+      <div class="mt-8">
+        <a href="/" class="inline-flex items-center gap-2 text-sm font-semibold gold-text">
+          <Icons name="arrow-right" size={14} class="rotate-180 text-amber-400" />
+          العودة إلى الرئيسية
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

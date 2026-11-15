@@ -1,0 +1,125 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import TagChips from '../../components/TagChips.astro';
+import Icons from '../../components/Icons.astro';
+import { breadcrumbSchema, contextWrapper } from '../../lib/schema';
+
+const updatedStr = 'أكتوبر 2026';
+
+const faqs = [
+  { question: 'كم يستغرق الرد؟', answer: 'نهدف إلى الرد خلال يومي عمل. وقد تستغرق استفسارات الإعلان والشراكة وقتًا أطول قليلًا في فترات ضغط العمل.' },
+  { question: 'هل يمكنكم مساعدتي في اختيار VPN المناسب؟', answer: 'نعم. تغطي مقارناتنا وأدلاتنا الخصوصية والبث والميزانية والأجهزة — ابدأ بمقارنة باقات VPN لاختيار الأنسب لك. لاحظ أن المراسلة عبر الإنترنت غير متاحة حاليًا.' },
+  { question: 'هل تقدمون دعمًا فنيًا لتطبيق VPN الخاص بي؟', answer: 'يمكننا تقديم إرشادات عامة، لكن في المشكلات الفنية أو المتعلقة بالحساب ننصح بالتواصل مباشرة مع دعم مزود الخدمة لديك، لأنه الوحيد القادر على الاطلاع على تفاصيل حسابك.' },
+  { question: 'هل تجيبون على استفسارات الشراكة؟', answer: 'نعم، نراجع جميع استفسارات الإعلان والشراكة. احرص على تضمين تفاصيل خدمتك وأسعارها وسياسة الاسترداد حتى نتمكن من تقييم مدى التوافق.' },
+];
+
+const tags = ['تواصل', 'دعم', 'مساعدة'];
+
+const hreflang = [
+  { lang: 'en', url: 'https://www.topvpn.top/contact' },
+  { lang: 'ar', url: 'https://www.topvpn.top/ar/contact' },
+  { lang: 'pcm', url: 'https://www.topvpn.top/pcm/contact' },
+  { lang: 'x-default', url: 'https://www.topvpn.top/contact' },
+];
+
+const breadcrumbs = [
+  { label: 'الرئيسية', href: '/' },
+  { label: 'تواصل معنا' },
+];
+---
+
+<BaseLayout
+  title="تواصل معنا"
+  description="تواصل مع توب في بي ان — مساعدة في الطلب، استفسارات الإعلان، أو أسئلة عامة. نرد خلال يومي عمل."
+  lang="ar"
+  dir="rtl"
+  hreflang={hreflang}
+  autolink={false}
+  ogLocale="ar_AR"
+  jsonLd={contextWrapper(breadcrumbSchema(breadcrumbs))}
+>
+  <Breadcrumbs items={breadcrumbs} />
+
+  <section class="container-max py-8 md:py-12">
+    <div class="max-w-2xl">
+      <div class="mb-4 flex items-center gap-2 text-xs" style="color: var(--color-muted-dark);">
+        <Icons name="doc" size={14} />
+        <span>آخر تحديث {updatedStr}</span>
+      </div>
+
+      <h1 class="text-3xl md:text-4xl font-bold mb-4" style="font-family: var(--font-heading);">
+        تواصل <span class="gold-text">معنا</span>
+      </h1>
+
+      <p class="text-base md:text-lg mb-4" style="color: var(--color-muted);">
+        تحتاج مساعدة في اختيار VPN؟ مهتم بالإعلان لدينا؟ أو لديك سؤال عام؟ الإرسال المباشر للرسائل غير متاح في هذه الصفحة حاليًا — انظر الملاحظة أدناه.
+      </p>
+
+      <div class="card p-4 mb-6 text-sm" style="background: var(--color-bg-alt);">
+        <p style="color: var(--color-muted);"><strong style="color: var(--color-text);">الإجابة السريعة:</strong> الإرسال المباشر للرسائل غير متاح حاليًا، لذا لا يمكننا استلام الرسائل الواردة من هذه الصفحة.</p>
+      </div>
+
+      <TagChips chips={tags} class="mb-6" />
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-8 max-w-4xl">
+      <div>
+        <h2 class="text-xl font-bold mb-4" style="font-family: var(--font-heading);">التواصل</h2>
+        <div class="card p-6" style="background: var(--color-bg-alt);">
+          <div class="flex items-start gap-3">
+            <Icons name="mail" size={20} class="text-amber-400 mt-0.5" />
+            <div>
+              <p class="text-sm font-semibold mb-1" style="color: var(--color-text);">الإرسال المباشر للرسائل غير متاح حاليًا.</p>
+              <p class="text-sm" style="color: var(--color-muted);">
+                هذه الصفحة غير مرتبطة بصندوق بريد فعّال، لذا لا يمكننا استلام الرسائل المرسلة منها. لا نقبل حاليًا الرسائل عبر الإنترنت، وسنعرض هنا خيار تواصل يعمل بمجرد توفره.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h2 class="text-xl font-bold mb-4" style="font-family: var(--font-heading);">زمن الاستجابة</h2>
+        <div class="card p-5 mb-4">
+          <div class="flex items-center gap-3 mb-2">
+            <Icons name="headset" size={20} class="text-amber-400" />
+            <h3 class="text-sm font-bold" style="font-family: var(--font-heading);">نرد خلال يومي عمل</h3>
+          </div>
+          <p class="text-sm" style="color: var(--color-muted);">
+            أسئلة مساعدة الطلب تحصل عادةً على رد أسرع. وقد تستغرق استفسارات الإعلان وقتًا أطول قليلًا في فترات ضغط العمل.
+          </p>
+        </div>
+
+        <h2 class="text-xl font-bold mb-4" style="font-family: var(--font-heading);">الأسئلة الشائعة</h2>
+        <div class="space-y-3">
+          {faqs.map((f) => (
+            <details class="card p-4 group">
+              <summary class="font-semibold cursor-pointer text-sm flex items-center justify-between" style="font-family: var(--font-heading);">
+                {f.question}
+                <Icons name="chevron-down" size={16} class="text-amber-400 transition-transform group-open:rotate-180" />
+              </summary>
+              <p class="text-sm mt-3" style="color: var(--color-muted);">{f.answer}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <h2 class="text-2xl font-bold mb-4 mt-10" style="font-family: var(--font-heading);">صفحات ذات صلة</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
+      <a href="/order-vpn" class="card p-4 block transition-all hover:border-amber-400">
+        <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">قارن باقات VPN</h3>
+        <p class="text-xs" style="color: var(--color-muted);">الأسعار والميزات جنبًا إلى جنب — نقطة بداية جيدة قبل التواصل معنا</p>
+      </a>
+      <a href="/advertise" class="card p-4 block transition-all hover:border-amber-400">
+        <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">أعلن معنا</h3>
+        <p class="text-xs" style="color: var(--color-muted);">تفاصيل الشراكة والمتطلبات وسياسة الاستقلالية التحريرية</p>
+      </a>
+      <a href="/" class="card p-4 block transition-all hover:border-amber-400">
+        <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">الصفحة الرئيسية لتوب في بي ان</h3>
+        <p class="text-xs" style="color: var(--color-muted);">أفضل اختياراتنا لخدمات VPN وأدلة المقارنة</p>
+      </a>
+    </div>
+  </section>
+</BaseLayout>

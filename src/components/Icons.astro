@@ -54,6 +54,9 @@ const icon = icons[name];
 const isFillIcon = ['android', 'ios', 'windows', 'macos', 'linux', 'chrome', 'router', 'star', 'paypal', 'visa', 'mastercard', 'amex', 'applepay', 'googlepay', 'crypto'].includes(name);
 const w = icon.width || size;
 const h = icon.height || size;
+// Some entries store only a bare path `d` string — wrap it so set:html
+// doesn't dump it as visible text inside the <svg>.
+const markup = icon.svg.includes('<') ? icon.svg : `<path d="${icon.svg}"/>`;
 ---
 
 {icon && (
@@ -66,6 +69,6 @@ const h = icon.height || size;
     class={className}
     style={style}
     aria-hidden="true"
-    set:html={icon.svg}
+    set:html={markup}
   />
 )}

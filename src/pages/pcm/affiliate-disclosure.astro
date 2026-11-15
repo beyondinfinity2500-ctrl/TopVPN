@@ -1,0 +1,117 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import TagChips from '../../components/TagChips.astro';
+import Icons from '../../components/Icons.astro';
+import { breadcrumbSchema, contextWrapper } from '../../lib/schema';
+
+const updatedStr = 'October 2026';
+
+const hreflang = [
+  { lang: 'en', url: 'https://www.topvpn.top/affiliate-disclosure' },
+  { lang: 'ar', url: 'https://www.topvpn.top/ar/affiliate-disclosure' },
+  { lang: 'pcm', url: 'https://www.topvpn.top/pcm/affiliate-disclosure' },
+  { lang: 'x-default', url: 'https://www.topvpn.top/affiliate-disclosure' },
+];
+
+const breadcrumbs = [
+  { label: 'Home', href: '/' },
+  { label: 'Affiliate Disclosure' },
+];
+
+const faqs = [
+  { question: 'The commission dey affect which VPNs una dey recommend?', answer: 'No. We dey recommend VPNs based on their merit — privacy, speed, features, and value. If provider wey we dey earn commission from get weakness, we go mention am open. We go rather lose commission than to mislead reader.' },
+  { question: 'You dey earn commission on every VPN wey dey listed?', answer: 'No be necessarily. Some links na affiliate links and some no be. We dey list VPNs wey we think say dem worth comparison, whether we dey earn from dem or not.' },
+  { question: 'I go pay more if I use your link?', answer: 'No. The price wey you pay na the same whether you use our link or you go direct. The commission dey come from the provider margin, no be from your pocket.' },
+  { question: 'I fit buy VPN if I no use your affiliate link?', answer: 'Of course. You free to visit any provider direct. Our content dey free to read either way.' },
+];
+
+const tags = ['disclosure', 'affiliate', 'transparency'];
+---
+
+<BaseLayout
+  title="Affiliate Disclosure — TopVPN"
+  description="TopVPN dey earn commission when you buy through some links, and e no go add extra cost for you. E no dey affect our opinion."
+  lang="pcm"
+  hreflang={hreflang}
+  autolink={false}
+  ogLocale="pcm_NG"
+  jsonLd={contextWrapper(breadcrumbSchema(breadcrumbs))}
+>
+  <Breadcrumbs items={breadcrumbs} />
+
+  <section class="container-max py-8 md:py-12">
+    <div class="max-w-3xl">
+      <div class="mb-4 flex items-center gap-2 text-xs" style="color: var(--color-muted-dark);">
+        <Icons name="doc" size={14} />
+        <span>Last update: {updatedStr}</span>
+      </div>
+
+      <h1 class="text-3xl md:text-4xl font-bold mb-6" style="font-family: var(--font-heading);">
+        Affiliate <span class="gold-text">Disclosure</span>
+      </h1>
+
+      <div class="card p-4 mb-6 text-sm" style="background: var(--color-bg-alt);">
+        <p style="color: var(--color-muted);"><strong style="color: var(--color-text);">Short answer:</strong> We dey earn commission when you buy through some links, and e no go add extra cost for you. E no dey affect our opinion.</p>
+      </div>
+
+      <TagChips chips={tags} class="mb-6" />
+
+      <div class="space-y-6">
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">How We Dey Earn</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            Some links on TopVPN na affiliate links. When you click one of these links and sign up for VPN service, we fit earn commission from the provider. This one no go increase the price wey you pay. The commission dey come from the provider, no be from you.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">Our Editorial Independence</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            Commission never determine our rating, ranking, or recommendation. We dey test and compare VPNs based on real criteria — privacy policy, speed, server networks, device support, and value for money. If VPN get weakness, we go talk am, whether we dey earn from am or not.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">Why This One Matter to You</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            You deserve to know when site get financial relationship with the products wey e cover. Transparency go let you weigh our recommendation with the right context. If site hide its affiliate relationship, you no fit trust say its advice dey independent. We want make you trust our own.
+          </p>
+        </div>
+
+        <div class="card p-5">
+          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">You Get Question?</h2>
+          <p class="text-sm" style="color: var(--color-muted);">
+            If you get question about how we dey earn or how affiliate links dey work, we happy to explain more. See our <a href="/contact" class="gold-text">Contact page</a> for the current contact status — online message sending no dey available now.
+          </p>
+        </div>
+      </div>
+
+      <div class="mt-8">
+        <h2 class="text-xl font-bold mb-4" style="font-family: var(--font-heading);">Questions people dey ask</h2>
+        <div class="space-y-3">
+          {faqs.map((f) => (
+            <details class="card p-4 group">
+              <summary class="font-semibold cursor-pointer text-sm flex items-center justify-between" style="font-family: var(--font-heading);">
+                {f.question}
+                <Icons name="chevron-down" size={16} class="text-amber-400 transition-transform group-open:rotate-180" />
+              </summary>
+              <p class="text-sm mt-3" style="color: var(--color-muted);">{f.answer}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+
+      <div class="mt-8 flex flex-col sm:flex-row gap-4">
+        <a href="/" class="inline-flex items-center gap-2 text-sm font-semibold gold-text">
+          <Icons name="arrow-right" size={14} class="rotate-180 text-amber-400" />
+          Back to Home
+        </a>
+        <a href="/order-vpn" class="inline-flex items-center gap-2 text-sm font-semibold gold-text">
+          Compare VPN Plans
+          <Icons name="arrow-right" size={14} class="text-amber-400" />
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

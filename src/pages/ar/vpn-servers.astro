@@ -1,0 +1,184 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { breadcrumbSchema, contextWrapper } from '../../lib/schema';
+
+const hreflang = [
+  { lang: 'en', url: 'https://www.topvpn.top/vpn-servers' },
+  { lang: 'ar', url: 'https://www.topvpn.top/ar/vpn-servers' },
+  { lang: 'pcm', url: 'https://www.topvpn.top/pcm/vpn-servers' },
+  { lang: 'x-default', url: 'https://www.topvpn.top/vpn-servers' },
+];
+
+const servers = [
+  { country: 'الولايات المتحدة', city: 'لوس أنجلوس', address: 'us1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'الولايات المتحدة', city: 'ميامي', address: 'us2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'الولايات المتحدة', city: 'شيكاغو', address: 'us3.ipcover.net', protocol: 'WireGuard' },
+  { country: 'الولايات المتحدة', city: 'أتلانتا', address: 'us4.ipcover.net', protocol: 'WireGuard' },
+  { country: 'الولايات المتحدة', city: 'كانساس سيتي', address: 'us6.ipcover.net', protocol: 'WireGuard' },
+  { country: 'الولايات المتحدة', city: 'نيويورك', address: 'us7.ipcover.net', protocol: 'WireGuard' },
+  { country: 'الولايات المتحدة', city: 'شيكاغو', address: 'us8.ipcover.net', protocol: 'WireGuard' },
+  { country: 'الولايات المتحدة', city: 'ميامي', address: 'us9.ipcover.net', protocol: 'WireGuard' },
+  { country: 'الولايات المتحدة', city: 'نيويورك', address: 'us10.ipcover.net', protocol: 'WireGuard' },
+  { country: 'الولايات المتحدة', city: 'لوس أنجلوس', address: 'lax.ipcover.net', protocol: 'WireGuard' },
+  { country: 'المملكة المتحدة', city: 'لندن', address: 'uk1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'المملكة المتحدة', city: 'لندن', address: 'uk2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'المملكة المتحدة', city: 'لندن', address: 'uk3.ipcover.net', protocol: 'WireGuard' },
+  { country: 'ألمانيا', city: 'فرانكفورت', address: 'de2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'ألمانيا', city: 'دوسلدورف', address: 'de1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'ألمانيا', city: 'برلين', address: 'de4.ipcover.net', protocol: 'WireGuard' },
+  { country: 'هولندا', city: 'أمستردام', address: 'nl1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'هولندا', city: 'أمستردام', address: 'nl2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'هولندا', city: 'أمستردام', address: 'nl3.ipcover.net', protocol: 'WireGuard' },
+  { country: 'فرنسا', city: 'باريس', address: 'fr1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'فرنسا', city: 'باريس', address: 'fr2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'كندا', city: 'تورونتو', address: 'ca1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'كندا', city: 'مونتريال', address: 'ca2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'كندا', city: 'فانكوفر', address: 'ca3.ipcover.net', protocol: 'WireGuard' },
+  { country: 'كندا', city: 'تورونتو', address: 'ca4.ipcover.net', protocol: 'WireGuard' },
+  { country: 'أستراليا', city: 'سيدني', address: 'au1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'أستراليا', city: 'سيدني', address: 'au2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'اليابان', city: 'طوكيو', address: 'jp1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'اليابان', city: 'طوكيو', address: 'jp2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'اليابان', city: 'طوكيو', address: 'jp3.ipcover.net', protocol: 'WireGuard' },
+  { country: 'سنغافورة', city: 'سنغافورة', address: 'sg1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'سنغافورة', city: 'سنغافورة', address: 'sg2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'سنغافورة', city: 'سنغافورة', address: 'sg3.ipcover.net', protocol: 'WireGuard' },
+  { country: 'الهند', city: 'مومباي', address: 'in1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'البرازيل', city: 'ساو باولو', address: 'br1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'البرازيل', city: 'ساو باولو', address: 'br2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'إسبانيا', city: 'برشلونة', address: 'es1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'إسبانيا', city: 'إشبيلية', address: 'es2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'إيطاليا', city: 'فلورنسا', address: 'it1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'إيطاليا', city: 'باليرمو', address: 'pmo.ipcover.net', protocol: 'WireGuard' },
+  { country: 'تركيا', city: 'بورصة', address: 'tr1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'تركيا', city: 'إستنبول', address: 'tr2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'السويد', city: 'ستوكهولم', address: 'se1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'السويد', city: 'ستوكهولم', address: 'se2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'سويسرا', city: 'زيورخ', address: 'zrh.ipcover.net', protocol: 'WireGuard' },
+  { country: 'بولندا', city: 'وارسو', address: 'pl1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'الدنمارك', city: 'كوبنهاغن', address: 'dk1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'الدنمارك', city: 'كوبنهاغن', address: 'dk2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'فنلندا', city: 'هلسنكي', address: 'fi1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'فنلندا', city: 'هلسنكي', address: 'fi2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'النرويج', city: 'أوسلو', address: 'no1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'روسيا', city: 'موسكو', address: 'ru1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'روسيا', city: 'سان بطرسبرغ', address: 'ru2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'أوكرانيا', city: 'كييف', address: 'ua1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'رومانيا', city: 'بوخارست', address: 'ro1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'اليونان', city: 'ثيسالونيكي', address: 'gr1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'اليونان', city: 'أثينا', address: 'gr2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'البرتغال', city: 'لشبونة', address: 'pt1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'أيرلندا', city: 'دبلن', address: 'ie1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'بلجيكا', city: 'بروكسل', address: 'be1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'النمسا', city: 'فيينا', address: 'vie.ipcover.net', protocol: 'WireGuard' },
+  { country: 'النمسا', city: 'غراتس', address: 'grz.ipcover.net', protocol: 'WireGuard' },
+  { country: 'إسرائيل', city: 'تل أبيب', address: 'il1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'الإمارات العربية المتحدة', city: 'دبي', address: 'ae1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'تايلاند', city: 'بانكوك', address: 'th1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'إندونيسيا', city: 'جاكرتا', address: 'id1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'إندونيسيا', city: 'جاكرتا', address: 'id2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'الفلبين', city: 'مانيلا', address: 'ph1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'هونغ كونغ', city: 'هونغ كونغ', address: 'hk1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'هونغ كونغ', city: 'هونغ كونغ', address: 'hk2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'جنوب أفريقيا', city: 'جوهانسبرغ', address: 'jnb.ipcover.net', protocol: 'WireGuard' },
+  { country: 'المغرب', city: 'فاس', address: 'ma1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'كينيا', city: 'نيروبي', address: 'ke1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'باكستان', city: 'إسلام آباد', address: 'pk1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'نيجيريا', city: 'لاغوس', address: 'los.ipcover.net', protocol: 'WireGuard' },
+  { country: 'المكسيك', city: 'مكسيكو سيتي', address: 'mx1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'الأرجنتين', city: 'بوينس آيرس', address: 'ar1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'الأرجنتين', city: 'بوينس آيرس', address: 'ar2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'كولومبيا', city: 'بوغوتا', address: 'co1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'تشيلي', city: 'سانتياغو', address: 'cl1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'البرازيل', city: 'ساو باولو', address: 'br2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'الإكوادور', city: 'كيتو', address: 'uio.ipcover.net', protocol: 'WireGuard' },
+  { country: 'بوليفيا', city: 'لاباز', address: 'lpb.ipcover.net', protocol: 'WireGuard' },
+  { country: 'كوستاريكا', city: 'سان خوسيه', address: 'sjo.ipcover.net', protocol: 'WireGuard' },
+  { country: 'صربيا', city: 'بلغراد', address: 'beg.ipcover.net', protocol: 'WireGuard' },
+  { country: 'سلوفينيا', city: 'ليوبليانا', address: 'si1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'ليتوانيا', city: 'فيلنيوس', address: 'vno.ipcover.net', protocol: 'WireGuard' },
+  { country: 'لاتفيا', city: 'ريغا', address: 'rix.ipcover.net', protocol: 'WireGuard' },
+  { country: 'إستونيا', city: 'تالين', address: 'tll.ipcover.net', protocol: 'WireGuard' },
+  { country: 'ألبانيا', city: 'تيرانا', address: 'tia.ipcover.net', protocol: 'WireGuard' },
+  { country: 'مولدوفا', city: 'كيشيناو', address: 'md1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'التشيك', city: 'براغ', address: 'cz1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'التشيك', city: 'براغ', address: 'cz2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'بلغاريا', city: 'صوفيا', address: 'bg1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'بلغاريا', city: 'صوفيا', address: 'bg2.ipcover.net', protocol: 'WireGuard' },
+  { country: 'بلغاريا', city: 'صوفيا', address: 'bg3.ipcover.net', protocol: 'WireGuard' },
+  { country: 'إسرائيل', city: 'تل أبيب', address: 'il1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'تايلاند', city: 'بانكوك', address: 'th1.ipcover.net', protocol: 'WireGuard' },
+  { country: 'VLESS', city: 'برلين', address: 'de1-cdn.web-api.net', protocol: 'VLESS' },
+  { country: 'VLESS', city: 'لوس أنجلوس', address: 'us1-cdn.web-api.net', protocol: 'VLESS' },
+  { country: 'VLESS', city: 'سنغافورة', address: 'sg1-cdn.web-api.net', protocol: 'VLESS' },
+  { country: 'VLESS', city: 'سنغافورة (تجريبي)', address: 'sg3-cdn.web-api.net', protocol: 'VLESS' },
+  { country: 'VLESS', city: 'طوكيو', address: 'jp1-cdn.web-api.net', protocol: 'VLESS' },
+];
+
+const countries = [...new Set(servers.map(s => s.country))].sort();
+
+const breadcrumbItems = [{ label: 'الرئيسية', href: '/' }, { label: 'خوادم في بي ان' }];
+---
+
+<BaseLayout
+  title="مواقع خوادم في بي ان — أكثر من 100 خادم WireGuard وVLESS | TopVPN"
+  description="تصفح جميع مواقع خوادم TopVPN: أكثر من 100 خادم WireGuard وعقد VLESS في أكثر من 50 دولة. متاحة في كل باقة Premium بدءًا من $3 للشهر الأول."
+  keywords="مواقع خوادم في بي ان, خوادم wireguard, خوادم vless, قائمة دول في بي ان, خوادم topvpn"
+  lang="ar"
+  dir="rtl"
+  hreflang={hreflang}
+  autolink={false}
+  ogLocale="ar_AR"
+  jsonLd={contextWrapper([breadcrumbSchema(breadcrumbItems)])}
+>
+  <Breadcrumbs items={breadcrumbItems} />
+
+  <section class="container-max py-10 md:py-14">
+    <h1 class="text-3xl md:text-4xl font-bold mb-4" style="font-family: var(--font-heading);">مواقع خوادم في بي ان</h1>
+    <p class="text-base max-w-2xl mb-4" style="color: var(--color-muted);">
+      مواقع الخوادم المتاحة لخدمة TopVPN Premium. جميع الخوادم يوفرها شريك البنية التحتية للـ VPN لدينا.
+      وتُسلَّم تفاصيل الاتصال بشكل آمن عبر حساب العميل بعد الشراء.
+    </p>
+
+    <div class="card p-5 mb-6 flex flex-col sm:flex-row items-start sm:items-center gap-4" style="border-color: var(--color-gold);">
+      <div class="flex-grow">
+        <p class="text-sm font-semibold mb-0.5" style="color: var(--color-text);">كل خادم أدناه مشمول في كل الباقات</p>
+        <p class="text-xs" style="color: var(--color-muted);">الشهرية أو السنوية أو السنتين — القائمة الكاملة لك من اليوم الأول. الشهر الأول بـ $3 للعملاء الجدد.</p>
+      </div>
+      <a href="/order-vpn" class="btn-gold text-sm shrink-0" style="min-height: 44px;">اشترِ في بي ان — واحصل على كل الخوادم</a>
+    </div>
+
+    <div class="mb-6">
+      <p class="text-sm" style="color: var(--color-muted);">
+        <strong>{servers.length}</strong> خادمًا موزعة على <strong>{countries.length}</strong> دولة/منطقة.
+      </p>
+    </div>
+
+    {countries.map(country => (
+      <div class="mb-8">
+        <h2 class="text-xl font-bold mb-3" style="font-family: var(--font-heading);">{country}</h2>
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm" style="border-collapse: collapse;">
+            <thead>
+              <tr style="border-bottom: 1px solid var(--color-border);">
+                <th class="text-left py-2 px-3" style="color: var(--color-muted);">المدينة</th>
+                <th class="text-left py-2 px-3" style="color: var(--color-muted);">البروتوكول</th>
+                <th class="text-left py-2 px-3" style="color: var(--color-muted);">الحالة</th>
+              </tr>
+            </thead>
+            <tbody>
+              {servers.filter(s => s.country === country).map(s => (
+                <tr style="border-bottom: 1px solid var(--color-border);">
+                  <td class="py-2 px-3">{s.city}</td>
+                  <td class="py-2 px-3">{s.protocol}</td>
+                  <td class="py-2 px-3" style="color: var(--color-emerald);">متاح</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    ))}
+  </section>
+</BaseLayout>

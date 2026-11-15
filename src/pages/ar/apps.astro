@@ -1,0 +1,267 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import TagChips from '../../components/TagChips.astro';
+import Icons from '../../components/Icons.astro';
+import NewsiqAd from '../../components/newsiq/NewsiqAd.astro';
+import { newsiqInline } from '../../data/newsiq-ads';
+import { breadcrumbSchema, faqSchema, contextWrapper } from '../../lib/schema';
+
+const updatedStr = 'نوفمبر 2026';
+
+const hreflang = [
+  { lang: 'en', url: 'https://www.topvpn.top/apps' },
+  { lang: 'ar', url: 'https://www.topvpn.top/ar/apps' },
+  { lang: 'pcm', url: 'https://www.topvpn.top/pcm/apps' },
+  { lang: 'x-default', url: 'https://www.topvpn.top/apps' },
+];
+
+const platforms = [
+  { icon: 'windows', name: 'Windows', suits: 'معظم مستخدمي الحواسيب — تطبيقات كاملة الميزات مع إعدادات للبروتوكولات وقاطع الاتصال وتقسيم النفق' },
+  { icon: 'macos', name: 'macOS', suits: 'مستخدمو حواسيب Apple المكتبية والمحمولة — تطبيقات أصلية مع اتصال سريع من شريط القوائم' },
+  { icon: 'linux', name: 'Linux', suits: 'المستخدمون المتقدمون والمطورون — أدوات سطر الأوامر وبعض عملاء الواجهة الرسومية، مع خيارات مفتوحة المصدر' },
+  { icon: 'android', name: 'Android', suits: 'مستخدمو الهواتف والأجهزة اللوحية — أداة تبديل سريعة واتصال تلقائي على شبكات الواي فاي غير الموثوقة' },
+  { icon: 'ios', name: 'iOS', suits: 'مستخدمو iPhone وiPad — مفتاح تشغيل/إيقاف سلس يتكامل مع ميزات الخصوصية من Apple' },
+  { icon: 'router', name: 'أجهزة الراوتر', suits: 'العائلات التي تريد حماية كل الأجهزة دون تثبيت تطبيقات — تشمل أجهزة التلفزيون الذكية وأجهزة الألعاب' },
+  { icon: 'chrome', name: 'إضافات المتصفح', suits: 'خصوصية خفيفة أثناء التصفح — تحمي حركة المتصفح فقط، لا بقية التطبيقات' },
+];
+
+const openSourceClients = [
+  { name: 'WireGuard', description: 'عميل WireGuard الرسمي — متعدد المنصات، سريع وبسيط.' },
+  { name: 'OpenVPN Connect', description: 'العميل الرسمي لبروتوكول OpenVPN — يعمل على Windows وmacOS وAndroid وiOS.' },
+  { name: 'v2rayN', description: 'عميل V2Ray لنظام Windows — شائع في المناطق التي تُحجب فيها بروتوكولات VPN القياسية.' },
+  { name: 'Hiddify', description: 'عميل متعدد المنصات يدعم عدة بروتوكولات منها Shadowsocks وV2Ray.' },
+];
+
+/**
+ * Branded TopVPN installers (white-label). Served from the `topvpn-downloads`
+ * R2 bucket by worker/downloads.ts at /downloads/<file> (installers exceed
+ * Cloudflare's 25 MiB static-asset limit). Always rendered — availability is
+ * decided by the R2 bucket, not by build-time files. A size label shows only
+ * when the installer happens to exist in public/downloads/ at build time.
+ */
+const brandedApps = [
+  {
+    platform: 'Windows', icon: 'windows', file: 'TOPVPN.TOP-Windows.exe',
+    label: 'TopVPN لنظام Windows', how: 'عميل حاسوب كامل الميزات مع تكامل شريط النظام وقاطع اتصال واتصال تلقائي.',
+    protocols: ['OpenVPN UDP/TCP', 'IKEv2', 'WireGuard', 'L2TP', 'PPTP', 'Stealth'],
+  },
+  {
+    platform: 'macOS', icon: 'macos', file: 'TOPVPN.TOPApple-Mac.dmg',
+    label: 'TopVPN لنظام macOS', how: 'تطبيق macOS أصلي بواجهة نظيفة وتكامل مع شريط القوائم واتصال بنقرة واحدة.',
+    protocols: ['OpenVPN UDP/TCP', 'IKEv2', 'WireGuard', 'L2TP', 'PPTP', 'Stealth'],
+  },
+  {
+    platform: 'Linux', icon: 'linux', file: 'TOPVPN.TOP-Linux.run',
+    label: 'TopVPN لنظام Linux', how: 'عميل بواجهة رسومية أصلية لـ Ubuntu وتوزيعات Linux الأخرى. خفيف وسريع.',
+    protocols: ['OpenVPN UDP/TCP', 'WireGuard'],
+  },
+  {
+    platform: 'Firestick وAndroid TV', icon: 'android', file: 'TOPVPN.TOPFirestick-Android_TV.apk',
+    label: 'TopVPN لـ Firestick وAndroid TV', how: 'تطبيق VPN لأجهزة Amazon Firestick وتلفزيونات Android، مصمم للشاشات الكبيرة بواجهة سهلة الاستخدام مع جهاز التحكم. يدعم أجهزة التلفزيون الذكية.',
+    protocols: ['OpenVPN UDP/TCP'],
+  },
+];
+
+/** Store-distributed apps — links, not files on our host. */
+const storeApps = [
+  {
+    platform: 'Android', icon: 'android', label: 'TopVPN لأجهزة Android',
+    how: 'تطبيق للهواتف والأجهزة اللوحية مع أداة تبديل سريعة واتصال تلقائي على شبكات الواي فاي غير الموثوقة. ثبّته مباشرة من Google Play.',
+    storeName: 'حمّله من Google Play', storeUrl: 'https://play.google.com/store/apps/details?id=com.vpn.client&pli=1',
+  },
+  {
+    platform: 'iOS', icon: 'ios', label: 'TopVPN لـ iPhone وiPad',
+    how: 'مفتاح تشغيل/إيقاف سلس بإحساس Apple الأصلي. ثبّته مباشرة من App Store.',
+    storeName: 'حمّله من App Store', storeUrl: 'https://apps.apple.com/us/app/vpnclient-secured-vpn/id1506797696',
+  },
+];
+
+const fs = await import('node:fs');
+const brandedAvailable = brandedApps.map((app) => {
+  let sizeMb: string | null = null;
+  try {
+    // this file sits one level deeper than apps.astro, hence one extra ../
+    const stat = fs.statSync(new URL(`../../../public/downloads/${app.file}`, import.meta.url));
+    if (stat.isFile()) sizeMb = (stat.size / (1024 * 1024)).toFixed(1);
+  } catch {
+    /* size unknown in CI builds — R2 decides availability */
+  }
+  return { ...app, sizeMb };
+});
+
+const leakTestSteps = [
+  { step: 1, title: 'دوّن عنوان IP الحقيقي', text: 'قبل الاتصال بالـ VPN، زر موقعًا مثل whatismyipaddress.com وسجّل عنوان IP الخاص بك.' },
+  { step: 2, title: 'اتصل بالـ VPN', text: 'افتح تطبيق في بي ان واتصل بخادم في أي دولة.' },
+  { step: 3, title: 'تحقق من عنوان IP مرة أخرى', text: 'أعد تحميل الموقع نفسه. يجب أن يُظهر العنوان الآن دولة خادم الـ VPN، لا موقعك الحقيقي.' },
+  { step: 4, title: 'أجرِ اختبار تسريب DNS', text: 'زر dnsleaktest.com وشغّل الاختبار الموسّع. يجب أن تنتمي جميع خوادم DNS إلى مزود في بي ان لديك، لا إلى مزود الإنترنت.' },
+  { step: 5, title: 'افصل ثم تحقق', text: 'أوقف الـ VPN وأعد تحميل الصفحة. يجب أن يعود عنوان IP الحقيقي. وإن لم يعد، فقد توجد مشكلة في الاتصال.' },
+];
+
+const faqs = [
+  { question: 'كيف أحمّل تطبيق TopVPN؟', answer: 'انتقل إلى قسم تطبيقات TopVPN أعلاه واختر منصتك — Windows أو macOS أو Linux أو Firestick/Android TV أو Android (Google Play) أو iOS (App Store). ثبّت التطبيق، وسجّل الدخول بحساب TopVPN، ثم اتصل. اشتراك واحد يغطي كل المنصات.' },
+  { question: 'هل تحميل TopVPN مجاني؟', answer: 'التطبيق نفسه مجاني التحميل والتثبيت على كل المنصات. تحتاج إلى باقة TopVPN نشطة للاتصال بالخوادم — تبدأ الباقات من $3 للشهر الأول.' },
+  { question: 'هل أحتاج إلى تثبيت الـ VPN على كل جهاز على حدة؟', answer: 'نعم، للحماية الكاملة تحتاج إلى تطبيق في بي ان على كل جهاز تستخدمه. ويمكنك بدلًا من ذلك تثبيت الـ VPN على الراوتر لتغطية جميع الأجهزة في شبكتك المنزلية، بما في ذلك أجهزة التلفزيون الذكية وأجهزة الألعاب.' },
+  { question: 'هل يمكنني استخدام في بي ان على التلفزيون الذكي أو Firestick؟', answer: 'نعم — تطبيق TopVPN لـ Firestick وAndroid TV مصمم للشاشات الكبيرة بواجهة سهلة مع جهاز التحكم. وإذا كان تلفزيونك لا يدعم التطبيق، فثبّت الـ VPN على الراوتر بدلًا من ذلك.' },
+  { question: 'هل تحمي إضافة المتصفح حاسوبي بالكامل؟', answer: 'لا. إضافة المتصفح تُشفّر حركة المتصفح فقط. أما بقية التطبيقات على جهازك — البريد والألعاب وتحديثات النظام — فتستمر في استخدام اتصالك الحقيقي. للحماية الكاملة استخدم تطبيق في بي ان.' },
+];
+
+const tags = ['تحميل في بي ان', 'تطبيقات', 'أجهزة', 'Windows', 'macOS', 'Android', 'iOS', 'Linux', 'Firestick', 'دليل'];
+---
+
+<BaseLayout
+  title="تحميل في بي ان — تطبيقات TopVPN لـ Windows وMac وAndroid وiOS وLinux وFirestick"
+  description="تحميل في بي ان لكل الأجهزة: تطبيق TopVPN الرسمي لـ Windows وmacOS وLinux وAndroid وiPhone وFirestick. باقات تبدأ من $3 للشهر الأول."
+  keywords="تحميل في بي ان, تحميل vpn, تحميل في بي ان مجاني, في بي ان لويندوز, في بي ان للأندرويد, في بي ان للكمبيوتر, تحميل تطبيق في بي ان, تحميل topvpn, في بي ان للماك, في بي ان للفايرستيك, في بي ان للينكس, تحميل wireguard, تحميل openvpn, في بي ان للايفون"
+  lang="ar"
+  dir="rtl"
+  hreflang={hreflang}
+  autolink={false}
+  ogLocale="ar_AR"
+  jsonLd={contextWrapper([breadcrumbSchema([{ label: 'الرئيسية', href: '/' }, { label: 'التطبيقات' }]), faqSchema(faqs)])}
+>
+  <Breadcrumbs items={[{ label: 'الرئيسية', href: '/' }, { label: 'التطبيقات' }]} />
+
+  <section class="container-max py-8 md:py-12">
+    <div class="max-w-3xl">
+      <div class="mb-4 flex items-center gap-2 text-xs" style="color: var(--color-muted-dark);">
+        <Icons name="doc" size={14} />
+        <span>آخر تحديث: {updatedStr}</span>
+      </div>
+
+      <h1 class="text-3xl md:text-4xl font-bold mb-4" style="font-family: var(--font-heading);">
+        تحميل في بي ان — تطبيقات TopVPN الرسمية <span class="gold-text">لكل الأجهزة</span>
+      </h1>
+
+      <p class="text-base md:text-lg mb-4" style="color: var(--color-muted);">
+        تبحث عن تحميل في بي ان سريع؟ حمّل تطبيق TopVPN الرسمي أدناه لأنظمة Windows وmacOS وLinux وAndroid وiPhone/iPad أو Firestick. كل مثبّت يُقدَّم مباشرة من خوادمنا ويوقّعه شريك البنية التحتية للـ VPN لدينا — اشتراك واحد يغطي جميع أجهزتك.
+      </p>
+
+      <div class="card p-4 mb-6 text-sm" style="background: var(--color-bg-alt);">
+        <p style="color: var(--color-muted);"><strong style="color: var(--color-text);">الإجابة السريعة:</strong> ثبّت تطبيق في بي ان على كل هاتف وحاسوب محمول وجهاز لوحي تستخدمه. أما أجهزة التلفزيون الذكية وأجهزة الألعاب فاضبط الـ VPN على الراوتر بدلًا من ذلك. تختلف قوانين الـ VPN بين الدول — تحقق من القواعد المحلية قبل الاستخدام.</p>
+      </div>
+
+      <TagChips chips={tags} class="mb-6" />
+    </div>
+
+    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">تطبيقات TopVPN — التحميل الرسمي</h2>
+    <p class="text-sm mb-4 max-w-3xl" style="color: var(--color-muted);">
+      حمّل تطبيق TopVPN الرسمي لجهازك. سجّل الدخول بحساب TopVPN ثم اتصل — تُجلب قائمة الخوادم والإعدادات تلقائيًا.
+    </p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4 max-w-5xl">
+      {brandedAvailable.map((a) => (
+          <div class="card p-5 flex flex-col">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl mb-3 shrink-0" style="background: linear-gradient(135deg, rgba(212,175,55,0.18), rgba(212,175,55,0.06));">
+              <Icons name={a.icon} size={26} class="text-amber-400" />
+            </div>
+            <h3 class="text-base font-bold mb-1" style="font-family: var(--font-heading);">{a.label}</h3>
+            <p class="text-xs mb-3 flex-grow" style="color: var(--color-muted);">{a.how}</p>
+            <div class="flex flex-wrap gap-1 mb-3">
+              {a.protocols.map((p) => (
+                <span class="text-[10px] px-2 py-0.5 rounded-full" style="background: var(--color-bg-alt); border: 1px solid var(--color-border); color: var(--color-muted);">{p}</span>
+              ))}
+            </div>
+            <a href={`/downloads/${a.file}`} download class="btn-gold w-full justify-center text-sm" rel="nofollow">تحميل لإصدار {a.platform}</a>
+            {a.sizeMb && <p class="text-[10px] mt-2 text-center" style="color: var(--color-muted-dark);">{a.file} · {a.sizeMb} MB</p>}
+          </div>
+        ))}
+      </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 max-w-3xl">
+      {storeApps.map((a) => (
+        <div class="card p-5 flex flex-col">
+          <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl mb-3 shrink-0" style="background: linear-gradient(135deg, rgba(212,175,55,0.18), rgba(212,175,55,0.06));">
+            <Icons name={a.icon} size={26} class="text-amber-400" />
+          </div>
+          <h3 class="text-base font-bold mb-1" style="font-family: var(--font-heading);">{a.label}</h3>
+          <p class="text-xs mb-4 flex-grow" style="color: var(--color-muted);">{a.how}</p>
+          <a href={a.storeUrl} target="_blank" rel="nofollow noopener" class="btn-gold w-full justify-center text-sm">{a.storeName}</a>
+        </div>
+      ))}
+    </div>
+
+    <p class="text-xs mb-8 max-w-3xl" style="color: var(--color-muted-dark);">
+      جميع التحميلات تُقدَّم مباشرة من خوادم TopVPN. اشتراك واحد يغطي كل المنصات — <a href="/order-vpn" class="gold-text underline">شاهد الباقات</a>.
+    </p>
+
+    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">التطبيقات حسب النظام</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 max-w-4xl">
+      {platforms.map((p) => (
+        <div class="card p-5 flex items-start gap-4">
+          <div class="inline-flex items-center justify-center w-10 h-10 rounded-lg shrink-0" style="background: rgba(212, 175, 55, 0.1);">
+            <Icons name={p.icon} size={20} class="text-amber-400" />
+          </div>
+          <div>
+            <h3 class="text-base font-bold mb-1" style="font-family: var(--font-heading);">{p.name}</h3>
+            <p class="text-sm" style="color: var(--color-muted);">{p.suits}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">عملاء مفتوحو المصدر</h2>
+    <p class="text-sm mb-4 max-w-3xl" style="color: var(--color-muted);">
+      بعض بروتوكولات VPN لديها برامج عملاء مفتوحة المصدر يمكنك استخدامها بشكل مستقل. هذه البرامج عادةً جيدة الصيانة وقابلة للتدقيق، لكن توفرها يختلف حسب النظام، وستظل بحاجة إلى خادم تتصل به.
+    </p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 max-w-4xl">
+      {openSourceClients.map((c) => (
+        <div class="card p-4">
+          <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">{c.name}</h3>
+          <p class="text-xs" style="color: var(--color-muted);">{c.description}</p>
+        </div>
+      ))}
+    </div>
+
+    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">كيف تتأكد أن الـ VPN يعمل</h2>
+    <p class="text-sm mb-4 max-w-3xl" style="color: var(--color-muted);">
+      بعد إعداد الـ VPN، أجرِ اختبارًا سريعًا لتسريب IP وDNS للتأكد من أن حركتك تمر فعلًا عبر الـ VPN.
+    </p>
+    <div class="space-y-3 mb-8 max-w-3xl">
+      {leakTestSteps.map((s) => (
+        <div class="card p-4 flex items-start gap-4">
+          <span class="inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold shrink-0" style="background: linear-gradient(135deg, #D4AF37, #F5D77A); color: #0B1020;">{s.step}</span>
+          <div>
+            <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">{s.title}</h3>
+            <p class="text-xs" style="color: var(--color-muted);">{s.text}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <div class="my-10">
+      <NewsiqAd placement={newsiqInline} id="newsiq-guide-apps" />
+    </div>
+
+    <div class="max-w-3xl mb-8">
+      <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">الأسئلة الشائعة</h2>
+      <div class="space-y-3">
+        {faqs.map((f) => (
+          <details class="card p-4 group">
+            <summary class="font-semibold cursor-pointer text-sm flex items-center justify-between" style="font-family: var(--font-heading);">
+              {f.question}
+              <Icons name="chevron-down" size={16} class="text-amber-400 transition-transform group-open:rotate-180" />
+            </summary>
+            <p class="text-sm mt-3" style="color: var(--color-muted);">{f.answer}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+
+    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">أدلة ذات صلة</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
+      <a href="/connection-guide" class="card p-4 block transition-all hover:border-amber-400">
+        <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">شرح بروتوكولات VPN</h3>
+        <p class="text-xs" style="color: var(--color-muted);">مقارنة بين WireGuard وOpenVPN وV2Ray وShadowsocks</p>
+      </a>
+      <a href="/order-vpn" class="card p-4 block transition-all hover:border-amber-400">
+        <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">قارن باقات في بي ان</h3>
+        <p class="text-xs" style="color: var(--color-muted);">اعرف أي المزودين يوفر تطبيقات لأجهزتك</p>
+      </a>
+      <a href="/" class="card p-4 block transition-all hover:border-amber-400">
+        <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">الصفحة الرئيسية لـ TopVPN</h3>
+        <p class="text-xs" style="color: var(--color-muted);">أفضل توصياتنا ولماذا اخترناها</p>
+      </a>
+    </div>
+  </section>
+</BaseLayout>

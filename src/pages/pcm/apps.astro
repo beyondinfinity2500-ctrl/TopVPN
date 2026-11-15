@@ -1,0 +1,264 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import TagChips from '../../components/TagChips.astro';
+import Icons from '../../components/Icons.astro';
+import NewsiqAd from '../../components/newsiq/NewsiqAd.astro';
+import { newsiqInline } from '../../data/newsiq-ads';
+import { breadcrumbSchema, faqSchema, contextWrapper } from '../../lib/schema';
+
+const hreflang = [
+  { lang: 'en', url: 'https://www.topvpn.top/apps' },
+  { lang: 'ar', url: 'https://www.topvpn.top/ar/apps' },
+  { lang: 'pcm', url: 'https://www.topvpn.top/pcm/apps' },
+  { lang: 'x-default', url: 'https://www.topvpn.top/apps' },
+];
+
+const updatedStr = 'November 2026';
+
+const platforms = [
+  { icon: 'windows', name: 'Windows', suits: 'For most computer users — full app with settings for protocol, kill switch, and split tunneling' },
+  { icon: 'macos', name: 'macOS', suits: 'Apple desktop and laptop users — original app with quick connect for menu bar' },
+  { icon: 'linux', name: 'Linux', suits: 'For power users and developers — command-line tools and some GUI clients; open-source options dey available' },
+  { icon: 'android', name: 'Android', suits: 'Phone and tablet users — quick-toggle widget, e go auto-connect for Wi-Fi wey you no trust' },
+  { icon: 'ios', name: 'iOS', suits: 'iPhone and iPad users — smooth on/off toggle, e join body with Apple privacy features' },
+  { icon: 'router', name: 'Routers', suits: 'For home wey want make every device safe without installing app — e cover smart TVs and game consoles' },
+  { icon: 'chrome', name: 'Browser extensions', suits: 'Small-small privacy for browsing — e only protect browser traffic, no be other apps' },
+];
+
+const openSourceClients = [
+  { name: 'WireGuard', description: 'The original WireGuard client — e dey available for plenty platforms, e fast and e simple.' },
+  { name: 'OpenVPN Connect', description: 'The original client for OpenVPN — e dey work for Windows, macOS, Android, and iOS.' },
+  { name: 'v2rayN', description: 'One Windows client for V2Ray — e popular for places wey dem block normal VPN protocols.' },
+  { name: 'Hiddify', description: 'Client wey dey work across platforms, e support plenty protocol including Shadowsocks and V2Ray.' },
+];
+
+/**
+ * Branded TopVPN installers (white-label). Served from the `topvpn-downloads`
+ * R2 bucket by worker/downloads.ts at /downloads/<file> (installers exceed
+ * Cloudflare's 25 MiB static-asset limit). Always rendered — availability is
+ * decided by the R2 bucket, not by build-time files. A size label shows only
+ * when the installer happens to exist in public/downloads/ at build time.
+ */
+const brandedApps = [
+  {
+    platform: 'Windows', icon: 'windows', file: 'TOPVPN.TOP-Windows.exe',
+    label: 'TopVPN for Windows', how: 'Full desktop client wey get system tray integration, kill switch and auto-connect.',
+    protocols: ['OpenVPN UDP/TCP', 'IKEv2', 'WireGuard', 'L2TP', 'PPTP', 'Stealth'],
+  },
+  {
+    platform: 'macOS', icon: 'macos', file: 'TOPVPN.TOPApple-Mac.dmg',
+    label: 'TopVPN for macOS', how: 'Original macOS app with clean interface, menu bar integration and one-click connect.',
+    protocols: ['OpenVPN UDP/TCP', 'IKEv2', 'WireGuard', 'L2TP', 'PPTP', 'Stealth'],
+  },
+  {
+    platform: 'Linux', icon: 'linux', file: 'TOPVPN.TOP-Linux.run',
+    label: 'TopVPN for Linux', how: 'Original GUI client for Ubuntu and other Linux distributions. E light and e fast.',
+    protocols: ['OpenVPN UDP/TCP', 'WireGuard'],
+  },
+  {
+    platform: 'Firestick & Android TV', icon: 'android', file: 'TOPVPN.TOPFirestick-Android_TV.apk',
+    label: 'TopVPN for Firestick & Android TV', how: 'White-label VPN app for Amazon Firestick and Android TVs, dem design am for big screens with interface wey remote-friendly. E support Smart TV.',
+    protocols: ['OpenVPN UDP/TCP'],
+  },
+];
+
+/** Store-distributed apps — links, not files on our host. */
+const storeApps = [
+  {
+    platform: 'Android', icon: 'android', label: 'TopVPN for Android',
+    how: 'App for phone and tablet with quick-toggle widget and auto-connect for Wi-Fi wey you no trust. Install am straight from Google Play.',
+    storeName: 'Get it on Google Play', storeUrl: 'https://play.google.com/store/apps/details?id=com.vpn.client&pli=1',
+  },
+  {
+    platform: 'iOS', icon: 'ios', label: 'TopVPN for iPhone & iPad',
+    how: 'Smooth on/off toggle with Apple-native feel. Install am straight from the App Store.',
+    storeName: 'Download on the App Store', storeUrl: 'https://apps.apple.com/us/app/vpnclient-secured-vpn/id1506797696',
+  },
+];
+
+const fs = await import('node:fs');
+const brandedAvailable = brandedApps.map((app) => {
+  let sizeMb: string | null = null;
+  try {
+    const stat = fs.statSync(new URL(`../../../public/downloads/${app.file}`, import.meta.url));
+    if (stat.isFile()) sizeMb = (stat.size / (1024 * 1024)).toFixed(1);
+  } catch {
+    /* size unknown in CI builds — R2 decides availability */
+  }
+  return { ...app, sizeMb };
+});
+
+const leakTestSteps = [
+  { step: 1, title: 'Write down your real IP address', text: 'Before you connect the VPN, visit site like whatismyipaddress.com and write your IP down.' },
+  { step: 2, title: 'Connect your VPN', text: 'Open your VPN app and connect to server for any country.' },
+  { step: 3, title: 'Check your IP again', text: 'Reload that same site. The IP suppose show the VPN server country now, no be your real location.' },
+  { step: 4, title: 'Run DNS leak test', text: 'Visit dnsleaktest.com and run the extended test. All the DNS servers suppose belong to your VPN provider, no be your ISP.' },
+  { step: 5, title: 'Disconnect and check am well', text: 'Switch off the VPN and reload the page. Your real IP suppose come back. If e no come back, fit be connection problem.' },
+];
+
+const faqs = [
+  { question: 'How I go download the TopVPN app?', answer: 'Scroll go the TopVPN Apps section for up, pick your platform — Windows, macOS, Linux, Firestick/Android TV, Android (Google Play) or iOS (App Store). Install am, sign in with your TopVPN account, and connect. One subscription cover every platform.' },
+  { question: 'The TopVPN download na free?', answer: 'The app itself dey free to download and install for every platform. You need active TopVPN plan to connect to servers — plans start from $3 for your first month.' },
+  { question: 'I need to install VPN for every device separate?', answer: 'Yes, for full protection you need the VPN app for each device wey you dey use. Or, you fit install the VPN for your router to cover all the devices for your home network, including smart TVs and game consoles.' },
+  { question: 'I fit use VPN for my smart TV or Firestick?', answer: 'Yes — the TopVPN app for Firestick & Android TV, dem build am for big screens with interface wey remote-friendly. If your TV no support the app, install the VPN for your router instead.' },
+  { question: 'Browser extension dey protect my whole computer?', answer: 'No. Browser extension only dey encrypt traffic from your browser. Other apps for your device — email, games, system updates — still dey use your real connection. For full protection, use the VPN app.' },
+];
+
+const tags = ['vpn download', 'apps', 'device', 'Windows', 'macOS', 'Android', 'iOS', 'Linux', 'Firestick', 'guide'];
+---
+
+<BaseLayout
+  title="VPN Download — Original TopVPN Apps for Every Device"
+  description="Download TopVPN app for every device: Windows, macOS, Linux, Android, iPhone and Firestick. One-click install, WireGuard, OpenVPN. From $3 for first month."
+  lang="pcm"
+  hreflang={hreflang}
+  autolink={false}
+  ogLocale="pcm_NG"
+  jsonLd={contextWrapper([breadcrumbSchema([{ label: 'Home', href: '/' }, { label: 'Apps' }]), faqSchema(faqs)])}
+>
+  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Apps' }]} />
+
+  <section class="container-max py-8 md:py-12">
+    <div class="max-w-3xl">
+      <div class="mb-4 flex items-center gap-2 text-xs" style="color: var(--color-muted-dark);">
+        <Icons name="doc" size={14} />
+        <span>Last updated: {updatedStr}</span>
+      </div>
+
+      <h1 class="text-3xl md:text-4xl font-bold mb-4" style="font-family: var(--font-heading);">
+        VPN Download — Original TopVPN Apps <span class="gold-text">for Every Device</span>
+      </h1>
+
+      <p class="text-base md:text-lg mb-4" style="color: var(--color-muted);">
+        You dey look for fast VPN download? Get the original TopVPN app for down for Windows, macOS, Linux, Android, iPhone/iPad, or Firestick. Every installer dey come straight from our own servers and our VPN infrastructure partner sign am — one subscription cover all your devices.
+      </p>
+
+      <div class="card p-4 mb-6 text-sm" style="background: var(--color-bg-alt);">
+        <p style="color: var(--color-muted);"><strong style="color: var(--color-text);">Quick answer:</strong> Install the VPN app for every phone, laptop, and tablet wey you dey use. For smart TVs and game consoles, set up the VPN for your router instead. VPN laws dey different by country — check local rules before you use am.</p>
+      </div>
+
+      <TagChips chips={tags} class="mb-6" />
+    </div>
+
+    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">TopVPN Apps — Official Download</h2>
+    <p class="text-sm mb-4 max-w-3xl" style="color: var(--color-muted);">
+      Download the original TopVPN app for your device. Sign in with your TopVPN account, and connect — your server list and configuration go come automatically.
+    </p>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4 max-w-5xl">
+      {brandedAvailable.map((a) => (
+          <div class="card p-5 flex flex-col">
+            <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl mb-3 shrink-0" style="background: linear-gradient(135deg, rgba(212,175,55,0.18), rgba(212,175,55,0.06));">
+              <Icons name={a.icon} size={26} class="text-amber-400" />
+            </div>
+            <h3 class="text-base font-bold mb-1" style="font-family: var(--font-heading);">{a.label}</h3>
+            <p class="text-xs mb-3 flex-grow" style="color: var(--color-muted);">{a.how}</p>
+            <div class="flex flex-wrap gap-1 mb-3">
+              {a.protocols.map((p) => (
+                <span class="text-[10px] px-2 py-0.5 rounded-full" style="background: var(--color-bg-alt); border: 1px solid var(--color-border); color: var(--color-muted);">{p}</span>
+              ))}
+            </div>
+            <a href={`/downloads/${a.file}`} download class="btn-gold w-full justify-center text-sm" rel="nofollow">Download am for {a.platform}</a>
+            {a.sizeMb && <p class="text-[10px] mt-2 text-center" style="color: var(--color-muted-dark);">{a.file} · {a.sizeMb} MB</p>}
+          </div>
+        ))}
+      </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 max-w-3xl">
+      {storeApps.map((a) => (
+        <div class="card p-5 flex flex-col">
+          <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl mb-3 shrink-0" style="background: linear-gradient(135deg, rgba(212,175,55,0.18), rgba(212,175,55,0.06));">
+            <Icons name={a.icon} size={26} class="text-amber-400" />
+          </div>
+          <h3 class="text-base font-bold mb-1" style="font-family: var(--font-heading);">{a.label}</h3>
+          <p class="text-xs mb-4 flex-grow" style="color: var(--color-muted);">{a.how}</p>
+          <a href={a.storeUrl} target="_blank" rel="nofollow noopener" class="btn-gold w-full justify-center text-sm">{a.storeName}</a>
+        </div>
+      ))}
+    </div>
+
+    <p class="text-xs mb-8 max-w-3xl" style="color: var(--color-muted-dark);">
+      All the downloads dey come straight from TopVPN own servers. One subscription cover every platform — <a href="/order-vpn" class="gold-text underline">see plans</a>.
+    </p>
+
+    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">Apps for Each Platform</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 max-w-4xl">
+      {platforms.map((p) => (
+        <div class="card p-5 flex items-start gap-4">
+          <div class="inline-flex items-center justify-center w-10 h-10 rounded-lg shrink-0" style="background: rgba(212, 175, 55, 0.1);">
+            <Icons name={p.icon} size={20} class="text-amber-400" />
+          </div>
+          <div>
+            <h3 class="text-base font-bold mb-1" style="font-family: var(--font-heading);">{p.name}</h3>
+            <p class="text-sm" style="color: var(--color-muted);">{p.suits}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">Open-Source Clients</h2>
+    <p class="text-sm mb-4 max-w-3xl" style="color: var(--color-muted);">
+      Some VPN protocols get open-source client software wey you fit use on your own. Dem dey generally well-maintained and people fit check dem, but e dey vary by platform and you still need server to connect to.
+    </p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 max-w-4xl">
+      {openSourceClients.map((c) => (
+        <div class="card p-4">
+          <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">{c.name}</h3>
+          <p class="text-xs" style="color: var(--color-muted);">{c.description}</p>
+        </div>
+      ))}
+    </div>
+
+    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">How to Confirm Say Your VPN Dey Work</h2>
+    <p class="text-sm mb-4 max-w-3xl" style="color: var(--color-muted);">
+      After you set up your VPN, run quick IP and DNS leak test to confirm say your traffic dey actually go through the VPN.
+    </p>
+    <div class="space-y-3 mb-8 max-w-3xl">
+      {leakTestSteps.map((s) => (
+        <div class="card p-4 flex items-start gap-4">
+          <span class="inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold shrink-0" style="background: linear-gradient(135deg, #D4AF37, #F5D77A); color: #0B1020;">{s.step}</span>
+          <div>
+            <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">{s.title}</h3>
+            <p class="text-xs" style="color: var(--color-muted);">{s.text}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <div class="my-10">
+      <NewsiqAd placement={newsiqInline} id="newsiq-guide-apps" />
+    </div>
+
+    <div class="max-w-3xl mb-8">
+      <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">FAQ</h2>
+      <div class="space-y-3">
+        {faqs.map((f) => (
+          <details class="card p-4 group">
+            <summary class="font-semibold cursor-pointer text-sm flex items-center justify-between" style="font-family: var(--font-heading);">
+              {f.question}
+              <Icons name="chevron-down" size={16} class="text-amber-400 transition-transform group-open:rotate-180" />
+            </summary>
+            <p class="text-sm mt-3" style="color: var(--color-muted);">{f.answer}</p>
+          </details>
+        ))}
+      </div>
+    </div>
+
+    <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">More Guides</h2>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
+      <a href="/connection-guide" class="card p-4 block transition-all hover:border-amber-400">
+        <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">VPN Protocols Explained</h3>
+        <p class="text-xs" style="color: var(--color-muted);">WireGuard, OpenVPN, V2Ray, and Shadowsocks compared</p>
+      </a>
+      <a href="/order-vpn" class="card p-4 block transition-all hover:border-amber-400">
+        <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">Compare VPN Plans</h3>
+        <p class="text-xs" style="color: var(--color-muted);">See which providers get apps for your devices</p>
+      </a>
+      <a href="/" class="card p-4 block transition-all hover:border-amber-400">
+        <h3 class="text-sm font-bold mb-1" style="font-family: var(--font-heading);">TopVPN Home</h3>
+        <p class="text-xs" style="color: var(--color-muted);">Our top recommendations and why we pick dem</p>
+      </a>
+    </div>
+  </section>
+</BaseLayout>
