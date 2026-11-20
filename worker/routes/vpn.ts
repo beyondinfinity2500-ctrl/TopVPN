@@ -155,9 +155,9 @@ export async function createVpnOrderRoute(request: Request, env: Env): Promise<R
     .first<{ count: number }>();
   if ((window?.count ?? 1) > 10) return json({ error: 'Too many order attempts. Try again later.' }, 429);
 
-  // Intro pricing is intentionally NOT applied: it cannot be enforced as
-  // one-time without verified identity. See docs/PLATFORM_IMPLEMENTATION.md.
-  const order = await createVpnOrder(env, { email, name, planId, introEligible: false });
+  // Intro pricing ($3 first month) applies automatically for new customers on the monthly plan.
+  const introEligible = planId === 'monthly' && !(await hasPriorPaidVpnOrder(env.DB, email));
+  const order = await createVpnOrder(env, { email, name, planId, introEligible });
 
   return json(
     {
@@ -167,7 +167,7 @@ export async function createVpnOrderRoute(request: Request, env: Env): Promise<R
       currency: order.currency,
       orderStatus: order.order_status,
       paymentStatus: order.payment_status,
-      introApplied: false,
+      introApplied: introEligible,
     },
     201,
   );
@@ -240,6 +240,7 @@ interface CheckoutOrderInput {
   planId: PlanId;
   idempotencyKey: string;
   couponCode: string;
+  introEligible: boolean;
 }
 
 type CheckoutOrderResolution =
@@ -282,7 +283,7 @@ async function resolveCheckoutOrder(env: Env, input: CheckoutOrderInput): Promis
         email: input.email,
         name: input.name,
         planId: input.planId,
-        introEligible: false,
+        introEligible: input.introEligible,
         idempotencyKey: input.idempotencyKey,
       });
     } catch {
@@ -360,7 +361,8 @@ export async function vpnCheckout(request: Request, env: Env, deps: VpnCheckoutD
     .first<{ count: number }>();
   if ((window?.count ?? 1) > 10) return json({ error: 'Too many checkout attempts. Try again later.' }, 429);
 
-  const resolution = await resolveCheckoutOrder(env, { email, name, planId, idempotencyKey, couponCode });
+  const introEligible = planId === 'monthly' && !(await hasPriorPaidVpnOrder(env.DB, email));
+  const resolution = await resolveCheckoutOrder(env, { email, name, planId, idempotencyKey, couponCode, introEligible });
   if (!resolution.ok) return resolution.response;
   const { order, couponPricing, now, reuseUrl } = resolution;
 
@@ -493,7 +495,8 @@ export async function vpnPayPalCreate(
     .first<{ count: number }>();
   if ((window?.count ?? 1) > 10) return json({ error: 'Too many checkout attempts. Try again later.' }, 429);
 
-  const resolution = await resolveCheckoutOrder(env, { email, name, planId, idempotencyKey, couponCode });
+  const introEligible = planId === 'monthly' && !(await hasPriorPaidVpnOrder(env.DB, email));
+  const resolution = await resolveCheckoutOrder(env, { email, name, planId, idempotencyKey, couponCode, introEligible });
   if (!resolution.ok) return resolution.response;
   const { order, couponPricing, now, reuseUrl } = resolution;
 
