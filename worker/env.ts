@@ -37,6 +37,9 @@ export interface Env {
   VPN_SANDBOX_CHECKOUT_ENABLED?: string;
   /** "true" enables the one-time first-month price (requires prior-order check). */
   VPN_INTRO_ENABLED?: string;
+  /** Payment mode: 'sandbox' (default, fail-closed) or 'live'. Determines whether
+   *  real VPNResellers provisioning is allowed. Never inferred from token presence. */
+  VPN_PAYMENT_MODE?: string;
   /** Stripe signing secret for the dedicated VPN webhook endpoint (not the ads one). */
   STRIPE_VPN_WEBHOOK_SECRET?: string;
   /** Server secret used to derive deterministic VPN account passwords. */

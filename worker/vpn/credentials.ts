@@ -24,6 +24,7 @@ export interface CredentialOrder {
   provider_account_id: string | null;
   provider_username: string | null;
   expire_at: string | null;
+  payment_mode: string | null;
 }
 
 export type ConnectionInfo =
@@ -77,6 +78,10 @@ export async function buildConnectionInfo(
   if (!credentialDeliveryReady(env)) return { ok: false, reason: 'not_configured' };
   if (order.order_status !== 'active' || order.provisioning_status !== 'succeeded') {
     return { ok: false, reason: 'not_active' };
+  }
+  // Sandbox/test orders must never expose real VPN credentials.
+  if (order.payment_mode !== 'live' && order.payment_mode !== 'production') {
+    return { ok: false, reason: 'not_configured' };
   }
   // Never deliver past the paid period (no scheduled job marks orders expired).
   if (order.expire_at && order.expire_at.slice(0, 10) < new Date().toISOString().slice(0, 10)) {

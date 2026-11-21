@@ -158,7 +158,8 @@ export async function createVpnOrderRoute(request: Request, env: Env): Promise<R
 
   // Intro pricing ($3 first month) requires verified identity (customer session) and the feature flag.
   // The public order-creation endpoint has no session, so intro is never applied here.
-  const order = await createVpnOrder(env, { email, name, planId, introEligible: false });
+  const paymentMode = (env.VPN_PAYMENT_MODE === 'live' ? 'live' : 'sandbox') as 'sandbox' | 'live';
+  const order = await createVpnOrder(env, { email, name, planId, introEligible: false, paymentMode });
 
   return json(
     {
@@ -242,6 +243,7 @@ interface CheckoutOrderInput {
   idempotencyKey: string;
   couponCode: string;
   introEligible: boolean;
+  paymentMode: 'sandbox' | 'live';
 }
 
 type CheckoutOrderResolution =
@@ -285,6 +287,7 @@ async function resolveCheckoutOrder(env: Env, input: CheckoutOrderInput): Promis
         name: input.name,
         planId: input.planId,
         introEligible: input.introEligible,
+        paymentMode: input.paymentMode,
         idempotencyKey: input.idempotencyKey,
       });
     } catch {
@@ -364,7 +367,8 @@ export async function vpnCheckout(request: Request, env: Env, deps: VpnCheckoutD
 
   const introEligible =
     env.VPN_INTRO_ENABLED === 'true' && planId === 'monthly' && !(await hasPriorPaidVpnOrder(env.DB, email));
-  const resolution = await resolveCheckoutOrder(env, { email, name, planId, idempotencyKey, couponCode, introEligible });
+  const paymentMode = (env.VPN_PAYMENT_MODE === 'live' ? 'live' : 'sandbox') as 'sandbox' | 'live';
+  const resolution = await resolveCheckoutOrder(env, { email, name, planId, idempotencyKey, couponCode, introEligible, paymentMode });
   if (!resolution.ok) return resolution.response;
   const { order, couponPricing, now, reuseUrl } = resolution;
 
@@ -499,7 +503,8 @@ export async function vpnPayPalCreate(
 
   const introEligible =
     env.VPN_INTRO_ENABLED === 'true' && planId === 'monthly' && !(await hasPriorPaidVpnOrder(env.DB, email));
-  const resolution = await resolveCheckoutOrder(env, { email, name, planId, idempotencyKey, couponCode, introEligible });
+  const paymentMode = (env.VPN_PAYMENT_MODE === 'live' ? 'live' : 'sandbox') as 'sandbox' | 'live';
+  const resolution = await resolveCheckoutOrder(env, { email, name, planId, idempotencyKey, couponCode, introEligible, paymentMode });
   if (!resolution.ok) return resolution.response;
   const { order, couponPricing, now, reuseUrl } = resolution;
 

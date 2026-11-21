@@ -32,6 +32,7 @@ export interface VpnOrderRow {
   paid_at: string | null;
   provisioning_attempts: number;
   payment_provider: string;
+  payment_mode: string;
   coupon_id: string | null;
   original_amount_cents: number | null;
   discount_cents: number;
@@ -49,6 +50,7 @@ export interface NewVpnOrder {
   currency: string;
   providerUsername: string;
   idempotencyKey?: string | null;
+  paymentMode?: string;
   now: string;
 }
 
@@ -70,8 +72,8 @@ export async function insertVpnOrder(db: D1Database, order: NewVpnOrder): Promis
     .prepare(
       `INSERT INTO vpn_orders
          (id, customer_email, customer_name, plan_id, interval_months, amount_cents, currency,
-          provider_username, checkout_idempotency_key, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          provider_username, checkout_idempotency_key, payment_mode, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     )
     .bind(
       order.id,
@@ -83,6 +85,7 @@ export async function insertVpnOrder(db: D1Database, order: NewVpnOrder): Promis
       order.currency,
       order.providerUsername,
       order.idempotencyKey ?? null,
+      order.paymentMode ?? 'sandbox',
       order.now,
       order.now,
     )

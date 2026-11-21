@@ -81,17 +81,25 @@ export async function derivePassword(secret: string, orderId: string): Promise<s
   return base64Url(signature).slice(0, 32);
 }
 
-function providerFromEnv(env: Env): VpnProvider | null {
+function providerFromEnv(env: Env, paymentMode: string = 'sandbox'): VpnProvider | null {
+  // CRITICAL: Sandbox/test payments must NEVER use the real VPNResellers provider.
+  // Only live/production payment mode with an explicit token may use the real provider.
+  if (paymentMode !== 'live' && paymentMode !== 'production') {
+    return null; // Sandbox/test mode: no real provider available
+  }
   const config = loadVpnResellersConfig(env);
   if (!config.ok) return null;
   return new VpnResellersClient(config.config);
 }
+
+export type PaymentMode = 'sandbox' | 'live';
 
 export interface CreateVpnOrderInput {
   email: string;
   name?: string | null;
   planId: string;
   introEligible: boolean;
+  paymentMode?: PaymentMode;
   idempotencyKey?: string | null;
   now?: Date;
 }
@@ -113,6 +121,7 @@ export async function createVpnOrder(env: Env, input: CreateVpnOrderInput): Prom
     currency: 'USD',
     providerUsername: provisioningUsername(id),
     idempotencyKey: input.idempotencyKey ?? null,
+    paymentMode: input.paymentMode ?? 'sandbox',
     now,
   });
 
@@ -249,7 +258,8 @@ export async function provisionVpnOrder(
     return { status: 'skipped', reason: `order_status_${current?.order_status ?? 'unknown'}` };
   }
 
-  const provider = deps.provider === undefined ? providerFromEnv(env) : deps.provider;
+  const paymentMode = order.payment_mode || 'sandbox';
+  const provider = deps.provider === undefined ? providerFromEnv(env, paymentMode) : deps.provider;
   if (!provider) return markFailed(env, { ...order, order_status: 'provisioning' }, 'provider_not_configured', now);
 
   await incrementVpnProvisioningAttempts(env.DB, order.id);
@@ -390,7 +400,8 @@ export async function reconcileVpnOrder(
     return { status: 'not_reconcilable', orderStatus: order.order_status };
   }
 
-  const provider = deps.provider === undefined ? providerFromEnv(env) : deps.provider;
+  const paymentMode = order.payment_mode || 'sandbox';
+  const provider = deps.provider === undefined ? providerFromEnv(env, paymentMode) : deps.provider;
   if (!provider) return { status: 'provider_not_configured' };
 
   const username = order.provider_username || provisioningUsername(order.id);

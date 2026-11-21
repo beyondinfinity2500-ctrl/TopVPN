@@ -60,7 +60,7 @@ async function seed(order: 'active' | 'pending' = 'active') {
     const providerAccountId = String(9000 + Math.floor(Math.random() * 100000));
     await testEnv.DB.prepare(
       `UPDATE vpn_orders SET order_status='active', payment_status='paid', provisioning_status='succeeded',
-        provider_account_id=?, provider_username='topvpn-test', expire_at='2027-01-01' WHERE id=?`,
+        provider_account_id=?, provider_username='topvpn-test', expire_at='2027-01-01', payment_mode='live' WHERE id=?`,
     )
       .bind(providerAccountId, orderId)
       .run();

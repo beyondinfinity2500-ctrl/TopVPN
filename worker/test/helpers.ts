@@ -12,6 +12,7 @@ import migrationSql3 from '../../migrations/0003_vpn_orders.sql?raw';
 import migrationSql4 from '../../migrations/0004_vpn_customer_auth.sql?raw';
 import migrationSql5 from '../../migrations/0005_vpn_provisioning_attempts.sql?raw';
 import migrationSql6 from '../../migrations/0006_commerce.sql?raw';
+import migrationSql7 from '../../migrations/0007_payment_mode.sql?raw';
 import { FIXTURES } from './fixtures';
 
 const BASE = 'https://topvpn.test';
@@ -98,6 +99,13 @@ export async function applyMigrations(): Promise<void> {
     // INSERT OR IGNORE are idempotent — apply them for fresh runtimes.
     const tablesOnly = splitStatements(migrationSql6).filter((s) => !/^ALTER TABLE/i.test(s));
     await testEnv.DB.batch(tablesOnly.map((s) => testEnv.DB.prepare(s)));
+  }
+
+  // 0007 adds payment_mode column (ALTER TABLE, not re-runnable).
+  const freshCols = await testEnv.DB.prepare("PRAGMA table_info('vpn_orders')").all<{ name: string }>();
+  const hasPaymentMode = (freshCols.results ?? []).some((c) => c.name === 'payment_mode');
+  if (!hasPaymentMode) {
+    await testEnv.DB.batch(splitStatements(migrationSql7).map((s) => testEnv.DB.prepare(s)));
   }
 }
 
