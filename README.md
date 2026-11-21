@@ -1,13 +1,16 @@
 # TopVPN
 
-Independent VPN comparison and guide site. Astro + Tailwind CSS v4, fully static: no backend, no database.
+Independent VPN comparison and guide site. Astro + Tailwind CSS v4 frontend with a Cloudflare Worker backend (D1 database, customer auth, Stripe/PayPal checkout, VPNResellers provisioning).
 
 ## Develop
 
 ```bash
 npm install
-npm run dev      # local preview
+npm run dev      # local preview (Astro)
 npm run build    # output in ./dist
+npm run typecheck # TypeScript + Astro check
+npm run test     # vitest (worker tests)
+npm run deploy   # build + wrangler deploy
 ```
 
 ## Deploy to Cloudflare Workers (static assets)

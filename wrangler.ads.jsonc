@@ -52,7 +52,8 @@
   "vars": {
     "SITE_URL": "https://www.topvpn.top",
     "ADMIN_EMAIL": "beyondinfinity2500@gmail.com",
-    "EMAIL_FROM": "TopVPN Advertising <ads@topvpn.top>"
+    "EMAIL_FROM": "TopVPN Advertising <ads@topvpn.top>",
+    "VPN_CUSTOMER_AUTH_ENABLED": "true"
     // "STRIPE_CRYPTO_ENABLED": "true"  // only after verifying Stripe crypto eligibility
   }
 }
