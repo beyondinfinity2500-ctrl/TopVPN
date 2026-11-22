@@ -340,4 +340,39 @@ export class VpnResellersClient {
       { retryable: true },
     );
   }
+
+  /** VLESS config for an account on a specific vless server. */
+  getVlessConfig(serverId: number, accountId: number): Promise<ProviderResult<ProviderConfigPayload>> {
+    return this.request(
+      'GET',
+      `/configuration/vless?server_id=${encodeURIComponent(String(serverId))}&account_id=${encodeURIComponent(String(accountId))}`,
+      undefined,
+      { retryable: true },
+    );
+  }
+
+  /** List VPN servers (for OpenVPN/WireGuard config generation). */
+  listServers(): Promise<ProviderResult<unknown[]>> {
+    return this.request('GET', '/servers', undefined, { retryable: true });
+  }
+
+  /** List VLESS servers. */
+  listVlessServers(): Promise<ProviderResult<unknown[]>> {
+    return this.request('GET', '/vless-servers', undefined, { retryable: true });
+  }
+
+  /** List ports (for OpenVPN config generation). */
+  listPorts(): Promise<ProviderResult<unknown[]>> {
+    return this.request('GET', '/ports', undefined, { retryable: true });
+  }
+
+  /** Change an account password by id. */
+  changePassword(id: number, password: string): Promise<ProviderResult<ProviderAccount>> {
+    return this.request('PUT', `/accounts/${encodeURIComponent(String(id))}/change_password`, { password });
+  }
+
+  /** Validate account credentials (returns 460/461 on failure). */
+  validateAccount(username: string, password: string): Promise<ProviderResult<{ id?: number; success?: boolean; message?: string }>> {
+    return this.request('POST', '/accounts/validate', { username, password });
+  }
 }

@@ -38,6 +38,7 @@ VPN_CREDENTIAL_DELIVERY_ENABLED=""
 VPN_WIREGUARD_SERVER_ID=""
 VPN_OPENVPN_SERVER_ID=""
 VPN_OPENVPN_PORT_ID=""
+VPN_VLESS_SERVER_ID=""
 
 # ---- VPN sales foundation (sandbox; keep all disabled by default) ----
 # "true" only when a sandbox checkout may create pending orders.

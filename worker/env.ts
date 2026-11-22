@@ -60,6 +60,8 @@ export interface Env {
   VPN_OPENVPN_SERVER_ID?: string;
   /** Provider port id used to generate OpenVPN configs. */
   VPN_OPENVPN_PORT_ID?: string;
+  /** Provider vless server id used to generate VLESS configs. */
+  VPN_VLESS_SERVER_ID?: string;
 
   // ---- Secrets (`wrangler secret put`, or .dev.vars locally) ----
   STRIPE_SECRET_KEY?: string;

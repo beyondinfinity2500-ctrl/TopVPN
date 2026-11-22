@@ -25,6 +25,8 @@ import {
   getTicket,
 } from '../support/tickets';
 import { listCustomers, setCustomerBlocked } from '../customer/repo';
+import { loadVpnResellersConfig, VpnResellersClient } from '../vpnresellers';
+import { getVpnOrder } from '../vpn/repo';
 import { SESSION_COOKIE } from '../auth';
 
 function cookieToken(request: Request): string | null {
@@ -91,6 +93,7 @@ export async function adminVpnOverview(request: Request, env: Env): Promise<Resp
        (SELECT COUNT(*) FROM vpn_orders WHERE order_status = 'expired') AS services_expired,
        (SELECT COUNT(*) FROM vpn_orders WHERE provisioning_status IN ('claimed','provisioning')) AS provisioning_pending,
        (SELECT COUNT(*) FROM vpn_orders WHERE order_status = 'provisioning_failed') AS provisioning_failed,
+       (SELECT COUNT(*) FROM vpn_orders WHERE failure_reason = 'provider_insufficient_balance') AS provisioning_insufficient_balance,
        (SELECT COUNT(*) FROM support_tickets WHERE status = 'open') AS tickets_open`,
   )
     .bind(weekAgo, todayStart, monthStart)
@@ -305,6 +308,50 @@ export async function adminVpnTicketStatus(request: Request, env: Env, id: strin
 }
 
 /* ---------- audit log ---------- */
+
+/* ---------- provider account suspend / reactivate ---------- */
+
+export async function adminVpnAccountSuspend(request: Request, env: Env, id: string): Promise<Response> {
+  const session = await requireAdminCsrf(request, env);
+  if (!session) return json({ error: 'Unauthorized.' }, 403);
+
+  const order = await getVpnOrder(env.DB, id);
+  if (!order || !order.provider_account_id) return json({ error: 'No provider account for this order.' }, 404);
+
+  const config = loadVpnResellersConfig(env);
+  if (!config.ok) return json({ error: 'Provider not configured.' }, 503);
+
+  const accountId = Number(order.provider_account_id);
+  if (!Number.isInteger(accountId) || accountId <= 0) return json({ error: 'Invalid provider account id.' }, 422);
+
+  const client = new VpnResellersClient(config.config);
+  const result = await client.disableAccount(accountId);
+  const nowIso = new Date().toISOString();
+  await writeAuditLog(env.DB, 'provider_account_suspended', id, result.ok ? 'ok' : result.error.message, request.headers.get('CF-Connecting-IP'), nowIso);
+  if (!result.ok) return json({ error: result.error.message, kind: result.error.kind }, 502);
+  return json({ ok: true, status: result.data.status });
+}
+
+export async function adminVpnAccountReactivate(request: Request, env: Env, id: string): Promise<Response> {
+  const session = await requireAdminCsrf(request, env);
+  if (!session) return json({ error: 'Unauthorized.' }, 403);
+
+  const order = await getVpnOrder(env.DB, id);
+  if (!order || !order.provider_account_id) return json({ error: 'No provider account for this order.' }, 404);
+
+  const config = loadVpnResellersConfig(env);
+  if (!config.ok) return json({ error: 'Provider not configured.' }, 503);
+
+  const accountId = Number(order.provider_account_id);
+  if (!Number.isInteger(accountId) || accountId <= 0) return json({ error: 'Invalid provider account id.' }, 422);
+
+  const client = new VpnResellersClient(config.config);
+  const result = await client.enableAccount(accountId);
+  const nowIso = new Date().toISOString();
+  await writeAuditLog(env.DB, 'provider_account_reactivated', id, result.ok ? 'ok' : result.error.message, request.headers.get('CF-Connecting-IP'), nowIso);
+  if (!result.ok) return json({ error: result.error.message, kind: result.error.kind }, 502);
+  return json({ ok: true, status: result.data.status });
+}
 
 export async function adminVpnAudit(request: Request, env: Env): Promise<Response> {
   if (!(await requireAdmin(request, env))) return json({ error: 'Unauthorized.' }, 401);

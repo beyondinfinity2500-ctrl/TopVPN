@@ -3,6 +3,9 @@
   "name": "topvpn",
   "compatibility_date": "2025-01-01",
   "main": "worker/index.ts",
+  "triggers": {
+    "crons": ["0 3 * * *"]
+  },
   // Static assets (the Astro build) are served first; this Worker only handles
   // /api/ads/* and /admin/* requests that do not match a static file.
   "assets": {

@@ -487,6 +487,29 @@ export async function incrementVpnProvisioningAttempts(db: D1Database, orderId: 
   return row?.provisioning_attempts ?? 0;
 }
 
+/**
+ * Marks overdue active orders as expired. Local-only: does NOT call the
+ * provider (suspension billing is unverified). Returns the number of rows
+ * updated. Idempotent: only `active` rows with a past `expire_at` move.
+ */
+export async function expireOverdueVpnOrders(db: D1Database, nowIso: string = new Date().toISOString()): Promise<number> {
+  const today = nowIso.slice(0, 10);
+  const result = await db
+    .prepare(
+      `UPDATE vpn_orders
+          SET order_status = 'expired',
+              subscription_status = 'expired',
+              updated_at = ?,
+              version = version + 1
+        WHERE order_status = 'active'
+          AND expire_at IS NOT NULL
+          AND expire_at < ?`,
+    )
+    .bind(nowIso, today)
+    .run();
+  return result.meta?.changes ?? 0;
+}
+
 export async function listRecoverableVpnOrders(db: D1Database, limit = 50): Promise<RecoverableOrderRow[]> {
   const result = await db
     .prepare(

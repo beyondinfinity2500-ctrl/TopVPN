@@ -30,7 +30,7 @@ export interface CredentialOrder {
 export type ConnectionInfo =
   | {
       ok: true;
-      protocol: 'wireguard' | 'openvpn';
+      protocol: 'wireguard' | 'openvpn' | 'vless';
       name: string;
       content: string;
       username?: string;
@@ -44,6 +44,7 @@ export type ConnectionInfo =
 export interface CredentialProvider {
   getWireguardConfig(serverId: number, accountId: number): Promise<ProviderResult<ProviderConfigPayload>>;
   getOpenVpnConfig(serverId: number, portId: number): Promise<ProviderResult<ProviderConfigPayload>>;
+  getVlessConfig?(serverId: number, accountId: number): Promise<ProviderResult<ProviderConfigPayload>>;
 }
 
 /**
@@ -55,7 +56,9 @@ export function credentialDeliveryReady(env: Env): boolean {
     env.VPN_CREDENTIAL_DELIVERY_ENABLED === 'true' &&
     !!env.VPNRESELLERS_API_TOKEN &&
     !!env.VPN_PROVISIONING_SECRET &&
-    (!!env.VPN_WIREGUARD_SERVER_ID || (!!env.VPN_OPENVPN_SERVER_ID && !!env.VPN_OPENVPN_PORT_ID))
+    (!!env.VPN_WIREGUARD_SERVER_ID ||
+      (!!env.VPN_OPENVPN_SERVER_ID && !!env.VPN_OPENVPN_PORT_ID) ||
+      !!env.VPN_VLESS_SERVER_ID)
   );
 }
 
@@ -127,6 +130,16 @@ export async function buildConnectionInfo(
       username: order.provider_username ?? '',
       password,
     };
+  }
+
+  const vlessServer = positiveInt(env.VPN_VLESS_SERVER_ID);
+  if (vlessServer && provider.getVlessConfig) {
+    const response = await provider.getVlessConfig(vlessServer, accountId);
+    if (!response.ok) return { ok: false, reason: 'provider_error' };
+    const content = configContent(response.data as ProviderConfigPayload | string);
+    if (!content) return { ok: false, reason: 'empty_config' };
+    const name = (response.data as ProviderConfigPayload)?.name || 'vless.txt';
+    return { ok: true, protocol: 'vless', name, content };
   }
 
   return { ok: false, reason: 'not_configured' };

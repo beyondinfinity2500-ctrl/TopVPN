@@ -59,7 +59,11 @@ import {
 } from './routes/account';
 import { supportChat, supportWidgetScript } from './routes/support';
 import { downloadRoute } from './downloads';
+import { expireOverdueVpnOrders } from './vpn/repo';
+import { sendPendingExpiryWarnings } from './vpn/notifications';
 import {
+  adminVpnAccountReactivate,
+  adminVpnAccountSuspend,
   adminVpnAudit,
   adminVpnCouponCreate,
   adminVpnCouponToggle,
@@ -116,6 +120,12 @@ export default {
 
       const vpnRecoverMatch = path.match(/^\/admin\/api\/vpn\/orders\/([^/]+)\/recover$/);
       if (vpnRecoverMatch && method === 'POST') return await vpnAdminRecover(request, env, vpnRecoverMatch[1]);
+
+      const suspendMatch = path.match(/^\/admin\/api\/vpn\/orders\/([^/]+)\/suspend$/);
+      if (suspendMatch && method === 'POST') return await adminVpnAccountSuspend(request, env, suspendMatch[1]);
+
+      const reactivateMatch = path.match(/^\/admin\/api\/vpn\/orders\/([^/]+)\/reactivate$/);
+      if (reactivateMatch && method === 'POST') return await adminVpnAccountReactivate(request, env, reactivateMatch[1]);
 
       /* ---- customer account portal (magic-link + Google; separate from admin) ---- */
       if (path === '/account' && method === 'GET') return await accountPage(request, env);
@@ -204,6 +214,16 @@ export default {
     } catch (err) {
       console.error('topvpn: unhandled error');
       return json({ error: 'Internal server error.' }, 500);
+    }
+  },
+  async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {
+    try {
+      const expired = await expireOverdueVpnOrders(env.DB, new Date().toISOString());
+      console.log(`topvpn: cron expired ${expired} overdue vpn orders`);
+      const warned = await sendPendingExpiryWarnings(env, 7);
+      console.log(`topvpn: cron sent ${warned} expiry warnings`);
+    } catch (err) {
+      console.error('topvpn: cron expire failed', err);
     }
   },
 };
