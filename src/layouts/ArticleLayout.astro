@@ -13,23 +13,23 @@ import { SITE } from '../lib/site';
 import AuthorBio from '../components/AuthorBio.astro';
 
 interface Props {
-  entry: CollectionEntry<'articles'>;
+  entry: CollectionEntry<'articles' | 'articlesAr'>;
   headings: { depth: number; slug: string; text: string }[];
   body: string;
   related: { title: string; href: string; reason?: string }[];
+  /** Article language — derived from the route (/articles = en, /ar/articles = ar). */
+  lang?: 'en' | 'ar';
 }
 
-const { entry, headings, related, body } = Astro.props;
+const { entry, headings, related, body, lang = 'en' } = Astro.props;
 const { title, description, updatedDate, tags, country, legalNote, publishedDate } = entry.data;
 
-const updatedStr = updatedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+const updatedStr = updatedDate.toLocaleDateString(lang === 'ar' ? 'ar-u-nu-latn' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
-const articleUrl = `${SITE.url}/articles/${entry.id}`;
-const breadcrumbCrumbs = [
-  { label: 'Home', href: '/' },
-  { label: 'Articles', href: '/articles' },
-  { label: title },
-];
+const articleUrl = `${SITE.url}/${lang === 'ar' ? 'ar/articles' : 'articles'}/${entry.id}`;
+const breadcrumbCrumbs = lang === 'ar'
+  ? [{ label: 'الرئيسية', href: '/' }, { label: 'المقالات', href: '/ar/articles' }, { label: title }]
+  : [{ label: 'Home', href: '/' }, { label: 'Articles', href: '/articles' }, { label: title }];
 
 const faqMatches: { question: string; answer: string }[] = [];
 const lines = (body || '').split('\n');
@@ -67,13 +67,22 @@ const articleJsonLd: Record<string, unknown>[] = [articleSchema({
   dateModified: updatedDate.toISOString(),
   url: articleUrl,
   tags,
+  inLanguage: lang === 'ar' ? 'ar' : 'en',
 }), breadcrumbSchema(breadcrumbCrumbs)];
 if (faqMatches.length > 0) {
   articleJsonLd.push(faqSchema(faqMatches));
 }
 ---
 
-<BaseLayout title={title} description={description} ogType="article" jsonLd={contextWrapper(articleJsonLd)}>
+<BaseLayout
+  title={title}
+  description={description}
+  ogType="article"
+  lang={lang}
+  dir={lang === 'ar' ? 'rtl' : 'ltr'}
+  ogLocale={lang === 'ar' ? 'ar_AR' : 'en_US'}
+  jsonLd={contextWrapper(articleJsonLd)}
+>
   <Breadcrumbs items={breadcrumbCrumbs} />
 
   <article class="container-max py-8 md:py-12">
@@ -99,14 +108,21 @@ if (faqMatches.length > 0) {
         <TagChips chips={tags} class="mb-6" />
 
         <div class="mb-6">
-          <AuthorBio variant="compact" />
+          <AuthorBio variant="compact" lang={lang} />
         </div>
 
         {legalNote && (
           <div class="card p-4 mb-6 text-sm" style="border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.05);">
             <div class="flex items-start gap-2">
               <Icons name="shield" size={18} class="mt-0.5 shrink-0 text-amber-400" />
-              <p style="color: var(--color-muted);"><strong style="color: var(--color-text);">Legal note:</strong> VPN laws in this country may be restrictive. Check your local regulations before using a VPN here.</p>
+              <p style="color: var(--color-muted);">
+                <strong style="color: var(--color-text);">
+                  {lang === 'ar' ? 'ملاحظة قانونية' : 'Legal note'}:
+                </strong>
+                {lang === 'ar'
+                  ? 'قد تكون قوانين الـ VPN في هذه الدولة صارمة. تحقق دائمًا من اللوائح المحلية في بلدك قبل استخدام الـ VPN هنا.'
+                  : 'VPN laws in this country may be restrictive. Check your local regulations before using a VPN here.'}
+              </p>
             </div>
           </div>
         )}
@@ -121,7 +137,7 @@ if (faqMatches.length > 0) {
 
         {faqMatches.length > 0 && (
           <section class="mt-10">
-            <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">FAQ</h2>
+            <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">{lang === 'ar' ? 'الأسئلة الشائعة' : 'FAQ'}</h2>
             <FAQ items={faqMatches} />
           </section>
         )}
@@ -130,7 +146,7 @@ if (faqMatches.length > 0) {
 
         {related.length > 0 && (
           <section class="mt-10">
-            <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">Related Guides</h2>
+            <h2 class="text-2xl font-bold mb-4" style="font-family: var(--font-heading);">{lang === 'ar' ? 'مقالات ذات صلة' : 'Related Guides'}</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
               {related.map((r) => (
                 <a href={r.href} class="card p-4 block transition-all hover:border-amber-400">
@@ -147,7 +163,7 @@ if (faqMatches.length > 0) {
         <div class="sticky top-20">
           {tocHeadings.length > 0 && (
             <div class="card p-4 mb-4">
-              <h3 class="text-sm font-bold mb-3" style="font-family: var(--font-heading);">Table of Contents</h3>
+              <h3 class="text-sm font-bold mb-3" style="font-family: var(--font-heading);">{lang === 'ar' ? 'فهرس المقالة' : 'Table of Contents'}</h3>
               <nav class="space-y-1.5">
                 {tocHeadings.map((h) => (
                   <a

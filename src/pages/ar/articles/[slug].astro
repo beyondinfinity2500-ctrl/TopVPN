@@ -1,0 +1,31 @@
+---
+import { getCollection, render } from 'astro:content';
+import ArticleLayout from '../../../layouts/ArticleLayout.astro';
+
+export async function getStaticPaths() {
+  const articles = await getCollection('articlesAr', ({ data }) => !data.draft);
+  return articles.map((entry) => ({
+    params: { slug: entry.id },
+    // entry.body is typed string | undefined in Astro 5's glob loader; render()
+    // requires a string, so coalesce here to keep the page typed cleanly.
+    props: { entry, rawBody: entry.body ?? '' },
+  }));
+}
+
+const { entry, rawBody } = Astro.props;
+const { Content, headings } = await render(entry);
+
+const allArticles = await getCollection('articlesAr', ({ data }) => !data.draft);
+const related: { title: string; href: string; reason: string }[] = allArticles
+  .filter((a) => a.id !== entry.id)
+  .slice(0, 3)
+  .map((a) => ({
+    title: String(a.data.title),
+    href: `/ar/articles/${String(a.id)}`,
+    reason: String(a.data.reason || a.data.description),
+  }));
+---
+
+<ArticleLayout entry={entry} headings={headings ?? []} related={related} body={rawBody} lang="ar">
+  <Content />
+</ArticleLayout>

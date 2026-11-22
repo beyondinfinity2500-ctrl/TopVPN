@@ -6,10 +6,17 @@ interface Props {
   /** Compact = byline under an article title; full = About page block. */
   variant?: 'compact' | 'full';
   class?: string;
+  /** Article language — 'ar' switches the byline headings. */
+  lang?: 'en' | 'ar';
 }
 
-const { variant = 'compact', class: className = '' } = Astro.props;
+const { variant = 'compact', class: className = '', lang = 'en' } = Astro.props;
 const isFull = variant === 'full';
+
+const t = {
+  whatIdo: lang === 'ar' ? 'مهمتي هنا' : 'What I do here',
+  howReviews: lang === 'ar' ? 'كيف تُنتَج المراجعات' : 'How reviews are produced',
+};
 ---
 
 <div
@@ -18,7 +25,7 @@ const isFull = variant === 'full';
 >
   <img
     src={AUTHOR.avatar}
-    alt={`Portrait of ${AUTHOR.name}`}
+    alt={lang === "ar" ? `صورة شخصية لـ ${AUTHOR.name}` : `Portrait of ${AUTHOR.name}`}
     width={isFull ? 88 : 48}
     height={isFull ? 88 : 48}
     loading="lazy"
@@ -34,7 +41,7 @@ const isFull = variant === 'full';
     {isFull ? (
       <>
         <p class="text-sm mt-3" style="color: var(--color-muted);">{AUTHOR.bio}</p>
-        <h3 class="text-base font-bold mt-6 mb-2" style="font-family: var(--font-heading);">What I do here</h3>
+        <h3 class="text-base font-bold mt-6 mb-2" style="font-family: var(--font-heading);">{t.whatIdo}</h3>
         <ul class="space-y-1.5">
           {AUTHOR.responsibilities.map((r) => (
             <li class="flex items-start gap-2 text-sm" style="color: var(--color-muted);">
@@ -43,7 +50,7 @@ const isFull = variant === 'full';
             </li>
           ))}
         </ul>
-        <h3 class="text-base font-bold mt-6 mb-2" style="font-family: var(--font-heading);">How reviews are produced</h3>
+        <h3 class="text-base font-bold mt-6 mb-2" style="font-family: var(--font-heading);">{t.howReviews}</h3>
         <p class="text-sm" style="color: var(--color-muted);">{AUTHOR.methodology}</p>
         {AUTHOR.sameAs.length > 0 && (
           <div class="flex flex-wrap gap-3 mt-5">

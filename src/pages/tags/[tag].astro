@@ -1,4 +1,4 @@
----
+﻿---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
@@ -7,13 +7,17 @@ import TagChips from '../../components/TagChips.astro';
 import { slugifyTag } from '../../lib/site';
 
 export async function getStaticPaths() {
-  const articles = await getCollection('articles', ({ data }) => !data.draft);
-  const tags = [...new Set(articles.flatMap((a) => a.data.tags))];
+  // Both collections contribute tags: English articles and Arabic guides.
+  const all = [
+    ...(await getCollection('articles', ({ data }) => !data.draft)),
+    ...(await getCollection('articlesAr', ({ data }) => !data.draft)),
+  ];
+  const tags = [...new Set(all.flatMap((a) => a.data.tags))];
   return tags.map((tag) => ({
     params: { tag: slugifyTag(tag) },
     props: {
       tag,
-      articles: articles
+      articles: all
         .filter((a) => a.data.tags.includes(tag))
         .sort((a, b) => b.data.updatedDate.getTime() - a.data.updatedDate.getTime()),
     },
@@ -21,34 +25,51 @@ export async function getStaticPaths() {
 }
 
 const { tag, articles } = Astro.props;
-const tagLabel = tag.charAt(0).toUpperCase() + tag.slice(1);
-// Every tag article also carries "guide" and "privacy"; use the freshest
-// updatedDate as a truthful lastmod for the sitemap.
+const isArabic = /[\u0600-\u06FF]/.test(tag);
+// Every tag archive carries the freshest updatedDate so the sitemap lastmod is truthful.
 const newest = articles.reduce((max, a) => (a.data.updatedDate > max ? a.data.updatedDate : max), articles[0].data.updatedDate);
 const count = articles.length;
+const tagLabel = isArabic ? tag : tag.charAt(0).toUpperCase() + tag.slice(1);
+
+const title = isArabic
+  ? `أدلة VPN عن ${tagLabel} — ${count} دليل بالعربي`
+  : `Best VPN Guides About ${tagLabel}`;
+const description = isArabic
+  ? `كل أدلة TopVPN عن ${tagLabel.toLowerCase()} — ${count} دليل، تمت مراجعتها وتحديثها.`
+  : `All TopVPN VPN guides about ${tagLabel.toLowerCase()} — ${count} ${count === 1 ? 'guide' : 'guides'}, reviewed and updated.`;
 ---
 
 <BaseLayout
-  title={`Best VPN Guides About ${tagLabel}`}
-  description={`All TopVPN VPN guides about ${tagLabel.toLowerCase()} — ${count} ${count === 1 ? 'guide' : 'guides'}, reviewed and updated.`}
+  title={title}
+  description={description}
+  lang={isArabic ? 'ar' : 'en'}
+  dir={isArabic ? 'rtl' : 'ltr'}
+  autolink={!isArabic}
+  ogLocale={isArabic ? 'ar_AR' : 'en_US'}
   jsonLd={{
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
-    name: `VPN guides about ${tagLabel}`,
-    description: `All TopVPN VPN guides about ${tagLabel.toLowerCase()}.`,
+    name: isArabic ? `أدلة VPN عن ${tagLabel}` : `VPN guides about ${tagLabel}`,
+    description,
     url: Astro.url.href,
   }}
 >
-  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Articles', href: '/articles' }, { label: tagLabel }]} />
+  <Breadcrumbs items={[
+    { label: isArabic ? 'الرئيسية' : 'Home', href: '/' },
+    { label: isArabic ? 'المقالات' : 'Articles', href: isArabic ? '/ar/articles' : '/articles' },
+    { label: tagLabel },
+  ]} />
 
   <section class="container-max py-8 md:py-12">
     <div class="flex items-center gap-2 mb-2">
       <Icons name="tag" size={20} class="text-amber-400" />
-      <span class="text-xs uppercase tracking-wide font-semibold" style="color: var(--color-muted);">Tag</span>
+      <span class="text-xs uppercase tracking-wide font-semibold" style="color: var(--color-muted);">{isArabic ? 'وسم' : 'Tag'}</span>
     </div>
     <h1 class="text-3xl md:text-4xl font-bold mb-4" style="font-family: var(--font-heading);">{tagLabel}</h1>
     <p class="text-base mb-6 max-w-2xl" style="color: var(--color-muted);">
-      All TopVPN VPN guides about {tagLabel.toLowerCase()}. {count} {count === 1 ? 'guide' : 'guides'}, last updated {newest.toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}.
+      {isArabic
+        ? `كل أدلة TopVPN VPN عن ${tagLabel.toLowerCase()}. ${count} دليل، آخر تحديث ${newest.toLocaleDateString('ar-u-nu-latn', { year: 'numeric', month: 'long' })}.`
+        : `All TopVPN VPN guides about ${tagLabel.toLowerCase()}. ${count} ${count === 1 ? 'guide' : 'guides'}, last updated ${newest.toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}.`}
     </p>
 
     <TagChips chips={[...new Set(articles.flatMap((a) => a.data.tags))].filter((t) => t !== tag)} class="mb-8" />
@@ -56,17 +77,17 @@ const count = articles.length;
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {articles.map((article) => (
         <a
-          href={`/articles/${article.id}`}
+          href={`${isArabic ? '/ar' : ''}/articles/${article.id}`}
           class="card p-6 block transition-all hover:border-amber-400"
         >
-          <div class="flex items-center gap-2 mb-3 text-xs" style="color: var(--color-muted-dark);">
-            <Icons name="doc" size={12} />
-            <span>{article.data.updatedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
-          </div>
-          <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">{article.data.title}</h2>
-          <p class="text-sm" style="color: var(--color-muted);">{article.data.description}</p>
-        </a>
-      ))}
+            <div class="flex items-center gap-2 mb-3 text-xs" style="color: var(--color-muted-dark);">
+              <Icons name="doc" size={12} />
+              <span>{article.data.updatedDate.toLocaleDateString(isArabic ? 'ar-u-nu-latn' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+            </div>
+            <h2 class="text-lg font-bold mb-2" style="font-family: var(--font-heading);">{article.data.title}</h2>
+            <p class="text-sm" style="color: var(--color-muted);">{article.data.description}</p>
+          </a>
+        ))}
     </div>
   </section>
 </BaseLayout>

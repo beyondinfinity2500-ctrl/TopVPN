@@ -7,12 +7,12 @@ import Icons from '../../../components/Icons.astro';
 import { providers } from '../../../data/providers';
 import { breadcrumbSchema, contextWrapper } from '../../../lib/schema';
 
-const allArticles = await getCollection('articles');
+const allArticles = await getCollection('articlesAr', ({ data }) => !data.draft);
 const publishedArticles = allArticles
   .filter((a) => !a.data.draft)
   .sort((a, b) => b.data.updatedDate.getTime() - a.data.updatedDate.getTime());
 
-// hreflang: this Arabic page pairs with the English articles index. x-default points
+// hreflang: the Arabic articles index pairs with the English one. x-default points
 // to the English page (the site's default/global version).
 const hreflang = [
   { lang: 'en', url: 'https://www.topvpn.top/articles' },
@@ -28,8 +28,8 @@ const breadcrumbs = [
 ---
 
 <BaseLayout
-  title="مقالات وأدلة VPN"
-  description="أدلة ومقالات VPN متعمقة — توصيات حسب الدولة، نصائح الخصوصية، وشروحات بلغة واضحة ومباشرة."
+  title="مقالات وأدلة VPN بالعربي — خصوصية، سرعة، وحسب الدولة"
+  description="أدلة ومقالات VPN بالعربي — توصيات حسب الدولة العربية، نصائح الخصوصية، وشروحات بلغة عربية واضحة ومباشرة عن أفضل في بي ان."
   lang="ar"
   dir="rtl"
   hreflang={hreflang}
@@ -41,17 +41,17 @@ const breadcrumbs = [
 
   <section class="container-max py-8 md:py-12">
     <h1 class="text-3xl md:text-4xl font-bold mb-4" style="font-family: var(--font-heading);">
-      مقالات وأدلة <span class="gold-text">VPN</span>
+      مقالات وأدلة <span class="gold-text">VPN</span> بالعربي
     </h1>
     <p class="text-base md:text-lg mb-8 max-w-2xl" style="color: var(--color-muted);">
-      أدلة عملية بلغة واضحة تساعدك على اختيار واستخدام VPN. سواء كنت تبحث عن نصائح لدولة معينة أو عن نصائح عامة للخصوصية، ستجدها هنا.
+      أدلة عملية بلغة عربية واضحة تساعدك على اختيار واستخدام في بي ان. سواء كنت تبحث عن نصائح لدولة عربية معينة — مثل مصر أو السعودية أو الإمارات — أو عن نصائح عامة للخصوصية والألعاب والبث، ستجدها هنا.
     </p>
 
     {publishedArticles.length > 0 ? (
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
         {publishedArticles.map((article) => (
           <a
-            href={`/articles/${article.id}`}
+            href={`/ar/articles/${article.id}`}
             class="card p-6 block transition-all hover:border-amber-400"
           >
             <div class="flex items-center gap-2 mb-3 text-xs" style="color: var(--color-muted-dark);">
@@ -69,7 +69,7 @@ const breadcrumbs = [
         ))}
       </div>
     ) : (
-      <p class="text-sm mb-12" style="color: var(--color-muted);">ستصدر المقالات قريبًا. في هذه الأثناء، يمكنك الاطلاع على مقارنة خدمات VPN أدناه.</p>
+      <p class="text-sm mb-12" style="color: var(--color-muted);">ستصدر المقالات قريبًا. في هذه الأثناء، يمكنك الاطلاع على أدلة الاستخدام أدناه.</p>
     )}
 
     <div class="mt-12">

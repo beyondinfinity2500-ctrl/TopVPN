@@ -67,6 +67,8 @@ export function articleSchema(opts: {
   dateModified: string;
   url: string;
   tags?: string[];
+  /** Defaults to 'en'; pass 'ar' for Arabic-language articles. */
+  inLanguage?: string;
 }) {
   return {
     '@type': 'Article',
@@ -76,7 +78,7 @@ export function articleSchema(opts: {
     dateModified: opts.dateModified,
     mainEntityOfPage: { '@type': 'WebPage', '@id': opts.url },
     image: `${SITE.url}/og-default.png`,
-    inLanguage: 'en',
+    inLanguage: opts.inLanguage || 'en',
     // Full inline entities: a bare @id reference is invalid when the Organization
     // is not defined on the same page.
     // Author is a Person, not the Organization — Google's E-E-A-T guidance rewards

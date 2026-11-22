@@ -12,6 +12,9 @@ import { SITE, slugifyTag } from '../lib/site';
  *  - accurate <lastmod> only (no changefreq/priority — Google ignores them);
  *  - absolute URLs, UTF-8, protocol namespace.
  * When adding a language, extend LANGS and the TRANSLATED base paths.
+ *
+ * Arabic articles live at /ar/articles/<id> and mirror the English article of
+ * the same id; each carries an hreflang pair so Google serves the right language.
  */
 
 const LANGS: { hreflang: string; prefix: string }[] = [
@@ -60,8 +63,26 @@ function alternateLinks(basePath: string): string {
   return links.join('\n');
 }
 
+/** hreflang alternates for an article: English at /articles/<id>, Arabic at
+ *  /ar/articles/<id>. The English alternate is only emitted when the English
+ *  article actually exists, so an Arabic-only guide never points at a 404. */
+function articleAlternates(id: string, englishIds: Set<string>): string {
+  const hasEnglish = englishIds.has(id);
+  const links: string[] = [];
+  if (hasEnglish) {
+    links.push(`    <xhtml:link rel="alternate" hreflang="en" href="${SITE.url}/articles/${id}"/>`);
+  }
+  links.push(`    <xhtml:link rel="alternate" hreflang="ar" href="${SITE.url}/ar/articles/${id}"/>`);
+  if (hasEnglish) {
+    links.push(`    <xhtml:link rel="alternate" hreflang="x-default" href="${SITE.url}/articles/${id}"/>`);
+  }
+  return links.join('\n');
+}
+
 export const GET: APIRoute = async () => {
   const articles = await getCollection('articles', ({ data }) => !data.draft);
+  const articlesAr = await getCollection('articlesAr', ({ data }) => !data.draft);
+  const englishIds = new Set(articles.map((a) => a.id));
 
   const urlEntries: string[] = [];
 
@@ -79,18 +100,25 @@ export const GET: APIRoute = async () => {
     urlEntries.push(`  <url>\n    <loc>${SITE.url}${path}</loc>\n    <lastmod>${SITE.updated}</lastmod>\n  </url>`);
   }
 
-  // Articles (English; each carries its own real updatedDate).
+  // English articles (each carries its own real updatedDate).
   for (const a of articles) {
     const lastmod = a.data.updatedDate.toISOString().split('T')[0];
     urlEntries.push(`  <url>\n    <loc>${SITE.url}/articles/${a.id}</loc>\n    <lastmod>${lastmod}</lastmod>\n  </url>`);
   }
 
+  // Arabic articles: paired with the English article of the same id.
+  for (const a of articlesAr) {
+    const lastmod = a.data.updatedDate.toISOString().split('T')[0];
+    urlEntries.push(
+      `  <url>\n    <loc>${SITE.url}/ar/articles/${a.id}</loc>\n    <lastmod>${lastmod}</lastmod>\n${articleAlternates(a.id, englishIds)}\n  </url>`,
+    );
+  }
+
   // Tag archive pages (clean slugs; lastmod = newest article in that tag).
-  const tags = [...new Set(articles.flatMap((a) => a.data.tags))];
+  const tags = [...new Set([...articles, ...articlesAr].flatMap((a) => a.data.tags))];
   for (const tag of tags) {
-    const newest = articles
-      .filter((a) => a.data.tags.includes(tag))
-      .reduce((max, a) => (a.data.updatedDate > max ? a.data.updatedDate : max), articles[0].data.updatedDate);
+    const matches = [...articles, ...articlesAr].filter((a) => a.data.tags.includes(tag));
+    const newest = matches.reduce((max, a) => (a.data.updatedDate > max ? a.data.updatedDate : max), matches[0].data.updatedDate);
     urlEntries.push(`  <url>\n    <loc>${SITE.url}/tags/${slugifyTag(tag)}</loc>\n    <lastmod>${newest.toISOString().split('T')[0]}</lastmod>\n  </url>`);
   }
 

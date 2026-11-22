@@ -10,7 +10,7 @@
 import Icons from './Icons.astro';
 
 interface Props {
-  locale?: 'en' | 'pcm';
+  locale?: 'en' | 'pcm' | 'ar';
 }
 const { locale = 'en' } = Astro.props;
 
@@ -32,6 +32,14 @@ const copy = {
     button: 'Check PureVPN',
     disclosure:
       'Affiliate notice: the link above na affiliate link. TopVPN fit earn commission if you buy, but e no go add any cost for you. E no change your price or our honest comparison.',
+  },
+  ar: {
+    eyebrow: 'تفضل علامة تجارية راسخة؟',
+    heading: 'بديل يستحق الاستكشاف',
+    body: 'لا تزال تؤمن بأن الجودة العالية يجب أن تأتي دائمًا بسعر أعلى؟ نحن نحترم اختيارك. إذا كنت تفضل علامة VPN راسخة، فإن PureVPN بديل يستحق الاستكشاف.',
+    button: 'زيارة PureVPN',
+    disclosure:
+      'إفصاح الشراكة: الرابط أعلاه هو رابط شراكة (أفلييت). قد تحصل TopVPN على عمولة إذا اشتريت، دون أي تكلفة إضافية عليك. هذا لا يغير سعرنا ولا يؤثر على مقارناتنا الصادقة.',
   },
 };
 

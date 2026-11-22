@@ -17,7 +17,7 @@ import { PREMIUM_PLANS, formatUsd, type PremiumPlan } from '../lib/premium';
 import Icons from './Icons.astro';
 
 interface Props {
-  locale?: 'en' | 'pcm';
+  locale?: 'en' | 'pcm' | 'ar';
 }
 const { locale = 'en' } = Astro.props;
 
@@ -91,6 +91,41 @@ const copy = {
     noteBefore: 'Checkout don live: pick a plan, pay once through your ',
     contact: 'TopVPN account',
     noteAfter: ' (Stripe or PayPal). All price na USD.',
+  },
+  ar: {
+    eyebrow: 'الأسعار',
+    h2Before: 'خطة واحدة.',
+    h2Highlight: 'ثلاث طرق',
+    h2After: 'للدفع.',
+    sub: 'كل باقة تمنحك تجربة TopVPN Premium الكاملة. اختر دورة الفواتير التي تناسبك — كلما التزمت لفترة أطول، انخفض السعر الشهري.',
+    best: 'أفضل قيمة',
+    firstMonth: '/الشهر الأول',
+    perMonth: '/شهريًا',
+    then: (plan: PremiumPlan) =>
+      `الشهر الأول بـ ${formatUsd(plan.firstMonthPromo!)} بدلًا من ${formatUsd(plan.regularMonthly!)} — عرض لمرة واحدة للعملاء الجدد، يُطبَّق باستخدام قسيمة FIRST-MONTH عند الدفع. بعد الشهر الأول السعر الاعتيادي هو ${formatUsd(plan.regularMonthly!)} شهريًا، ويُحصَّل يدويًا دائمًا. بلا اشتراك ولا خصم تلقائي.`,
+    period: (plan: PremiumPlan) =>
+      `تُدفع ${formatUsd(plan.totalBilled)} مرة واحدة مقابل ${plan.intervalMonths} شهرًا (بلا تجديد تلقائي)`,
+    billedToday: (period: string, total: number) =>
+      `${period}. أي ${formatUsd(total)} تُدفع اليوم.`,
+    savings: (plan: PremiumPlan) => `وفر ${plan.savingsPercent}% مقارنة بالدفع الشهري`,
+    features: (plan: PremiumPlan): string[] =>
+      plan.id === 'monthly'
+        ? [
+            'تجربة VPN متميزة',
+            'تُدفع شهرًا بشهر',
+            'عرض الشهر الأول بـ $3 للعملاء الجدد',
+            'دفع آمن',
+          ]
+        : [
+            'تجربة VPN متميزة',
+            `وفر ${plan.savingsPercent}% مقارنة بالدفع الشهري`,
+            `دفعة واحدة لمدة ${plan.intervalMonths} شهرًا`,
+            'دفع آمن',
+          ],
+    choose: (name: string) => `اشترِ ${name}`,
+    noteBefore: 'الدفع يعمل: اختر باقة وادفع لمرة واحدة من خلال ',
+    contact: 'حساب TopVPN الخاص بك',
+    noteAfter: ' (Stripe أو PayPal). الأسعار بالدولار الأمريكي.',
   },
 };
 
