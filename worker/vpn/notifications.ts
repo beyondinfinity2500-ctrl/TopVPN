@@ -2,12 +2,15 @@
  * Customer-facing notifications for the VPN domain.
  *
  * All sends are gated on RESEND_API_KEY and never block the calling operation:
- * a failed send is recorded as an order event and retried on the next run.
+ * a failed send is recorded as an order event so an operator can see it.
  */
 import type { Env } from '../env';
 import { sendEmail } from '../email';
 import { customerEmailFrom } from '../env';
 import { getVpnOrder } from './repo';
+
+/** Dedup window: at most one warning per order per this many days. */
+export const EXPIRY_WARNING_INTERVAL_DAYS = 6;
 
 export async function sendVpnExpiryWarning(env: Env, orderId: string): Promise<void> {
   if (!env.RESEND_API_KEY) return;
@@ -32,8 +35,13 @@ export async function sendVpnExpiryWarning(env: Env, orderId: string): Promise<v
 }
 
 /**
- * Send warnings for active orders expiring within `days` days, at most once
- * per order per 6-day window (checked via vpn_order_events).
+ * Send warnings for active orders expiring within `days` days, at most once per
+ * order per EXPIRY_WARNING_INTERVAL_DAYS (checked via vpn_order_events).
+ *
+ * Note: the dedup marker is written only when RESEND_API_KEY is set (sendVpnExpiryWarning
+ * returns early without a key). Without Resend nothing is sent and nothing is
+ * recorded, so the warning is retried once email is configured — never a false
+ * "already warned".
  */
 export async function sendPendingExpiryWarnings(env: Env, days = 7): Promise<number> {
   if (!env.RESEND_API_KEY) return 0;
@@ -52,12 +60,13 @@ export async function sendPendingExpiryWarnings(env: Env, days = 7): Promise<num
     .all<{ id: string }>();
 
   let sent = 0;
-  for (const row of rows.results ?? []) {
-    const recent = await env.DB.prepare(
-      `SELECT 1 AS found FROM vpn_order_events
+  // SQLite date modifier must be a literal in the SQL string, not a parameter.
+  const dedupModifier = `-${EXPIRY_WARNING_INTERVAL_DAYS} days`;
+  const dedupSql = `SELECT 1 AS found FROM vpn_order_events
          WHERE order_id = ? AND reason LIKE 'expiry_warning_%'
-           AND created_at >= datetime('now', '-6 days') LIMIT 1`,
-    )
+           AND created_at >= datetime('now', '${dedupModifier}') LIMIT 1`;
+  for (const row of rows.results ?? []) {
+    const recent = await env.DB.prepare(dedupSql)
       .bind(row.id)
       .first<{ found: number }>();
     if (recent) continue;

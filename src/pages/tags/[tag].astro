@@ -4,7 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import Breadcrumbs from '../../components/Breadcrumbs.astro';
 import Icons from '../../components/Icons.astro';
 import TagChips from '../../components/TagChips.astro';
-import { slugifyTag } from '../../lib/site';
+import { slugifyTag, SITE } from '../../lib/site';
 
 export async function getStaticPaths() {
   // Both collections contribute tags: English articles and Arabic guides.
@@ -30,6 +30,7 @@ const isArabic = /[\u0600-\u06FF]/.test(tag);
 const newest = articles.reduce((max, a) => (a.data.updatedDate > max ? a.data.updatedDate : max), articles[0].data.updatedDate);
 const count = articles.length;
 const tagLabel = isArabic ? tag : tag.charAt(0).toUpperCase() + tag.slice(1);
+const tagSlug = slugifyTag(tag); // decoded slug for canonical/sitemap consistency
 
 const title = isArabic
   ? `أدلة VPN عن ${tagLabel} — ${count} دليل بالعربي`
@@ -46,6 +47,7 @@ const description = isArabic
   dir={isArabic ? 'rtl' : 'ltr'}
   autolink={!isArabic}
   ogLocale={isArabic ? 'ar_AR' : 'en_US'}
+  canonical={`${SITE.url}/tags/${tagSlug}`}
   jsonLd={{
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',

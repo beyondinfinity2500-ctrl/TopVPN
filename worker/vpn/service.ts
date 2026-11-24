@@ -131,11 +131,27 @@ export async function createVpnOrder(env: Env, input: CreateVpnOrderInput): Prom
 }
 
 async function markFailed(env: Env, order: VpnOrderRow, reason: string, now: string): Promise<ProvisionOutcome> {
-  if (order.order_status === 'provisioning') {
+  // Fetch current order status to handle race between transition and failure.
+  const current = await getVpnOrder(env.DB, order.id);
+  const currentStatus = current?.order_status ?? order.order_status;
+
+  if (currentStatus === 'provisioning') {
     await transitionVpnOrder(
       env.DB,
       order.id,
       'provisioning',
+      'provisioning_failed',
+      { provisioningStatus: 'failed', failureReason: reason },
+      reason,
+      now,
+    );
+  } else if (currentStatus === 'paid') {
+    // Provider not configured or immediate failure before entering provisioning:
+    // transition directly from paid to provisioning_failed.
+    await transitionVpnOrder(
+      env.DB,
+      order.id,
+      'paid',
       'provisioning_failed',
       { provisioningStatus: 'failed', failureReason: reason },
       reason,
@@ -152,8 +168,8 @@ async function markFailed(env: Env, order: VpnOrderRow, reason: string, now: str
       .run();
     await recordVpnOrderEvent(env.DB, {
       orderId: order.id,
-      from: order.order_status,
-      to: order.order_status,
+      from: currentStatus,
+      to: currentStatus,
       reason,
       now,
     });
@@ -173,7 +189,7 @@ async function markReconciliation(
 ): Promise<ProvisionOutcome> {
   try {
     if (order.order_status === 'provisioning') {
-      await transitionVpnOrder(
+      const moved = await transitionVpnOrder(
         env.DB,
         order.id,
         'provisioning',
@@ -182,6 +198,16 @@ async function markReconciliation(
         reason,
         now,
       );
+      if (!moved) {
+        // Concurrent event moved the order out of provisioning.
+        // Release the claim so the new state can be handled properly.
+        await releaseVpnProvisioningClaim(env.DB, order.id);
+        const current = await getVpnOrder(env.DB, order.id);
+        return {
+          status: 'skipped',
+          reason: `transition_failed_${current?.order_status ?? 'unknown'}`,
+        };
+      }
     } else {
       await env.DB
         .prepare(
@@ -260,7 +286,7 @@ export async function provisionVpnOrder(
 
   const paymentMode = order.payment_mode || 'sandbox';
   const provider = deps.provider === undefined ? providerFromEnv(env, paymentMode) : deps.provider;
-  if (!provider) return markFailed(env, { ...order, order_status: 'provisioning' }, 'provider_not_configured', now);
+  if (!provider) return markFailed(env, order, 'provider_not_configured', now);
 
   await incrementVpnProvisioningAttempts(env.DB, order.id);
 
@@ -489,4 +515,62 @@ export async function reconcileVpnOrder(
 /** Used by the webhook to mark an event processed after successful handling. */
 export async function completePaymentEvent(env: Env, eventId: string, now: Date = new Date()): Promise<void> {
   await markVpnPaymentEventProcessed(env.DB, eventId, now.toISOString());
+}
+
+export type ExpirySyncOutcome = 'synced' | 'skipped' | 'provider_not_configured' | 'provider_error';
+
+/**
+ * Re-applies the local expiry date to the provider after a renewal payment.
+ *
+ * The payment is already captured when this runs, so it never throws: a provider
+ * failure is recorded on the order (audit trail) and retried by an admin with
+ * POST /admin/api/vpn/orders/:id/sync-expiry. Sandbox orders are skipped — their
+ * provider account is not real.
+ */
+export async function syncVpnExpiryToProvider(
+  env: Env,
+  orderId: string,
+  options: { enable?: boolean; now?: Date } = {},
+): Promise<ExpirySyncOutcome> {
+  try {
+    const order = await getVpnOrder(env.DB, orderId);
+    const accountId = Number(order?.provider_account_id);
+    if (!order || !Number.isInteger(accountId) || accountId <= 0 || !order.expire_at) return 'skipped';
+    if (order.payment_mode !== 'live' && order.payment_mode !== 'production') return 'skipped';
+
+    const config = loadVpnResellersConfig(env);
+    if (!config.ok) return 'provider_not_configured';
+
+    const client = new VpnResellersClient(config.config);
+    const now = (options.now ?? new Date()).toISOString();
+
+    // The account of a renewal paid after expiry may be disabled; re-enable it
+    // so the paid period actually restores access.
+    let enabled = true;
+    if (options.enable) {
+      const result = await client.enableAccount(accountId);
+      enabled = result.ok;
+      if (!result.ok) {
+        await recordVpnOrderEvent(env.DB, {
+          orderId,
+          from: order.order_status,
+          to: order.order_status,
+          reason: `renewal_provider_enable_failed_${result.error.kind}`,
+          now,
+        });
+      }
+    }
+
+    const result = await client.setExpiry(accountId, order.expire_at.slice(0, 10));
+    await recordVpnOrderEvent(env.DB, {
+      orderId,
+      from: order.order_status,
+      to: order.order_status,
+      reason: result.ok ? 'renewal_provider_expiry_synced' : `renewal_provider_expiry_failed_${result.error.kind}`,
+      now,
+    });
+    return enabled && result.ok ? 'synced' : 'provider_error';
+  } catch {
+    return 'provider_error';
+  }
 }

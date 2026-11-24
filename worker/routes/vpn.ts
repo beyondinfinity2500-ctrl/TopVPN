@@ -41,7 +41,7 @@ import {
   setVpnRenewalAmount,
   type VpnOrderRow,
 } from '../vpn/repo';
-import { createVpnOrder, provisionVpnOrder, reconcileVpnOrder } from '../vpn/service';
+import { createVpnOrder, provisionVpnOrder, reconcileVpnOrder, syncVpnExpiryToProvider } from '../vpn/service';
 import { recoverVpnOrder, MAX_PROVISIONING_ATTEMPTS } from '../vpn/recovery';
 import { createVpnCheckoutSession, expireVpnCheckoutSession, sandboxCheckoutConfig, vpnCheckoutParams } from '../vpn/stripe-checkout';
 import { checkRenewalEligibility, extendVpnExpiry } from '../vpn/renewal';
@@ -96,6 +96,20 @@ async function readFormField(request: Request, field: string): Promise<string> {
 
 function salesEnabled(env: Env): boolean {
   return env.VPN_SALES_ENABLED === 'true';
+}
+
+/**
+ * Payment mode is derived from the actual Stripe key, not from a loose env flag.
+ *
+ * `VPN_PAYMENT_MODE` may only *restrict* to sandbox (set it to "sandbox" to force
+ * sandbox); it can never promote a sandbox key to live. Only a real `sk_live_`
+ * key produces live orders, so provisioning authority stays tied to money that
+ * can actually be captured — a stray flag cannot hand out real VPN accounts for
+ * test payments, and cannot block live sales paid with a live key.
+ */
+function vpnPaymentMode(env: Env): 'sandbox' | 'live' {
+  if (env.VPN_PAYMENT_MODE === 'sandbox') return 'sandbox';
+  return env.STRIPE_SECRET_KEY?.startsWith('sk_live_') ? 'live' : 'sandbox';
 }
 
 /* ---------- public plan catalog ---------- */
@@ -158,7 +172,7 @@ export async function createVpnOrderRoute(request: Request, env: Env): Promise<R
 
   // Intro pricing ($3 first month) requires verified identity (customer session) and the feature flag.
   // The public order-creation endpoint has no session, so intro is never applied here.
-  const paymentMode = (env.VPN_PAYMENT_MODE === 'live' ? 'live' : 'sandbox') as 'sandbox' | 'live';
+  const paymentMode = vpnPaymentMode(env);
   const order = await createVpnOrder(env, { email, name, planId, introEligible: false, paymentMode });
 
   return json(
@@ -367,7 +381,7 @@ export async function vpnCheckout(request: Request, env: Env, deps: VpnCheckoutD
 
   const introEligible =
     env.VPN_INTRO_ENABLED === 'true' && planId === 'monthly' && !(await hasPriorPaidVpnOrder(env.DB, email));
-  const paymentMode = (env.VPN_PAYMENT_MODE === 'live' ? 'live' : 'sandbox') as 'sandbox' | 'live';
+  const paymentMode = vpnPaymentMode(env);
   const resolution = await resolveCheckoutOrder(env, { email, name, planId, idempotencyKey, couponCode, introEligible, paymentMode });
   if (!resolution.ok) return resolution.response;
   const { order, couponPricing, now, reuseUrl } = resolution;
@@ -503,7 +517,7 @@ export async function vpnPayPalCreate(
 
   const introEligible =
     env.VPN_INTRO_ENABLED === 'true' && planId === 'monthly' && !(await hasPriorPaidVpnOrder(env.DB, email));
-  const paymentMode = (env.VPN_PAYMENT_MODE === 'live' ? 'live' : 'sandbox') as 'sandbox' | 'live';
+  const paymentMode = vpnPaymentMode(env);
   const resolution = await resolveCheckoutOrder(env, { email, name, planId, idempotencyKey, couponCode, introEligible, paymentMode });
   if (!resolution.ok) return resolution.response;
   const { order, couponPricing, now, reuseUrl } = resolution;
@@ -772,6 +786,22 @@ export async function vpnAdminRecover(request: Request, env: Env, id: string): P
   return json(result, status);
 }
 
+/**
+ * Admin retry for the post-renewal provider sync. Idempotent: it re-applies the
+ * order's stored expire_at, so pressing it twice is safe.
+ */
+export async function vpnAdminSyncExpiry(request: Request, env: Env, id: string): Promise<Response> {
+  if (!(await requireAdminCsrf(request, env))) return json({ error: 'Unauthorized.' }, 403);
+  const order = await getVpnOrder(env.DB, id);
+  if (!order) return json({ error: 'Not found.' }, 404);
+  if (order.order_status !== 'active' || !order.expire_at) {
+    return json({ error: 'Only active orders with an expiry can be synced.' }, 409);
+  }
+  const outcome = await syncVpnExpiryToProvider(env, id);
+  const status = outcome === 'provider_not_configured' ? 503 : outcome === 'skipped' ? 409 : 200;
+  return json({ outcome }, status);
+}
+
 /* ---------- payment webhook ---------- */
 
 async function resolveVpnOrder(
@@ -909,6 +939,7 @@ export async function vpnStripeWebhook(request: Request, env: Env): Promise<Resp
       // Renewal: extend existing entitlement expiry. Order is already paid,
       // so we don't call markVpnPaid or provisionVpnOrder.
       if (metadata.renewal === '1') {
+        const wasExpired = order.order_status === 'expired';
         const extended = await extendVpnExpiry(env.DB, order.id, nowIso);
         if (!extended) {
           await recordVpnOrderEvent(env.DB, {
@@ -918,6 +949,11 @@ export async function vpnStripeWebhook(request: Request, env: Env): Promise<Resp
             reason: 'renewal_payment_not_extended',
             now: nowIso,
           });
+        } else {
+          // Push the new date to the provider. Best-effort and non-throwing: the
+          // payment is captured, so a provider outage is recorded and retried by
+          // an admin via POST /admin/api/vpn/orders/:id/sync-expiry.
+          await syncVpnExpiryToProvider(env, order.id, { enable: wasExpired, now });
         }
         await markVpnPaymentEventProcessed(env.DB, event.id, nowIso);
         return json({ ok: true, renewed: extended });

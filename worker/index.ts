@@ -32,6 +32,7 @@ import {
   vpnAdminProvision,
   vpnAdminRecover,
   vpnAdminRecoveryList,
+  vpnAdminSyncExpiry,
   vpnAdminReconcile,
   vpnCheckout,
   vpnPayPalCreate,
@@ -120,6 +121,9 @@ export default {
 
       const vpnRecoverMatch = path.match(/^\/admin\/api\/vpn\/orders\/([^/]+)\/recover$/);
       if (vpnRecoverMatch && method === 'POST') return await vpnAdminRecover(request, env, vpnRecoverMatch[1]);
+
+      const vpnSyncExpiryMatch = path.match(/^\/admin\/api\/vpn\/orders\/([^/]+)\/sync-expiry$/);
+      if (vpnSyncExpiryMatch && method === 'POST') return await vpnAdminSyncExpiry(request, env, vpnSyncExpiryMatch[1]);
 
       const suspendMatch = path.match(/^\/admin\/api\/vpn\/orders\/([^/]+)\/suspend$/);
       if (suspendMatch && method === 'POST') return await adminVpnAccountSuspend(request, env, suspendMatch[1]);

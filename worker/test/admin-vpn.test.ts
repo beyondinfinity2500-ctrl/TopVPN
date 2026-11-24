@@ -226,3 +226,71 @@ describe('support tickets + customer data isolation', () => {
     expect(row?.actor).toBe('admin');
   });
 });
+
+describe('provider suspend / reactivate / sync-expiry', () => {
+  const NOW = new Date().toISOString();
+
+  async function seedOrderWithAccount(id: string, paymentMode = 'live'): Promise<void> {
+    const accountId = String(1000 + Math.floor(Math.random() * 1_000_000));
+    await testEnv.DB.prepare(
+      `INSERT INTO vpn_orders (id, customer_email, plan_id, interval_months, amount_cents, currency,
+         order_status, payment_status, provisioning_status, subscription_status, provider_account_id,
+         provider_username, expire_at, payment_mode, created_at, updated_at)
+       VALUES (?, 'admin-vpn@example.com', 'monthly', 1, 900, 'USD', 'active', 'paid', 'succeeded', 'active', ?,
+         ?, ?, ?, ?, ?)`,
+    )
+      .bind(id, accountId, `topvpn-${id.toLowerCase()}`, '2027-01-01', paymentMode, NOW, NOW)
+      .run();
+  }
+
+  it('requires a session and CSRF token', async () => {
+    const id = 'ORD-VPN-admin-suspend-1';
+    await seedOrderWithAccount(id);
+
+    const noSession = await workerFetch(`/admin/api/vpn/orders/${id}/suspend`, { method: 'POST' });
+    expect(noSession.status).toBe(403);
+
+    const noCsrf = await adminFetch(cookie, `/admin/api/vpn/orders/${id}/suspend`, { method: 'POST' });
+    expect(noCsrf.status).toBe(403);
+  });
+
+  it('returns 503 when the provider is not configured', async () => {
+    const id = 'ORD-VPN-admin-suspend-2';
+    await seedOrderWithAccount(id);
+    // No VPNRESELLERS_API_TOKEN in the test env => provider not configured.
+    const res = await adminFetch(cookie, `/admin/api/vpn/orders/${id}/suspend`, { method: 'POST', body: {}, csrf });
+    expect(res.status).toBe(503);
+    const body = (await res.json()) as { error: string };
+    expect(body.error).toMatch(/provider/i);
+  });
+
+  it('404s for an order with no provider account', async () => {
+    const res = await adminFetch(cookie, '/admin/api/vpn/orders/ORD-VPN-does-not-exist/sync-expiry', {
+      method: 'POST',
+      body: {},
+      csrf,
+    });
+    expect(res.status).toBe(404);
+  });
+
+  it('refuses sync-expiry for a non-active order', async () => {
+    const id = 'ORD-VPN-admin-sync-pending';
+    await testEnv.DB.prepare(
+      `INSERT INTO vpn_orders (id, customer_email, plan_id, interval_months, amount_cents, currency,
+         order_status, payment_status, provisioning_status, subscription_status, created_at, updated_at)
+       VALUES (?, 'admin-vpn@example.com', 'monthly', 1, 900, 'USD', 'pending_payment', 'unpaid', 'none', 'none', ?, ?)`,
+    )
+      .bind(id, NOW, NOW)
+      .run();
+    const res = await adminFetch(cookie, `/admin/api/vpn/orders/${id}/sync-expiry`, { method: 'POST', body: {}, csrf });
+    expect(res.status).toBe(409);
+  });
+
+  it('sync-expiry is a safe no-op (skipped) for a sandbox order', async () => {
+    const id = 'ORD-VPN-admin-sync-sandbox';
+    await seedOrderWithAccount(id, 'sandbox');
+    const res = await adminFetch(cookie, `/admin/api/vpn/orders/${id}/sync-expiry`, { method: 'POST', body: {}, csrf });
+    // Live provider call is not attempted for sandbox orders => skipped/409.
+    expect(res.status).toBe(409);
+  });
+});

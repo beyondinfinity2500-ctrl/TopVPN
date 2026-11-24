@@ -104,11 +104,16 @@ export function checkRenewalEligibility(
 }
 
 /**
- * Extend an existing active order's expiry by the plan interval.
+ * Extend an existing paid order's expiry by the plan interval.
  *
  * Extends from the CURRENT expiry (not from now), so no paid time is lost.
- * Requires order_status='active', payment_status='paid',
- * provisioning_status='succeeded', and a non-null expire_at.
+ * Requires payment_status='paid', provisioning_status='succeeded', a non-null
+ * expire_at, and order_status in ('active','expired').
+ *
+ * An expired order is accepted on purpose: a renewal checkout opened while the
+ * order was active can be paid after the cron expired it. The customer paid for
+ * a full period, so the row is brought back to active with the new date instead
+ * of silently keeping the payment with no access.
  *
  * Returns true if the row was updated, false otherwise.
  */
@@ -120,7 +125,7 @@ export async function extendVpnExpiry(
   const order = await getVpnOrder(db, orderId);
   if (!order) return false;
   if (
-    order.order_status !== 'active' ||
+    (order.order_status !== 'active' && order.order_status !== 'expired') ||
     order.payment_status !== 'paid' ||
     order.provisioning_status !== 'succeeded' ||
     !order.expire_at
@@ -132,17 +137,23 @@ export async function extendVpnExpiry(
   const result = await db
     .prepare(
       `UPDATE vpn_orders
-         SET expire_at = ?, updated_at = ?, version = version + 1
-       WHERE id = ? AND order_status = 'active' AND payment_status = 'paid' AND provisioning_status = 'succeeded'`,
+         SET order_status = 'active',
+             subscription_status = 'active',
+             expire_at = ?,
+             updated_at = ?,
+             version = version + 1
+       WHERE id = ? AND order_status = ? AND payment_status = 'paid' AND provisioning_status = 'succeeded'`,
     )
-    .bind(newExpireAt, now, order.id)
+    // Optimistic lock: order_status binds current status ('active' or 'expired')
+    // to prevent lost updates if status changed concurrently.
+    .bind(newExpireAt, now, order.id, order.order_status)
     .run();
 
   if ((result.meta?.changes ?? 0) === 1) {
     await recordVpnOrderEvent(db, {
       orderId: order.id,
       from: order.order_status,
-      to: order.order_status,
+      to: 'active',
       reason: 'renewal_extended',
       now,
     });

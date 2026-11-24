@@ -11,6 +11,7 @@ import type { CollectionEntry } from 'astro:content';
 import { articleSchema, breadcrumbSchema, faqSchema, contextWrapper } from '../lib/schema';
 import { SITE } from '../lib/site';
 import AuthorBio from '../components/AuthorBio.astro';
+import { getCollection } from 'astro:content';
 
 interface Props {
   entry: CollectionEntry<'articles' | 'articlesAr'>;
@@ -30,6 +31,18 @@ const articleUrl = `${SITE.url}/${lang === 'ar' ? 'ar/articles' : 'articles'}/${
 const breadcrumbCrumbs = lang === 'ar'
   ? [{ label: 'الرئيسية', href: '/' }, { label: 'المقالات', href: '/ar/articles' }, { label: title }]
   : [{ label: 'Home', href: '/' }, { label: 'Articles', href: '/articles' }, { label: title }];
+
+// hreflang: pair with the corresponding article in the other language if it exists.
+const otherCollection = lang === 'ar' ? 'articles' : 'articlesAr';
+const otherArticles = await getCollection(otherCollection, ({ data }) => !data.draft);
+const otherEntry = otherArticles.find((a) => a.id === entry.id);
+const hreflang = otherEntry
+  ? [
+      { lang: 'en', url: `${SITE.url}/articles/${entry.id}` },
+      { lang: 'ar', url: `${SITE.url}/ar/articles/${entry.id}` },
+      { lang: 'x-default', url: `${SITE.url}/articles/${entry.id}` },
+    ]
+  : undefined;
 
 const faqMatches: { question: string; answer: string }[] = [];
 const lines = (body || '').split('\n');
@@ -82,6 +95,7 @@ if (faqMatches.length > 0) {
   dir={lang === 'ar' ? 'rtl' : 'ltr'}
   ogLocale={lang === 'ar' ? 'ar_AR' : 'en_US'}
   jsonLd={contextWrapper(articleJsonLd)}
+  hreflang={hreflang}
 >
   <Breadcrumbs items={breadcrumbCrumbs} />
 

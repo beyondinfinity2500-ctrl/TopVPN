@@ -172,6 +172,35 @@ describe('extendVpnExpiry', () => {
     const result = await extendVpnExpiry(testEnv.DB, id, now);
     expect(result).toBe(false);
   });
+
+  it('reactivates an expired order and extends from the old expiry', async () => {
+    // A renewal checkout opened while active, paid after the cron expired it.
+    const id = await makeActiveOrder({ expire_at: '2020-01-01' });
+    const now = NOW.toISOString();
+    await transitionVpnOrder(testEnv.DB, id, 'active', 'expired', {}, 'cron_expired', now);
+
+    const before = await getVpnOrder(testEnv.DB, id);
+    expect(before!.order_status).toBe('expired');
+
+    const result = await extendVpnExpiry(testEnv.DB, id, now);
+    expect(result).toBe(true);
+
+    const after = await getVpnOrder(testEnv.DB, id);
+    expect(after!.order_status).toBe('active');
+    expect(after!.subscription_status).toBe('active');
+    expect(after!.expire_at).toBe('2021-01-01');
+  });
+
+  it('never reactivates a refunded order', async () => {
+    const id = await makeActiveOrder({ expire_at: '2020-01-01' });
+    const now = NOW.toISOString();
+    await transitionVpnOrder(testEnv.DB, id, 'active', 'refunded', {}, 'refund', now);
+
+    const result = await extendVpnExpiry(testEnv.DB, id, now);
+    expect(result).toBe(false);
+    const after = await getVpnOrder(testEnv.DB, id);
+    expect(after!.order_status).toBe('refunded');
+  });
 });
 
 describe('Renewal checkout params', () => {

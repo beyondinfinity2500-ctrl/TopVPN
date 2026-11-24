@@ -45,7 +45,7 @@ export type VpnSubscriptionStatus = (typeof VPN_SUBSCRIPTION_STATUSES)[number];
 /** Allowed order-status transitions. Anything else is a bug or a replayed event. */
 const TRANSITIONS: Record<VpnOrderStatus, readonly VpnOrderStatus[]> = {
   pending_payment: ['paid', 'cancelled'],
-  paid: ['provisioning', 'active', 'refunded', 'cancelled'],
+  paid: ['provisioning', 'active', 'refunded', 'cancelled', 'provisioning_failed'],
   provisioning: ['active', 'provisioning_failed', 'reconciliation_required'],
   active: ['expired', 'refunded'],
   provisioning_failed: ['provisioning', 'reconciliation_required', 'active', 'refunded', 'cancelled'],
